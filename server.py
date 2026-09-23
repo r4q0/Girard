@@ -13,6 +13,7 @@ import json
 import os
 import re
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -26,6 +27,9 @@ load_dotenv()
 ROOT = Path(__file__).parent
 BASE_URL = "https://api.tokenfactory.nebius.com/v1"
 MODEL = os.environ.get("GIRARD_MODEL", "Qwen/Qwen3-30B-A3B-Instruct-2507")
+# Reasoning models (e.g. Nemotron Nano) must have thinking switched off, or they
+# spend seconds reasoning before the card
+EXTRA_BODY = {"chat_template_kwargs": {"enable_thinking": False}} if "Nemotron" in MODEL else None
 # USD per token, from the Token Factory model catalog (/v1/models?verbose=true)
 PRICE_IN = 0.10 / 1_000_000
 PRICE_OUT = 0.30 / 1_000_000
@@ -156,7 +160,10 @@ def parse_salesbook(text):
 
 class Session:
     def __init__(self):
-        self.settings = {"schema": True, "hedge": False, "hedge_ms": 400, "timeout_ms": 3000}
+        self.settings = {"schema": True, "hedge": True, "hedge_ms": 450, "timeout_ms": 3000,
+                         "speculate": True, "min_words": 3}
+        self.warm = None
+        self.last_request = 0.0
         self.load_salesbook("salesbook_koref.txt")
 
     def load_salesbook(self, name):
@@ -173,10 +180,14 @@ class Session:
         self.transcript = []  # {speaker, text}
         self.cards = []       # shown cards, newest last
         self.metrics = []     # one per LLM request
-        self.inflight = None
+        self.inflight = None  # Run for the latest final line
+        self.spec = None      # Run started early on partial speech
 
-    def user_message(self):
-        return build_user_message(self.summary, self.cards_shown, self.transcript[-RECENT_LINES:])
+    def messages_for(self, text):
+        """Prompt for `text` as the NEW line, as if it were appended to the transcript."""
+        recent = self.transcript[-(RECENT_LINES - 1):] + [{"speaker": "CUSTOMER", "text": text}]
+        return [{"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": build_user_message(self.summary, self.cards_shown, recent)}]
 
 
 def build_user_message(summary, cards_shown, recent):
@@ -205,7 +216,7 @@ def is_backchannel(text):
 async def attempt(idx, messages, t0, race, on_text=None, schema=None):
     """One streaming request. Loses the race if another attempt produced a token first."""
     kwargs = dict(model=MODEL, messages=messages, temperature=0, max_tokens=120,
-                  stream=True, stream_options={"include_usage": True})
+                  stream=True, stream_options={"include_usage": True}, extra_body=EXTRA_BODY)
     if S.settings["schema"]:
         kwargs["response_format"] = {"type": "json_schema",
                                      "json_schema": {"name": "card", "schema": schema or CARD_SCHEMA, "strict": True}}
@@ -362,10 +373,25 @@ def metrics_summary():
         "ttft_p50": pct(ttft, 50), "ttft_p95": pct(ttft, 95), "ttft_p99": pct(ttft, 99),
         "total_p50": pct(total, 50), "total_p95": pct(total, 95),
         "decide_p50": pct([m["id_ms"] for m in ok if m.get("id_ms")], 50),
+        "after_speech_p50": pct([m["after_speech_ms"] for m in S.metrics if "after_speech_ms" in m], 50),
+        "after_speech_p95": pct([m["after_speech_ms"] for m in S.metrics if "after_speech_ms" in m], 95),
+        "early": sum(1 for m in S.metrics if m.get("early")),
+        "warm": S.warm,
     }
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(_app):
+    try:
+        await warmup()
+    except Exception:
+        pass
+    task = asyncio.create_task(keep_warm())
+    yield
+    task.cancel()
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 class Line(BaseModel):
@@ -385,6 +411,8 @@ class Settings(BaseModel):
     hedge: bool | None = None
     hedge_ms: int | None = None
     timeout_ms: int | None = None
+    speculate: bool | None = None
+    min_words: int | None = None
 
 
 @app.get("/")
@@ -420,16 +448,28 @@ def demo():
 
 
 @app.post("/api/reset")
-def reset():
+async def reset():
+    """Start a new call. Warms the cache so the first real line is fast."""
+    for run in (S.spec, S.inflight):
+        if run:
+            run.cancel()
     S.reset()
-    return {"ok": True}
+    try:
+        warm = await warmup()
+    except Exception as e:
+        warm = {"error": f"{type(e).__name__}: {e}"}
+    return {"ok": True, "warm": warm}
 
 
 @app.post("/api/salesbook")
-def set_salesbook(body: Name):
+async def set_salesbook(body: Name):
     if not re.fullmatch(r"salesbook_[\w-]+\.txt", body.name) or not (ROOT / body.name).exists():
         return {"error": "unknown salesbook"}
     S.load_salesbook(body.name)
+    try:
+        await warmup()  # new salesbook means a new prompt prefix
+    except Exception:
+        pass
     return {"ok": True}
 
 
@@ -443,7 +483,7 @@ def set_summary(body: Text):
 def set_settings(body: Settings):
     if body.schema_on is not None:
         S.settings["schema"] = body.schema_on
-    for k in ("hedge", "hedge_ms", "timeout_ms"):
+    for k in ("hedge", "hedge_ms", "timeout_ms", "speculate", "min_words"):
         v = getattr(body, k)
         if v is not None:
             S.settings[k] = v
@@ -501,60 +541,173 @@ async def single(event):
     yield sse(event)
 
 
+def norm(text):
+    """Compare lines the way speech-to-text partials and finals differ: case and punctuation."""
+    return " ".join(re.sub(r"[^\w\s']", " ", text.lower()).split())
+
+
+class Run:
+    """One fast lane request. Its events are kept, so a request started on partial
+    speech can be handed to the final line and replayed from the start."""
+
+    def __init__(self, text, messages):
+        self.text, self.key = text, norm(text)
+        self.t0 = time.perf_counter()
+        self.events, self.new, self.last = [], asyncio.Event(), {}
+        self.card_ms = None  # when a card id was first known, relative to t0
+        S.last_request = time.time()
+        self.task = asyncio.create_task(fast_lane(messages, self.on_text))
+        self.task.add_done_callback(lambda _t: self.push(None))
+
+    def push(self, event):
+        self.events.append(event)
+        self.new.set()
+
+    def on_text(self, raw):
+        card = partial_card(raw)
+        if "id" not in card or card == self.last:
+            return
+        self.last = card
+        cid = card["id"]
+        ms = round((time.perf_counter() - self.t0) * 1000)
+        event = {"type": "partial", "id": cid, "say": card.get("say", []), "q": card.get("q"), "ms": ms}
+        if cid:
+            self.card_ms = self.card_ms or ms
+            event["entry"] = S.entries.get(cid)
+            event["repeat"] = cid != "comp_unknown" and cid in S.cards_shown
+        self.push(event)
+
+    async def follow(self):
+        """Yield every event from the start, then new ones as they arrive, until done."""
+        i = 0
+        while True:
+            while i < len(self.events):
+                event = self.events[i]
+                i += 1
+                if event is None:
+                    return
+                yield event
+            self.new.clear()
+            await self.new.wait()
+
+    def cancel(self):
+        if not self.task.done():
+            self.task.cancel()
+
+
+@app.post("/api/partial")
+async def add_partial(body: Line):
+    """Partial speech (the prospect is still talking). If it looks like a sentence,
+    start the fast lane early. Streams the same events as /api/line, ending with
+    "ready" (waiting for the final line) or "cancelled" (the prospect kept talking)."""
+    text = body.text.strip()
+    st = S.settings
+    if not st["speculate"] or len(text.split()) < st["min_words"] or is_backchannel(text):
+        return event_stream(single({"type": "waiting"}))
+    if S.spec and S.spec.key == norm(text):
+        return event_stream(single({"type": "same"}))
+    if S.spec:
+        S.spec.cancel()  # an older guess at this sentence
+    run = S.spec = Run(text, S.messages_for(text))
+
+    async def events():
+        async for event in run.follow():
+            yield sse(event)
+        if run.task.cancelled():
+            yield sse({"type": "cancelled", "reason": "prospect kept talking"})
+        else:
+            yield sse({"type": "ready"})
+
+    return event_stream(events())
+
+
 @app.post("/api/line")
 async def add_line(body: Line):
-    """Add a prospect line. Streams server-sent events: "partial" while the card
-    comes in, then "done", or a single "skipped" / "cancelled" / "error".
-    Only the prospect is transcribed, so every line is a CUSTOMER line."""
+    """Final prospect line (end of speech). Reuses the early request if it was started
+    on the same words, otherwise starts one. Streams "partial" events, then "done",
+    or a single "skipped" / "cancelled" / "error"."""
     text = body.text.strip()
     if not text:
         return event_stream(single({"type": "error", "error": "text required"}))
-    S.transcript.append({"speaker": "CUSTOMER", "text": text})
+    t_final = time.perf_counter()
+    spec, S.spec = S.spec, None
+    reused = spec is not None and spec.key == norm(text) and not spec.task.cancelled()
+    if spec and not reused:
+        spec.cancel()
+    # A newer line makes any earlier request stale
+    if S.inflight and S.inflight is not spec:
+        S.inflight.cancel()
     if is_backchannel(text):
+        S.transcript.append({"speaker": "CUSTOMER", "text": text})
         return event_stream(single({"type": "skipped", "reason": "backchannel filtered, no model call"}))
 
-    # A newer customer line makes any in-flight request stale
-    if S.inflight and not S.inflight.done():
-        S.inflight.cancel()
-    messages = [{"role": "system", "content": S.system_prompt},
-                {"role": "user", "content": S.user_message()}]
-    queue = asyncio.Queue()
-    t0 = time.perf_counter()
-    last = {}
-
-    def on_text(raw):
-        card = partial_card(raw)
-        if "id" not in card or card == last:
-            return
-        last.clear()
-        last.update(card)
-        cid = card["id"]
-        event = {"type": "partial", "id": cid, "say": card.get("say", []), "q": card.get("q"),
-                 "ms": round((time.perf_counter() - t0) * 1000)}
-        if cid:
-            event["entry"] = S.entries.get(cid)
-            event["repeat"] = cid != "comp_unknown" and cid in S.cards_shown
-        queue.put_nowait(event)
-
-    task = asyncio.create_task(fast_lane(messages, on_text))
-    S.inflight = task
-    task.add_done_callback(lambda _t: queue.put_nowait(None))
+    run = spec if reused else Run(text, S.messages_for(text))
+    S.transcript.append({"speaker": "CUSTOMER", "text": text})
+    S.inflight = run
+    head_start = (t_final - run.t0) * 1000 if reused else 0.0
 
     async def events():
-        while (item := await queue.get()) is not None:
-            yield sse(item)
+        async for event in run.follow():
+            yield sse(event)
         try:
-            res = task.result()
+            res = run.task.result()
         except asyncio.CancelledError:
-            yield sse({"type": "cancelled", "reason": "a newer customer line arrived"})
+            yield sse({"type": "cancelled", "reason": "a newer prospect line arrived"})
             return
         except Exception as e:  # surface API errors in the portal
             yield sse({"type": "error", "error": f"{type(e).__name__}: {e}"})
             return
         card, m = finalize(text, res)
+        m["early"] = reused
+        m["head_start_ms"] = round(head_start)
+        if run.card_ms is not None:
+            # What the rep feels: time from the end of speech until the card is on screen
+            m["after_speech_ms"] = max(0, round(run.card_ms - head_start))
         yield sse({"type": "done", "card": card, "metrics": m})
 
     return event_stream(events())
+
+
+async def warmup():
+    """Prime the provider's prefix cache and our connection before the first real line.
+    Several requests in parallel, because the cache lives per server and requests are spread."""
+    t0 = time.perf_counter()
+    messages = S.messages_for("Hello, thanks for making time.")
+    kwargs = dict(model=MODEL, messages=messages, temperature=0, max_tokens=1, extra_body=EXTRA_BODY)
+    if S.settings["schema"]:
+        kwargs["response_format"] = {"type": "json_schema",
+                                     "json_schema": {"name": "card", "schema": card_schema(), "strict": True}}
+    results = await asyncio.gather(*(client.chat.completions.create(**kwargs) for _ in range(3)),
+                                   return_exceptions=True)
+    ok = [r for r in results if not isinstance(r, Exception)]
+    cached = []
+    for r in ok:
+        details = getattr(r.usage, "prompt_tokens_details", None) if r.usage else None
+        cached.append((getattr(details, "cached_tokens", None) if details else None) or 0)
+    S.warm = {"ms": round((time.perf_counter() - t0) * 1000), "ok": len(ok), "sent": len(results),
+              "prompt_tokens": ok[0].usage.prompt_tokens if ok and ok[0].usage else None,
+              "cached_tokens": cached, "at": time.time()}
+    S.last_request = time.time()
+    return S.warm
+
+
+@app.post("/api/warmup")
+async def warmup_route():
+    try:
+        return await warmup()
+    except Exception as e:
+        return {"error": f"{type(e).__name__}: {e}"}
+
+
+async def keep_warm():
+    """Re-prime the cache when the call has been quiet for a while."""
+    while True:
+        await asyncio.sleep(20)
+        if time.time() - S.last_request > 60:
+            try:
+                await warmup()
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

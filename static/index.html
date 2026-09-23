@@ -97,7 +97,7 @@ textarea { width: 100%; min-height: 90px; background: var(--panel); border: 1px 
   <button id="resetBtn">Reset call</button>
 </header>
 
-<section id="live" class="empty">Cards appear here when the customer says something worth reacting to.</section>
+<section id="live" class="empty">Cards appear here when the prospect says something worth reacting to.</section>
 
 <main>
   <div class="col">
@@ -108,6 +108,7 @@ textarea { width: 100%; min-height: 90px; background: var(--panel); border: 1px 
         <input type="text" id="lineInput" placeholder="Type what the prospect says and press Enter">
         <button class="primary" type="submit">Send</button>
       </form>
+      <div class="hint" id="typingStatus">&nbsp;</div>
       <div class="chips" id="presets"></div>
       <div class="row" style="margin-top:10px">
         <button id="demoBtn">Play demo call</button>
@@ -129,23 +130,31 @@ textarea { width: 100%; min-height: 90px; background: var(--panel); border: 1px 
         <div class="stat"><div class="k">Cost this call</div><div class="v" id="sCost">$0</div></div>
         <div class="stat"><div class="k">Per call-hour</div><div class="v" id="sHour">-</div></div>
         <div class="stat"><div class="k">Requests</div><div class="v" id="sReq">0</div></div>
+        <div class="stat"><div class="k">After line end p50</div><div class="v" id="sAs50">-</div></div>
+        <div class="stat"><div class="k">After line end p95</div><div class="v" id="sAs95">-</div></div>
         <div class="stat"><div class="k">TTFT p50</div><div class="v" id="sT50">-</div></div>
-        <div class="stat"><div class="k">TTFT p95</div><div class="v" id="sT95">-</div></div>
-        <div class="stat"><div class="k">Decision p50</div><div class="v" id="sDec">-</div></div>
         <div class="stat"><div class="k">Cache hit</div><div class="v" id="sCache">-</div></div>
         <div class="stat"><div class="k">Cards</div><div class="v" id="sCards">0</div></div>
-        <div class="stat"><div class="k">Timeouts</div><div class="v" id="sTo">0</div></div>
+        <div class="stat"><div class="k">Started early</div><div class="v" id="sEarly">0</div></div>
       </div>
+      <div class="hint" style="margin-top:6px">After line end: from the final line (after silence detection) until the card is on screen. 0 means the card was already up. Each transcript line also shows the time from when the prospect stopped talking.</div>
+      <div class="last" id="warmStatus">Cache: not warmed yet.</div>
       <div class="last" id="lastReq">No requests yet.</div>
     </div>
 
     <div class="panel">
       <h2>Settings</h2>
-      <div class="row"><label><input type="checkbox" id="optSchema"> Enforce JSON schema</label></div>
+      <div class="row"><label><input type="checkbox" id="optSpec"> Start on partial speech</label></div>
       <div class="row"><label><input type="checkbox" id="optHedge"> Hedged requests: second request if no token after</label>
         <input type="number" id="optHedgeMs" min="100" step="50" style="width:80px"> ms</div>
       <div class="row"><label for="optTimeout">Hard timeout</label>
         <input type="number" id="optTimeout" min="300" step="100" style="width:90px"> ms</div>
+      <div class="row"><label><input type="checkbox" id="optSchema"> Enforce JSON schema</label></div>
+      <div class="row"><label for="optWordMs">Demo speech: ms per word</label>
+        <input type="number" id="optWordMs" min="50" step="10" value="220" style="width:80px">
+        <label for="optSilenceMs">silence before line ends</label>
+        <input type="number" id="optSilenceMs" min="0" step="50" value="600" style="width:80px"> ms</div>
+      <div class="row"><button id="warmBtn">Warm up now</button></div>
     </div>
 
     <div class="panel">
@@ -194,85 +203,153 @@ function renderCard(card, streaming) {
     ${card.q ? `<div class="research">Research queued: ${esc(card.q)} (research lane not built yet)</div>` : ""}`;
 }
 
+const sleep = (t) => new Promise(r => setTimeout(r, t));
+
+// A transcript bubble whose text can grow while the prospect is still talking
 function addMsg(sp, text) {
   const el = document.createElement("div");
   el.className = "msg " + sp;
-  el.innerHTML = `<div class="who">${sp}</div><div>${esc(text)}</div><div class="res"></div>`;
+  el.innerHTML = `<div class="who">${sp}</div><div class="txt">${esc(text)}</div><div class="res"></div>`;
   $("transcript").appendChild(el);
   $("transcript").scrollTop = 1e9;
-  return el.querySelector(".res");
+  return { el, txt: el.querySelector(".txt"), res: el.querySelector(".res"), cardAt: null };
 }
 
 function describe(res) {
-  if (res.error) return "error: " + res.error;
-  if (res.skipped) return res.skipped;
-  if (res.cancelled) return "cancelled: " + res.cancelled;
   const m = res.metrics || {};
   if (m.timeout) return `timeout after ${Math.round(m.total_ms)} ms, nothing shown`;
   const bits = [];
   bits.push(res.card ? `card ${res.card.id}` : m.repeat ? `repeat of ${m.repeat}, hidden`
     : (m.invalid ? `invalid: ${m.invalid}` : "no card"));
+  if (m.after_speech_ms != null) bits.push(`on screen ${m.after_speech_ms} ms after line ended`);
+  if (m.early) bits.push(`started ${m.head_start_ms} ms early`);
   if (m.ttft_ms != null) bits.push(`ttft ${Math.round(m.ttft_ms)} ms`);
-  if (m.id_ms != null) bits.push(`decided ${Math.round(m.id_ms)} ms`);
-  if (m.total_ms != null) bits.push(`total ${Math.round(m.total_ms)} ms`);
   if (m.prompt_tokens) bits.push(`cached ${m.cached_tokens}/${m.prompt_tokens}`);
   if (m.hedged) bits.push("hedged");
   return bits.join(" | ");
 }
 
-// Handle one server-sent event for the line shown in resEl
-function handleEvent(ev, resEl, line) {
-  if (ev.type === "partial") {
-    if (ev.id && !ev.repeat) {
-      renderCard({ id: ev.id, say: ev.say, q: ev.q, entry: ev.entry, line }, true);
-      resEl.textContent = `card ${ev.id} on screen at ${ev.ms} ms, streaming...`;
-      resEl.classList.add("card");
-    } else if (ev.id) {
-      resEl.textContent = `repeat of ${ev.id}, hidden`;
-    } else {
-      resEl.textContent = `no card (decided at ${ev.ms} ms)`;
-    }
-    return;
-  }
-  if (ev.type === "done") {
-    const res = { card: ev.card, metrics: ev.metrics };
-    resEl.textContent = describe(res);
-    if (ev.card) renderCard(ev.card, false);
-    else $("live").querySelectorAll(".streaming").forEach(el => el.classList.remove("streaming"));
-    $("lastReq").textContent = "Last request: " + describe(res) + (ev.metrics.raw ? "\nRaw: " + ev.metrics.raw : "");
-    return;
-  }
-  if (ev.type === "skipped") resEl.textContent = ev.reason;
-  else if (ev.type === "cancelled") resEl.textContent = "cancelled: " + ev.reason;
-  else if (ev.type === "error") resEl.textContent = "error: " + ev.error;
-}
-
-async function send(text) {
-  text = text.trim();
-  if (!text) return;
-  const resEl = addMsg("PROSPECT", text);
-  resEl.textContent = "listening...";
-  const r = await fetch("/api/line", { method: "POST", headers: { "Content-Type": "application/json" },
-                                       body: JSON.stringify({ text }) });
-  const reader = r.body.getReader();
+// Read a server-sent event stream, calling onEvent for each event
+async function readEvents(resp, onEvent) {
+  const reader = resp.body.getReader();
   const dec = new TextDecoder();
-  let buf = "", final = null;
+  let buf = "";
   for (;;) {
     const { value, done } = await reader.read();
-    if (done) break;
+    if (done) return;
     buf += dec.decode(value, { stream: true });
     let i;
     while ((i = buf.indexOf("\n\n")) >= 0) {
       const chunk = buf.slice(0, i);
       buf = buf.slice(i + 2);
-      if (!chunk.startsWith("data: ")) continue;
-      const ev = JSON.parse(chunk.slice(6));
-      handleEvent(ev, resEl, text);
-      if (ev.type !== "partial") final = ev;
+      if (chunk.startsWith("data: ")) onEvent(JSON.parse(chunk.slice(6)));
     }
   }
+}
+const post = (path, body) => fetch(path, { method: "POST", headers: { "Content-Type": "application/json" },
+                                           body: JSON.stringify(body) });
+
+// Early cards (from partial speech) can be withdrawn if the prospect keeps talking
+let snapshot = null;
+let specGen = 0;
+function showCard(card, streaming, src, bubble) {
+  const live = $("live");
+  if (src.startsWith("spec") && !snapshot) snapshot = { cls: live.className, html: live.innerHTML, src: live.dataset.src };
+  renderCard(card, streaming);
+  live.dataset.src = src;
+  if (bubble && bubble.cardAt == null) bubble.cardAt = performance.now();
+}
+function withdrawEarly(src) {
+  const live = $("live");
+  if (snapshot && live.dataset.src === src) {
+    live.className = snapshot.cls;
+    live.innerHTML = snapshot.html;
+    live.dataset.src = snapshot.src || "";
+  }
+  snapshot = null;
+}
+
+// Partial speech: the server may start the card before the prospect finishes
+async function sendPartial(text, statusEl, bubble) {
+  if (!$("optSpec").checked) return;
+  const src = "spec" + (++specGen);
+  const r = await post("/api/partial", { text });
+  await readEvents(r, ev => {
+    if (ev.type === "partial") {
+      if (ev.id && !ev.repeat) {
+        showCard({ id: ev.id, say: ev.say, q: ev.q, entry: ev.entry, line: text }, true, src, bubble);
+        statusEl.textContent = `early card ${ev.id} while the prospect is still talking`;
+        statusEl.classList.add("card");
+      } else if (ev.id === null) {
+        statusEl.textContent = "early check: no card";
+      }
+    } else if (ev.type === "cancelled") {
+      withdrawEarly(src);
+    }
+  });
+}
+
+// Final line: end of speech
+async function send(text, bubble, speechEnd) {
+  text = text.trim();
+  if (!text) return;
+  bubble = bubble || addMsg("PROSPECT", text);
+  speechEnd = speechEnd || performance.now();
+  if (!bubble.res.textContent) bubble.res.textContent = "listening...";
+  const r = await post("/api/line", { text });
+  let final = null;
+  await readEvents(r, ev => {
+    if (ev.type === "partial") {
+      if (ev.id && !ev.repeat) {
+        showCard({ id: ev.id, say: ev.say, q: ev.q, entry: ev.entry, line: text }, true, "final", bubble);
+        bubble.res.classList.add("card");
+      }
+      return;
+    }
+    final = ev;
+    snapshot = null;  // the final line decides; nothing to withdraw anymore
+    if (ev.type === "done") {
+      if (ev.card) showCard(ev.card, false, "final", bubble);
+      else $("live").querySelectorAll(".streaming").forEach(el => el.classList.remove("streaming"));
+      let text = describe({ card: ev.card, metrics: ev.metrics });
+      if (ev.card && bubble.cardAt != null) {
+        const gap = Math.round(bubble.cardAt - speechEnd);
+        text = (gap <= 0 ? `card on screen before the prospect finished | ` :
+                `card on screen ${gap} ms after the prospect stopped talking | `) + text;
+      }
+      bubble.res.textContent = text;
+      $("lastReq").textContent = "Last request: " + text + (ev.metrics.raw ? "\nRaw: " + ev.metrics.raw : "");
+    } else if (ev.type === "skipped") bubble.res.textContent = ev.reason;
+    else if (ev.type === "cancelled") bubble.res.textContent = "cancelled: " + ev.reason;
+    else if (ev.type === "error") bubble.res.textContent = "error: " + ev.error;
+  });
   refresh();
   return final;
+}
+
+// Play one line as if spoken: words arrive one by one, partials fire at pauses
+async function speak(text) {
+  const words = text.split(/\s+/);
+  const bubble = addMsg("PROSPECT", "");
+  const wordMs = +$("optWordMs").value || 220;
+  const partials = [];
+  for (let i = 0; i < words.length; i++) {
+    bubble.txt.textContent = words.slice(0, i + 1).join(" ");
+    $("transcript").scrollTop = 1e9;
+    await sleep(wordMs);
+    // speech-to-text usually sends a partial at short pauses: commas and sentence ends
+    if (/[.,?!]$/.test(words[i]) && i >= 2) partials.push(sendPartial(bubble.txt.textContent, bubble.res, bubble));
+  }
+  const speechEnd = performance.now();
+  await sleep(+$("optSilenceMs").value || 0);  // silence detection before the line counts as final
+  await send(text, bubble, speechEnd);
+  await Promise.allSettled(partials);
+}
+
+function showWarm(w) {
+  if (!w) return;
+  if (w.error) { $("warmStatus").textContent = "Cache warm-up failed: " + w.error; return; }
+  $("warmStatus").textContent = `Cache warmed: ${w.ok}/${w.sent} requests in ${w.ms} ms, cached ${w.cached_tokens.join(", ")} of ${w.prompt_tokens} tokens`;
 }
 
 async function refresh() {
@@ -281,12 +358,13 @@ async function refresh() {
   $("sCost").textContent = "$" + m.cost_usd.toFixed(m.cost_usd < 0.01 ? 5 : 4);
   $("sHour").textContent = m.cost_per_call_hour_usd == null ? "-" : "$" + m.cost_per_call_hour_usd.toFixed(3);
   $("sReq").textContent = m.requests;
+  $("sAs50").innerHTML = ms(m.after_speech_p50);
+  $("sAs95").innerHTML = ms(m.after_speech_p95);
   $("sT50").innerHTML = ms(m.ttft_p50);
-  $("sT95").innerHTML = ms(m.ttft_p95);
-  $("sDec").innerHTML = ms(m.decide_p50);
   $("sCache").textContent = m.cache_hit_rate == null ? "-" : Math.round(m.cache_hit_rate * 100) + "%";
   $("sCards").textContent = m.cards;
-  $("sTo").textContent = m.timeouts;
+  $("sEarly").textContent = m.early;
+  showWarm(m.warm);
   const h = $("history");
   h.innerHTML = s.cards.length ? s.cards.slice().reverse().map(c => {
     const t = c.id.split("_")[0];
@@ -297,44 +375,70 @@ async function refresh() {
 
 async function loadConfig() {
   config = await api("/api/config");
-  $("modelName").textContent = `${config.model} on Nebius Token Factory, $${config.price_in_per_m}/M in, $${config.price_out_per_m}/M out`;
+  $("modelName").textContent = `${config.model} on Nebius Token Factory`;
   $("salesbook").innerHTML = config.salesbooks.map(b => `<option ${b === config.salesbook ? "selected" : ""}>${esc(b)}</option>`).join("");
   $("optSchema").checked = config.settings.schema;
   $("optHedge").checked = config.settings.hedge;
   $("optHedgeMs").value = config.settings.hedge_ms;
   $("optTimeout").value = config.settings.timeout_ms;
+  $("optSpec").checked = config.settings.speculate;
 }
 
 async function resetView() {
   $("transcript").innerHTML = "";
   $("live").className = "empty";
-  $("live").textContent = "Cards appear here when the customer says something worth reacting to.";
+  $("live").dataset.src = "";
+  $("live").textContent = "Cards appear here when the prospect says something worth reacting to.";
   $("lastReq").textContent = "No requests yet.";
   $("summary").value = "";
+  snapshot = null;
   refresh();
 }
 
-$("composer").onsubmit = (e) => { e.preventDefault(); const v = $("lineInput").value; $("lineInput").value = ""; send(v); };
+async function newCall() {
+  $("warmStatus").textContent = "Starting a new call and warming the cache...";
+  const r = await api("/api/reset", {});
+  resetView();
+  showWarm(r.warm);
+}
+
+// Typing acts like live speech: pauses in typing send partials
+let typingTimer = null;
+$("lineInput").addEventListener("input", () => {
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(() => {
+    const v = $("lineInput").value.trim();
+    if (v.split(/\s+/).length >= 3) sendPartial(v, $("typingStatus"), null);
+  }, 250);
+});
+$("composer").onsubmit = (e) => {
+  e.preventDefault();
+  clearTimeout(typingTimer);
+  const v = $("lineInput").value;
+  $("lineInput").value = "";
+  $("typingStatus").innerHTML = "&nbsp;";
+  send(v);
+};
 $("presets").innerHTML = PRESETS.map(p => `<button type="button">${esc(p)}</button>`).join("");
-$("presets").querySelectorAll("button").forEach(b => b.onclick = () => send(b.textContent));
-$("resetBtn").onclick = async () => { await api("/api/reset", {}); resetView(); };
+$("presets").querySelectorAll("button").forEach(b => b.onclick = () => speak(b.textContent));
+$("resetBtn").onclick = newCall;
+$("warmBtn").onclick = async () => { $("warmStatus").textContent = "Warming..."; showWarm(await api("/api/warmup", {})); };
 $("salesbook").onchange = async (e) => { await api("/api/salesbook", { name: e.target.value }); await loadConfig(); resetView(); };
 $("summaryBtn").onclick = () => api("/api/summary", { text: $("summary").value });
 const saveSettings = () => api("/api/settings", {
-  schema_on: $("optSchema").checked, hedge: $("optHedge").checked,
+  schema_on: $("optSchema").checked, hedge: $("optHedge").checked, speculate: $("optSpec").checked,
   hedge_ms: +$("optHedgeMs").value, timeout_ms: +$("optTimeout").value });
-["optSchema", "optHedge", "optHedgeMs", "optTimeout"].forEach(id => $(id).onchange = saveSettings);
+["optSchema", "optHedge", "optHedgeMs", "optTimeout", "optSpec"].forEach(id => $(id).onchange = saveSettings);
 
 $("demoBtn").onclick = async () => {
   const btn = $("demoBtn");
   btn.disabled = true;
-  await api("/api/reset", {});
-  resetView();
+  await newCall();
   const lines = await api("/api/demo");
   for (let i = 0; i < lines.length; i++) {
     $("demoStatus").textContent = `line ${i + 1} of ${lines.length}`;
-    await send(lines[i].text);
-    await new Promise(r => setTimeout(r, 700));
+    await speak(lines[i].text);
+    await sleep(500);
   }
   $("demoStatus").textContent = "done";
   btn.disabled = false;
