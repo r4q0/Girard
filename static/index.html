@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Girard Demo Portal</title>
+<style>
+:root {
+  --bg: #f6f5f2; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6a65; --line: #e4e2dc;
+  --accent: #2f5d50; --accent-ink: #ffffff;
+  --obj: #b7791f; --ans: #2b6cb0; --comp: #6b46c1; --sig: #2f855a; --risk: #c53030;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #151514; --panel: #1f1f1d; --ink: #ecebe6; --muted: #9b9a93; --line: #34332f;
+          --accent: #6fb39e; --accent-ink: #10201b; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+       font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+         border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+header h1 { font-size: 17px; margin: 0; }
+header .sub { color: var(--muted); font-size: 13px; }
+header .spacer { flex: 1; }
+select, button, input, textarea { font: inherit; color: inherit; }
+select, input[type=number] { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+button { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
+
+/* The live card sits at the top, close to the camera */
+#live { margin: 12px 16px 0; min-height: 132px; background: var(--panel); border: 1px solid var(--line);
+        border-radius: 10px; padding: 14px 18px; border-left: 6px solid var(--line); }
+#live.empty { display: flex; align-items: center; color: var(--muted); }
+.badge { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+         color: #fff; border-radius: 4px; padding: 1px 7px; margin-right: 8px; }
+.t-obj { --c: var(--obj); } .t-ans { --c: var(--ans); } .t-comp { --c: var(--comp); }
+.t-sig { --c: var(--sig); } .t-risk { --c: var(--risk); }
+.badge { background: var(--c, var(--muted)); }
+#live[class*="t-"] { border-left-color: var(--c); }
+.card-title { font-weight: 600; font-size: 16px; }
+.say { margin: 8px 0 4px; padding: 0; list-style: none; }
+.say li { font-size: 20px; line-height: 1.35; margin: 2px 0; }
+.say li::before { content: "\203A  "; color: var(--muted); }
+.say.streaming li:last-child::after, .say.streaming:empty::after {
+  content: ""; display: inline-block; width: 9px; height: 1.1em; margin-left: 3px; vertical-align: -3px;
+  background: var(--accent); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.details { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.research { display: inline-block; margin-top: 6px; font-size: 13px; border: 1px dashed var(--comp);
+            border-radius: 5px; padding: 2px 8px; }
+.trigger { color: var(--muted); font-size: 13px; }
+
+main { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; padding: 12px 16px 16px; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 8px; }
+.col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+#transcript { height: 360px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
+.msg { max-width: 85%; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); }
+.msg.PROSPECT { align-self: flex-start; }
+.msg .who { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .05em; }
+.msg .res { font-size: 12px; color: var(--muted); margin-top: 3px; font-family: var(--mono); }
+.msg .res.card { color: var(--accent); }
+
+#composer { display: flex; gap: 8px; margin-top: 10px; }
+#composer input[type=text] { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line);
+                             border-radius: 6px; padding: 8px 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chips button { font-size: 13px; padding: 3px 9px; border-radius: 99px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; }
+.stat .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.stat .v { font-size: 19px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.stat .v small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.last { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 8px; white-space: pre-wrap; word-break: break-word; }
+
+textarea { width: 100%; min-height: 90px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px; resize: vertical; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0; }
+.row label { font-size: 14px; }
+.hint { color: var(--muted); font-size: 12px; }
+#history { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; }
+#history .h { border-left: 4px solid var(--c, var(--line)); padding: 2px 0 2px 8px; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Girard</h1>
+  <span class="sub" id="modelName">demo portal</span>
+  <span class="spacer"></span>
+  <label class="sub" for="salesbook">Salesbook</label>
+  <select id="salesbook"></select>
+  <button id="resetBtn">Reset call</button>
+</header>
+
+<section id="live" class="empty">Cards appear here when the prospect says something worth reacting to.</section>
+
+<main>
+  <div class="col">
+    <div class="panel">
+      <h2>Call transcript</h2>
+      <div id="transcript"></div>
+      <form id="composer" autocomplete="off">
+        <input type="text" id="lineInput" placeholder="Type what the prospect says and press Enter">
+        <button class="primary" type="submit">Send</button>
+      </form>
+      <div class="hint" id="typingStatus">&nbsp;</div>
+      <div class="chips" id="presets"></div>
+      <div class="row" style="margin-top:10px">
+        <button id="demoBtn">Play demo call</button>
+        <span class="hint" id="demoStatus"></span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Call so far (summary sent with every request)</h2>
+      <textarea id="summary" placeholder="Prospect: installation company, 40 staff. Pain: work orders typed into Exact by hand."></textarea>
+      <div class="row"><button id="summaryBtn">Save summary</button><span class="hint">Written by the slow lane later. Edit by hand for now.</span></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="panel">
+      <h2>Cost and latency (Nebius Token Factory)</h2>
+      <div class="stats">
+        <div class="stat"><div class="k">Cost this call</div><div class="v" id="sCost">$0</div></div>
+        <div class="stat"><div class="k">Per call-hour</div><div class="v" id="sHour">-</div></div>
+        <div class="stat"><div class="k">Requests</div><div class="v" id="sReq">0</div></div>
+        <div class="stat"><div class="k">After line end p50</div><div class="v" id="sAs50">-</div></div>
+        <div class="stat"><div class="k">After line end p95</div><div class="v" id="sAs95">-</div></div>
+        <div class="stat"><div class="k">TTFT p50</div><div class="v" id="sT50">-</div></div>
+        <div class="stat"><div class="k">Cache hit</div><div class="v" id="sCache">-</div></div>
+        <div class="stat"><div class="k">Cards</div><div class="v" id="sCards">0</div></div>
+        <div class="stat"><div class="k">Started early</div><div class="v" id="sEarly">0</div></div>
+      </div>
+      <div class="hint" style="margin-top:6px">After line end: from the final line (after silence detection) until the card is on screen. 0 means the card was already up. Each transcript line also shows the time from when the prospect stopped talking.</div>
+      <div class="last" id="warmStatus">Cache: not warmed yet.</div>
+      <div class="last" id="lastReq">No requests yet.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Settings</h2>
+      <div class="row"><label><input type="checkbox" id="optSpec"> Start on partial speech</label></div>
+      <div class="row"><label><input type="checkbox" id="optHedge"> Hedged requests: second request if no token after</label>
+        <input type="number" id="optHedgeMs" min="100" step="50" style="width:80px"> ms</div>
+      <div class="row"><label for="optTimeout">Hard timeout</label>
+        <input type="number" id="optTimeout" min="300" step="100" style="width:90px"> ms</div>
+      <div class="row"><label><input type="checkbox" id="optSchema"> Enforce JSON schema</label></div>
+      <div class="row"><label for="optWordMs">Demo speech: ms per word</label>
+        <input type="number" id="optWordMs" min="50" step="10" value="220" style="width:80px">
+        <label for="optSilenceMs">silence before line ends</label>
+        <input type="number" id="optSilenceMs" min="0" step="50" value="600" style="width:80px"> ms</div>
+      <div class="row"><button id="warmBtn">Warm up now</button></div>
+    </div>
+
+    <div class="panel">
+      <h2>Cards shown</h2>
+      <div id="history"><span class="hint">None yet.</span></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const TYPE_NAMES = { obj: "Objection", ans: "Answer", comp: "Competitor", sig: "Signal", risk: "Risk" };
+const PRESETS = [
+  "What's your hourly rate?",
+  "Is our data safe with you?",
+  "We already use ChatGPT for that.",
+  "We're looking at a company called Flowbase.",
+  "I need to check with my partner first.",
+  "Let's look at this next quarter.",
+  "Yeah, makes sense.",
+  "How fast could you start?",
+];
+let config = null;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ms = (v) => v == null ? "-" : Math.round(v) + "<small> ms</small>";
+
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  return r.json();
+}
+
+function renderCard(card, streaming) {
+  const live = $("live");
+  if (!card) return;
+  const type = card.id.split("_")[0];
+  const entry = card.entry || {};
+  const title = card.id === "comp_unknown" ? `Unknown vendor: ${card.q || "?"}` : (entry.title || card.id);
+  const details = (entry.details || []).filter(d => /^(Proof|Note|Don't say|Next step|Response):/.test(d));
+  live.className = "t-" + type;
+  live.innerHTML = `
+    <div><span class="badge">${esc(TYPE_NAMES[type] || type)}</span><span class="card-title">${esc(title)}</span>
+      <span class="trigger">&nbsp;on "${esc(card.line)}"</span></div>
+    <ul class="say${streaming ? " streaming" : ""}">${(card.say || []).map(s => `<li>${esc(s)}</li>`).join("")}</ul>
+    ${details.length ? `<div class="details">${details.map(esc).join("<br>")}</div>` : ""}
+    ${card.q ? `<div class="research">Research queued: ${esc(card.q)} (research lane not built yet)</div>` : ""}`;
+}
+
+const sleep = (t) => new Promise(r => setTimeout(r, t));
+
+// A transcript bubble whose text can grow while the prospect is still talking
+function addMsg(sp, text) {
+  const el = document.createElement("div");
+  el.className = "msg " + sp;
+  el.innerHTML = `<div class="who">${sp}</div><div class="txt">${esc(text)}</div><div class="res"></div>`;
+  $("transcript").appendChild(el);
+  $("transcript").scrollTop = 1e9;
+  return { el, txt: el.querySelector(".txt"), res: el.querySelector(".res"), cardAt: null };
+}
+
+function describe(res) {
+  const m = res.metrics || {};
+  if (m.timeout) return `timeout after ${Math.round(m.total_ms)} ms, nothing shown`;
+  const bits = [];
+  bits.push(res.card ? `card ${res.card.id}` : m.repeat ? `repeat of ${m.repeat}, hidden`
+    : (m.invalid ? `invalid: ${m.invalid}` : "no card"));
+  if (m.after_speech_ms != null) bits.push(`on screen ${m.after_speech_ms} ms after line ended`);
+  if (m.early) bits.push(`started ${m.head_start_ms} ms early`);
+  if (m.ttft_ms != null) bits.push(`ttft ${Math.round(m.ttft_ms)} ms`);
+  if (m.prompt_tokens) bits.push(`cached ${m.cached_tokens}/${m.prompt_tokens}`);
+  if (m.hedged) bits.push("hedged");
+  return bits.join(" | ");
+}
+
+// Read a server-sent event stream, calling onEvent for each event
+async function readEvents(resp, onEvent) {
+  const reader = resp.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) return;
+    buf += dec.decode(value, { stream: true });
+    let i;
+    while ((i = buf.indexOf("\n\n")) >= 0) {
+      const chunk = buf.slice(0, i);
+      buf = buf.slice(i + 2);
+      if (chunk.startsWith("data: ")) onEvent(JSON.parse(chunk.slice(6)));
+    }
+  }
+}
+const post = (path, body) => fetch(path, { method: "POST", headers: { "Content-Type": "application/json" },
+                                           body: JSON.stringify(body) });
+
+// Early cards (from partial speech) can be withdrawn if the prospect keeps talking
+let snapshot = null;
+let specGen = 0;
+function showCard(card, streaming, src, bubble) {
+  const live = $("live");
+  if (src.startsWith("spec") && !snapshot) snapshot = { cls: live.className, html: live.innerHTML, src: live.dataset.src };
+  renderCard(card, streaming);
+  live.dataset.src = src;
+  if (bubble && bubble.cardAt == null) bubble.cardAt = performance.now();
+}
+function withdrawEarly(src) {
+  const live = $("live");
+  if (snapshot && live.dataset.src === src) {
+    live.className = snapshot.cls;
+    live.innerHTML = snapshot.html;
+    live.dataset.src = snapshot.src || "";
+  }
+  snapshot = null;
+}
+
+// Partial speech: the server may start the card before the prospect finishes
+async function sendPartial(text, statusEl, bubble) {
+  if (!$("optSpec").checked) return;
+  const src = "spec" + (++specGen);
+  const r = await post("/api/partial", { text });
+  await readEvents(r, ev => {
+    if (ev.type === "partial") {
+      if (ev.id && !ev.repeat) {
+        showCard({ id: ev.id, say: ev.say, q: ev.q, entry: ev.entry, line: text }, true, src, bubble);
+        statusEl.textContent = `early card ${ev.id} while the prospect is still talking`;
+        statusEl.classList.add("card");
+      } else if (ev.id === null) {
+        statusEl.textContent = "early check: no card";
+      }
+    } else if (ev.type === "cancelled") {
+      withdrawEarly(src);
+    }
+  });
+}
+
+// Final line: end of speech
+async function send(text, bubble, speechEnd) {
+  text = text.trim();
+  if (!text) return;
+  bubble = bubble || addMsg("PROSPECT", text);
+  speechEnd = speechEnd || performance.now();
+  if (!bubble.res.textContent) bubble.res.textContent = "listening...";
+  const r = await post("/api/line", { text });
+  let final = null;
+  await readEvents(r, ev => {
+    if (ev.type === "partial") {
+      if (ev.id && !ev.repeat) {
+        showCard({ id: ev.id, say: ev.say, q: ev.q, entry: ev.entry, line: text }, true, "final", bubble);
+        bubble.res.classList.add("card");
+      }
+      return;
+    }
+    final = ev;
+    snapshot = null;  // the final line decides; nothing to withdraw anymore
+    if (ev.type === "done") {
+      if (ev.card) showCard(ev.card, false, "final", bubble);
+      else $("live").querySelectorAll(".streaming").forEach(el => el.classList.remove("streaming"));
+      let text = describe({ card: ev.card, metrics: ev.metrics });
+      if (ev.card && bubble.cardAt != null) {
+        const gap = Math.round(bubble.cardAt - speechEnd);
+        text = (gap <= 0 ? `card on screen before the prospect finished | ` :
+                `card on screen ${gap} ms after the prospect stopped talking | `) + text;
+      }
+      bubble.res.textContent = text;
+      $("lastReq").textContent = "Last request: " + text + (ev.metrics.raw ? "\nRaw: " + ev.metrics.raw : "");
+    } else if (ev.type === "skipped") bubble.res.textContent = ev.reason;
+    else if (ev.type === "cancelled") bubble.res.textContent = "cancelled: " + ev.reason;
+    else if (ev.type === "error") bubble.res.textContent = "error: " + ev.error;
+  });
+  refresh();
+  return final;
+}
+
+// Play one line as if spoken: words arrive one by one, partials fire at pauses
+async function speak(text) {
+  const words = text.split(/\s+/);
+  const bubble = addMsg("PROSPECT", "");
+  const wordMs = +$("optWordMs").value || 220;
+  const partials = [];
+  for (let i = 0; i < words.length; i++) {
+    bubble.txt.textContent = words.slice(0, i + 1).join(" ");
+    $("transcript").scrollTop = 1e9;
+    await sleep(wordMs);
+    // speech-to-text usually sends a partial at short pauses: commas and sentence ends
+    if (/[.,?!]$/.test(words[i]) && i >= 2) partials.push(sendPartial(bubble.txt.textContent, bubble.res, bubble));
+  }
+  const speechEnd = performance.now();
+  await sleep(+$("optSilenceMs").value || 0);  // silence detection before the line counts as final
+  await send(text, bubble, speechEnd);
+  await Promise.allSettled(partials);
+}
+
+function showWarm(w) {
+  if (!w) return;
+  if (w.error) { $("warmStatus").textContent = "Cache warm-up failed: " + w.error; return; }
+  $("warmStatus").textContent = `Cache warmed: ${w.ok}/${w.sent} requests in ${w.ms} ms, cached ${w.cached_tokens.join(", ")} of ${w.prompt_tokens} tokens`;
+}
+
+async function refresh() {
+  const s = await api("/api/state");
+  const m = s.metrics;
+  $("sCost").textContent = "$" + m.cost_usd.toFixed(m.cost_usd < 0.01 ? 5 : 4);
+  $("sHour").textContent = m.cost_per_call_hour_usd == null ? "-" : "$" + m.cost_per_call_hour_usd.toFixed(3);
+  $("sReq").textContent = m.requests;
+  $("sAs50").innerHTML = ms(m.after_speech_p50);
+  $("sAs95").innerHTML = ms(m.after_speech_p95);
+  $("sT50").innerHTML = ms(m.ttft_p50);
+  $("sCache").textContent = m.cache_hit_rate == null ? "-" : Math.round(m.cache_hit_rate * 100) + "%";
+  $("sCards").textContent = m.cards;
+  $("sEarly").textContent = m.early;
+  showWarm(m.warm);
+  const h = $("history");
+  h.innerHTML = s.cards.length ? s.cards.slice().reverse().map(c => {
+    const t = c.id.split("_")[0];
+    return `<div class="h t-${t}"><b>${esc(TYPE_NAMES[t] || t)}</b> ${esc(c.id)}${c.q ? " (" + esc(c.q) + ")" : ""}<br>
+      <span class="hint">${esc((c.say || []).join(" / "))}</span></div>`;
+  }).join("") : '<span class="hint">None yet.</span>';
+}
+
+async function loadConfig() {
+  config = await api("/api/config");
+  $("modelName").textContent = `${config.model} on Nebius Token Factory`;
+  $("salesbook").innerHTML = config.salesbooks.map(b => `<option ${b === config.salesbook ? "selected" : ""}>${esc(b)}</option>`).join("");
+  $("optSchema").checked = config.settings.schema;
+  $("optHedge").checked = config.settings.hedge;
+  $("optHedgeMs").value = config.settings.hedge_ms;
+  $("optTimeout").value = config.settings.timeout_ms;
+  $("optSpec").checked = config.settings.speculate;
+}
+
+async function resetView() {
+  $("transcript").innerHTML = "";
+  $("live").className = "empty";
+  $("live").dataset.src = "";
+  $("live").textContent = "Cards appear here when the prospect says something worth reacting to.";
+  $("lastReq").textContent = "No requests yet.";
+  $("summary").value = "";
+  snapshot = null;
+  refresh();
+}
+
+async function newCall() {
+  $("warmStatus").textContent = "Starting a new call and warming the cache...";
+  const r = await api("/api/reset", {});
+  resetView();
+  showWarm(r.warm);
+}
+
+// Typing acts like live speech: pauses in typing send partials
+let typingTimer = null;
+$("lineInput").addEventListener("input", () => {
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(() => {
+    const v = $("lineInput").value.trim();
+    if (v.split(/\s+/).length >= 3) sendPartial(v, $("typingStatus"), null);
+  }, 250);
+});
+$("composer").onsubmit = (e) => {
+  e.preventDefault();
+  clearTimeout(typingTimer);
+  const v = $("lineInput").value;
+  $("lineInput").value = "";
+  $("typingStatus").innerHTML = "&nbsp;";
+  send(v);
+};
+$("presets").innerHTML = PRESETS.map(p => `<button type="button">${esc(p)}</button>`).join("");
+$("presets").querySelectorAll("button").forEach(b => b.onclick = () => speak(b.textContent));
+$("resetBtn").onclick = newCall;
+$("warmBtn").onclick = async () => { $("warmStatus").textContent = "Warming..."; showWarm(await api("/api/warmup", {})); };
+$("salesbook").onchange = async (e) => { await api("/api/salesbook", { name: e.target.value }); await loadConfig(); resetView(); };
+$("summaryBtn").onclick = () => api("/api/summary", { text: $("summary").value });
+const saveSettings = () => api("/api/settings", {
+  schema_on: $("optSchema").checked, hedge: $("optHedge").checked, speculate: $("optSpec").checked,
+  hedge_ms: +$("optHedgeMs").value, timeout_ms: +$("optTimeout").value });
+["optSchema", "optHedge", "optHedgeMs", "optTimeout", "optSpec"].forEach(id => $(id).onchange = saveSettings);
+
+$("demoBtn").onclick = async () => {
+  const btn = $("demoBtn");
+  btn.disabled = true;
+  await newCall();
+  const lines = await api("/api/demo");
+  for (let i = 0; i < lines.length; i++) {
+    $("demoStatus").textContent = `line ${i + 1} of ${lines.length}`;
+    await speak(lines[i].text);
+    await sleep(500);
+  }
+  $("demoStatus").textContent = "done";
+  btn.disabled = false;
+};
+
+loadConfig().then(refresh);
+</script>
+</body>
+</html>

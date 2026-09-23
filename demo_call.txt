@@ -1,0 +1,16 @@
+# Demo discovery call: only the prospect is transcribed. The operations manager
+# of a fictional Dutch installation company (about 40 staff). One line per turn.
+CUSTOMER: Sounds good.
+CUSTOMER: Honestly, the work orders. Our planners type every order from email into Exact by hand.
+CUSTOMER: We have an open vacancy for a planner too, but we can't find anyone.
+CUSTOMER: About sixty a day, maybe four or five minutes each.
+CUSTOMER: Yeah.
+CUSTOMER: So what's your hourly rate, roughly?
+CUSTOMER: Okay. And where would our customer data end up?
+CUSTOMER: One of our planners already uses ChatGPT to write emails, by the way.
+CUSTOMER: We also had a quote from a company called Flowbase.
+CUSTOMER: To be honest, our last IT supplier went way over budget.
+CUSTOMER: Five hundred euros just for an assessment? Others do that for free.
+CUSTOMER: Right.
+CUSTOMER: I'd have to discuss this with my co-owner first.
+CUSTOMER: How fast could you actually start?

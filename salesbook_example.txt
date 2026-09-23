@@ -1,0 +1,123 @@
+SALESBOOK: Matchly (fictional demo company)
+
+== COMPANY ==
+Matchly: automatic invoice matching for small and mid-size businesses.
+Reads incoming invoices, matches to purchase orders and bank payments, flags mismatches.
+For: finance/ops teams, 5 to 100 staff, 200+ invoices/month.
+Core value: cuts manual matching ~80%. Fewer late payments, fewer errors.
+
+== PRICING ==
+Starter: EUR 250/month, up to 500 invoices/month.
+Growth: EUR 400/month, up to 2,000 invoices/month. Most chosen.
+Scale: custom, 2,000+ invoices/month.
+Setup: EUR 500 one-time. Can waive on annual contract.
+Annual contract: 2 months free.
+Allowed discount: max 10% extra, only annual, only with manager OK.
+Never: free months beyond annual deal, price below Starter.
+Free trial: 14 days, own data.
+
+== IDEAL CUSTOMER ==
+Fit: 200+ invoices/month, manual matching in Excel, uses Exact Online / Twinfield / AFAS.
+Non-fit: under 50 invoices/month, no accounting software.
+Disqualify: needs on-premise install. Needs non-EU data storage.
+
+== DISCOVERY QUESTIONS ==
+(opening) How do you match invoices today?
+(opening) How many invoices per month?
+(pain) How many hours a week goes into matching?
+(pain) What happens when a mismatch slips through?
+(decision) Who else decides on this?
+(decision) What does your buying process look like?
+(timing) What would make this a priority this quarter?
+
+== OBJECTIONS ==
+[obj_price_01] OBJECTION: too expensive
+Triggers: "too expensive", "over budget", "cheaper elsewhere"
+Concern: doesn't see ROI yet
+Say: Ask what manual matching costs per month in hours. Compare to price.
+Proof: Van Rijn Transport saved 20 hrs/week, paid back in 3 months.
+
+[obj_time_01] OBJECTION: no time to implement
+Triggers: "no time", "too busy", "not now", "big project"
+Concern: fears long setup
+Say: Setup takes one afternoon. We connect it for them.
+Proof: Average go-live 2 working days.
+
+[obj_trust_01] OBJECTION: doesn't trust automation
+Triggers: "does it make mistakes", "I want to check myself", "AI gets it wrong"
+Concern: losing control over payments
+Say: Nothing is paid automatically. Team approves every match.
+Proof: 98.7% match accuracy across all customers in 2025.
+
+[obj_excel_01] OBJECTION: Excel works fine
+Triggers: "we use Excel", "our system works", "we manage fine"
+Concern: switching pain, no urgency
+Say: Ask how long month-end close takes. Ask what happens when the Excel person is sick.
+Proof: Clients close month 4 days faster on average.
+
+== COMPETITORS ==
+[comp_invoicely_01] COMPETITOR: Invoicely (fictional)
+Mentions: "we looked at Invoicely", "Invoicely is cheaper"
+We win: bank payment matching, Exact Online native, Dutch support.
+They win: cheaper entry plan.
+Don't say: anything negative about Invoicely itself.
+Say: Ask if they need bank matching too. Invoicely only does PO matching.
+
+[comp_inhouse_01] COMPETITOR: build it ourselves
+Mentions: "our IT can build this", "we'll script it"
+We win: maintained, no dev time, handles edge cases.
+They win: full control.
+Say: Ask who maintains it when invoice formats change.
+
+[comp_unknown] COMPETITOR: unknown vendor
+Mentions: any vendor or tool not in this salesbook
+Say: Ask what made them choose it. Ask what is missing today.
+
+== DIRECT ANSWERS ==
+[ans_exact_01] Q: works with Exact Online?
+A: Yes. Native integration, two-way sync, set up in 10 minutes.
+
+[ans_twinfield_01] Q: works with Twinfield or AFAS?
+A: Yes, both. Via API.
+
+[ans_security_01] Q: where is data stored? GDPR?
+A: EU only (Amsterdam). GDPR compliant. ISO 27001 certified.
+
+[ans_contract_01] Q: contract length? cancel?
+A: Monthly, cancel anytime. Annual optional, 2 months free.
+
+[ans_trial_01] Q: can we try it?
+A: 14-day free trial with own invoices. No credit card.
+
+== BUYING SIGNALS ==
+[sig_timeline_01] SIGNAL: asks about timing
+Triggers: "how fast can we start", "when could this be live"
+Next step: propose trial start date now.
+Say: We can have you live this week. Suggest a start date.
+
+[sig_pricing_01] SIGNAL: asks about plans or contract details
+Triggers: "which plan", "what does annual cost", "is setup included"
+Next step: recommend plan, offer annual deal.
+Say: Most teams your size pick Growth. Mention annual saves 2 months.
+
+== RISK SIGNALS ==
+[risk_boss_01] RISK: needs approval from someone else
+Triggers: "check with my boss", "run it past our CFO", "not my decision"
+Response: get decision maker in next call. Offer one-page ROI summary.
+Say: Ask what the CFO will care about most. Offer a short call together.
+
+[risk_budget_01] RISK: no budget
+Triggers: "no budget this year", "budget is spent", "next year maybe"
+Response: find cost of waiting. Offer start next quarter with trial now.
+Say: Ask what the manual work costs until next year.
+
+== PROOF ==
+Van Rijn Transport: 40 staff, 20 hrs/week saved, payback 3 months.
+De Groot Bouw: month-end close from 6 days to 2.
+All customers 2025: 98.7% match accuracy.
+
+== DON'TS ==
+Never promise 100% accuracy.
+Never promise features not listed here.
+Never talk negatively about competitors.
+Never give discounts beyond the pricing rules.

@@ -1,59 +1,99 @@
 # Girard
 
-Girard is a live sales copilot that advises the user in real time during a sales call.
+Girard is a live sales copilot that advises you in real time during a sales call.
+
+Built as a hackathon project.
 
 ## Why Girard?
 
-During a call with prospective client you don't want to be busy making notes and doing research, you want to focus on listening and responding.
+On a sales call you want to focus on listening and responding, not on taking notes or doing research.
 
-Girard lightens that load, doing the research live, and giving advice on how to respond – information about the prospect, what they need, and how you can address those needs.
+Girard takes that load off you. It does the research live and tells you how to respond: who the prospect is, what they need, and how you can address those needs.
 
 ## How does Girard help?
-Girard receives audio from the prospective client (not the user) and provides information on what to know and how to respond.
 
-Additionally, Girard starts by researching the prospective client using Tavily to provide the user with useful info about the prospective client.
+**Before the call**, Girard researches the prospective client so you start the call already knowing who you are talking to.
 
-During the call, other competitors to your product that the prospective client mentions can also be researched by the model using Tavily.
+**During the call**, Girard listens and transcribes the conversation as it happens. When the customer raises an objection, asks a question, mentions a competitor, or shows interest, you see a short card within about a second. The card gives you two or three sentence openers that you finish in your own words. When the customer mentions a competitor, Girard looks it up in the background.
 
-After the call, Girard provides a debriefing summarizing how the call went, what could have been done better, what was strong, and what the customer needs with actionable points on what to do next. Also, a small summary of the call transcript.
+**After the call**, Girard gives you a debrief:
 
-# Project Structure
-## TODO
+- How the call went
+- What was strong
+- What could have been done better
+- What the customer needs
+- Actionable next steps
+- A short summary of the call transcript
 
-## System overview
+## How it works
 
 ```
-call playback audio -> [1] audio helper -> [2] agent service -> [3] dashboard (browser)
-                        localhost:8766      localhost:8000/ws     localhost:5173
-                        HTTP + SSE          WebSocket
+ Call audio
+     |
+ Live transcription, sentence by sentence
+     |
+ Decide when the customer said something worth reacting to
+     |
+   +-------------------+--------------------+
+   |                   |                    |
+ Advice cards       Running summary      Background research
+ (fast, per         (every 30 to 45 s)   (prospect and
+ customer line)                           competitors)
+   |                   |                    |
+   +-------------------+--------------------+
+     |
+ Screen: advice cards and research panel
+     |
+ Post-call debrief
 ```
 
-| Part | Where it lives | Status |
-| --- | --- | --- |
-| [1] Audio helper: captures the other side of the call, transcribes locally (Moonshine) | Branch `feat/linux-audio-helper` (Linux, Josef). Branch `feat/macos-audio` adds macOS (ScreenCaptureKit). Folder `linux-audio-helper/`, see its README. | Works |
-| [2] Agent service: trigger logic, Nebius models, Tavily research, cards, debrief | Not built yet (Bilal). Contract: [dashboard-protocol.md](dashboard-protocol.md) | To do |
-| [3] Dashboard: live cards, research, transcript, cost and latency, debrief | `dashboard/` submodule, the Lovable project | Works, demo mode only until [2] exists |
+- **Advice cards** react only to what the customer just said. Most of the time Girard stays quiet and shows nothing.
+- **The running summary** keeps track of the call so far, so advice stays relevant late in a long call.
+- **Background research** never slows down the advice cards. but
 
-The browser never talks to the audio helper directly. The helper rejects cross-origin requests, so the agent service sits in between and relays start, stop and transcripts.
+### Salesbook
 
-## Running the dashboard
+Girard's advice comes from a salesbook. It holds context and information about your business, plus a short list of entries on objections, competitors, common questions, proof points, and buying or risk signals.
 
-`dashboard/` is a git submodule of the Lovable project [fragmential/girard-starter-spark](https://github.com/fragmential/girard-starter-spark) (private: you need access to it and a GitHub SSH key). It syncs both ways with Lovable, so make UI changes in Lovable, not here.
+## Run the demo portal
+
+The portal lets you type what the prospect says (only the prospect is transcribed) and watch the advice cards stream in live.
 
 ```bash
-# fresh clone
-git clone --recurse-submodules git@github.com:r4q0/girard.git
-# or, in an existing clone
-git submodule update --init dashboard
-
-cd dashboard
-npm install --no-package-lock   # Lovable uses bun; this avoids a stray lockfile
-npx vite dev --port 5173
+python -m venv .venv
+.venv/Scripts/pip install -r requirements.txt    # Windows; use .venv/bin/pip on macOS/Linux
+# put NEBIUS_API_KEY=... in a .env file (it is gitignored)
+.venv/Scripts/python server.py
 ```
 
-- http://localhost:5173/call?demo=1 plays a scripted demo call. It needs no other parts.
-- http://localhost:5173/ is the setup screen. It connects to the agent at `ws://localhost:8000/ws` (change it in settings or with `?agent=`).
-- To pull the latest Lovable changes: `git submodule update --remote dashboard`, then commit the new submodule pointer.
+Open http://localhost:8000. Click "Play demo call" to run the scripted call in `demo_call.txt`.
 
-Run the dashboard locally on the demo machine, so the page and the agent are both on localhost. A hosted https page connecting to `ws://localhost` can be blocked by some browsers.
+You can also send lines without the page. The response is a stream of server-sent events:
 
+```bash
+curl -N -X POST localhost:8000/api/line -H "Content-Type: application/json" -d '{"text":"What is your hourly rate?"}'
+```
+
+## Configuration
+
+API keys live in environment variables or a local `.env` file only, never in code or the repo.
+
+## Project structure
+
+```
+server.py                Demo portal backend: prompt, fast lane, metrics
+static/index.html        Demo portal page
+demo_call.txt            Scripted demo call
+salesbook_koref.txt      Salesbook used by the demo
+salesbook_example.txt    Smaller example salesbook
+requirements.txt         Python dependencies
+cache_test.py            Prompt caching and latency test
+cache_test_results.csv   Raw results from the last test run
+eval/testset.jsonl       60 labelled prospect lines with the correct card
+eval/run_eval.py         Scores the fast lane on the test set
+context-spec.txt         Early notes on prompt structure
+```
+
+## Status
+
+Work in progress.
