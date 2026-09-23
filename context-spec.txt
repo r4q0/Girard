@@ -1,0 +1,18 @@
+# context structure
+
+- system ("the following is a transcript with both a ...")
+- our product prompt
+
+(
+- pre-call: check who the prospective client is (tavily)
+)
+
+- call start prompt
+
+- !!!! transcript (received from application) !!!! (prospective client only)
+    - agent provides live copiloting (main product)
+
+- debriefing: make a structured summary of the needs of the prospective client
+    - Prospective client needs
+    - What salesperson could do to accomodate those needs (make them actionable)
+
