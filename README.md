@@ -6,7 +6,7 @@ Girard is a live sales copilot that advises the user in real time during a sales
 
 During a call with prospective client you don't want to be busy making notes and doing research, you want to focus on listening and responding.
 
-Girard lightens that load, doing the research live, and giving advice on how to respond – information about the prospect, what they need, and you can address those needs.
+Girard lightens that load, doing the research live, and giving advice on how to respond – information about the prospect, what they need, and how you can address those needs.
 
 ## How does Girard help?
 Girard receives audio from the prospective client (not the user) and provides information on what to know and how to respond.
