@@ -1,0 +1,291 @@
+SALESBOOK: Koref
+
+== COMPANY ==
+Koref: software engineering firm, Amsterdam. Automation, custom software, practical open-source AI for business operations.
+Positioning: practical, anti-hype. Reliable, maintainable software with measurable financial return.
+Most wasted time needs no AI. Usually two systems not talking. Fix is software, not a model.
+Where AI helps: open-source models, Dutch-hosted, infra client or Koref controls.
+Fixed price before start. Client owns code. Koref takes operational liability after go-live (hosting agreement).
+Main message: "Buy outcomes, not hours."
+Promise: automation pays for itself within 18 months, guaranteed.
+Values: stands behind work, data before opinion, engineers not marketers, practical over hype, honest (says when nothing worth building), client owns data and system, no lock-in, fixed and fast (weeks, not quarters).
+
+== SERVICES AND PRICING ==
+Automation (main): free 30-min discovery call -> workflow assessment EUR 500 fixed (2 to 3 hrs staff time) -> report within 2 days: cost per process, fastest payback, fixed quote per automation. Report is theirs to keep -> build at fixed price, scope, date. 18-month guarantee.
+Demo to production: for fast-built (vibe-coded) apps/AI demos going live. Fixes auth, silent errors, DB failing past ~100 users, unclear data storage, no monitoring. Discovery call -> code review within 48 hrs -> hardening -> handover with docs. Price: fixed quote after code review. No standard price.
+AI literacy training: EU AI Act Art. 4, since 2 Feb 2025. Process mapping, then 4-hr session on site, up to 15 people, own documents. Written record for the obligation. EUR 2,000 fixed. Over 15 people: trained staff train colleagues, no extra cost. Client may record the session for internal use only, not for distribution. Cross-sell only, not main close.
+Hosting and management: from EUR 200/month excl. VAT, monthly billing, 12-month minimum. Compute at cost. Proactive patching, free fixes, Koref liable. Dashboards, direct line. Software Koref did not build: EUR 500 assessment first, then fixed quote. After 12 months: stay, take in-house, or move.
+
+== GUARANTEE ==
+Build pays for itself within 18 months, or Koref pays back the difference.
+Example: pays EUR 15,000, saves EUR 13,000 in 18 months, Koref pays back EUR 2,000.
+Savings measured against baseline agreed in assessment, written into proposal.
+
+== INTERNAL ONLY (never say out loud) ==
+Build price: 1 to 1.5x realised year-one saving.
+Project value under EUR 10,000: add EUR 1,000 fee.
+Build must pay back within 18 months. Hosting offered separately.
+5% referral fee.
+Qualification criteria below.
+Lead with one recommended project, fixed scope/price/date. Rest on roadmap.
+Price must come down: cut scope, never hours.
+
+== LIVE COST CALCULATION ==
+Yearly cost = items/day x minutes/item / 60 x loaded hourly cost x working days/year.
+Default 230 working days. Use prospect's own hourly cost. Unknown: ~EUR 48/hr Dutch average, fully loaded, say it is an average.
+Example: 3 hrs/day x EUR 48 x 230 = EUR 33,120/yr, ~EUR 2,760/month.
+Rep says number back, prospect corrects it. Corrected number = believed number.
+EUR 10,000+/yr: supports a build. Under ~EUR 7,000/yr: build unlikely to meet guarantee. Suggest training, simpler fix, or honest "not worth building".
+Hidden costs: error correction, overtime, unfillable vacancy, volume growth.
+
+== IDEAL CUSTOMER ==
+Fit: Dutch SME, 10 to 250 staff, office/admin team, 2+ systems not connected, growing or struggling to hire admin staff, owner/director/ops manager reachable.
+Good assessment prospect: one process with agreed yearly cost, decision maker on call or named, reason to act soon, gives 2 to 3 hrs staff time and system access.
+Not a fit: insists on hourly billing (buying capacity, not outcomes). Yearly cost too small.
+
+== DISCOVERY CALL (30 min) ==
+Goal: find one process, agree yearly cost, book EUR 500 assessment on the call.
+(opening, 3 min) Greeting, 20-sec Koref intro, agenda: how work runs, where time goes, honest verdict at end.
+(how things run, 5 min) Team, systems, how an order moves. Listen for handoffs.
+(where time goes, 10 min) Which task would you remove from the team tomorrow?
+(cost) Volume, time per item, who does it, hourly cost. Calculate together.
+(why it matters) Busy periods, holidays, growth, what team would do instead.
+(decision, 5 min) Who else decides? Moment it matters most (busy season, vacancy)?
+(close, 5 min) Play back process and cost. Ask permission for next step. Propose assessment. Book date, name staff. Mention mutual NDA. Ask decision maker at results meeting.
+Before closing, check known: yearly cost, decision maker, timing.
+Tone: Dutch SME owners. Plain, direct, calm, understated. No hype, no pressure. Leave silences.
+
+== OBJECTIONS ==
+[obj_hourly_01] OBJECTION: asks hourly rate
+Triggers: "hourly rate", "day rate", "how many hours", "what do you charge per hour"
+Not: they describe how their current supplier bills (comp_hourlyit_01)
+Concern: wants to compare suppliers
+Say: No hourly work. Fixed price for a result. Delays are Koref's cost. Back to what process costs them now.
+
+[obj_sendinfo_01] OBJECTION: send me information
+Triggers: "send me something", "send a brochure", "email me info"
+Concern: brush-off, delaying
+Say: Offer one-page summary with their own process and numbers. Book 15-min follow-up.
+
+[obj_assessfee_01] OBJECTION: EUR 500 assessment, others free
+Triggers: "others do it for free", "pay for an assessment", "500 for a conversation"
+Concern: paying for a sales pitch
+Say: Free assessment is usually a sales talk. This is engineering time. Report is theirs either way. Compare 500 to yearly process cost.
+
+[obj_justprice_01] OBJECTION: just give me a price
+Triggers: "just give me a price", "what does a tool like this cost", "ballpark"
+Concern: wants quick number
+Say: Price only fixed on what is measured. Biggest saving often somewhere unexpected.
+
+[obj_expensive_01] OBJECTION: more than expected
+Triggers: "too expensive", "more than I expected", "that's a lot"
+Concern: amount or timing
+Say: Compare to yearly cost and guarantee. Ask: is it the amount or the timing? Amount: smaller scope. Timing: phasing.
+Proof: hardware may qualify for KIA tax deduction, confirm with their accountant.
+
+[obj_later_01] OBJECTION: next quarter
+Triggers: "next quarter", "after summer", "not now", "later this year"
+Concern: no urgency
+Say: Ask what changes by then. Assessment is small. Now means deciding next quarter with real numbers.
+
+[obj_tied_01] OBJECTION: doesn't want lock-in
+Triggers: "tied to you", "locked in", "dependent on you"
+Concern: losing control
+Say: They own code and documentation. Hosting 12-month minimum, then stay, take in-house, or move.
+
+[obj_newco_01] OBJECTION: new company
+Triggers: "you're new", "how long have you existed", "references", "case studies"
+Concern: risk of unproven supplier
+Say: That is why guarantee and liability are in the contract. They own everything built.
+Note: no published case studies or references yet. Never invent them.
+
+[obj_small_01] OBJECTION: too small for this
+Triggers: "we're too small", "only a small team", "not for companies our size"
+Concern: assumes automation is for big firms
+Say: Depends on repetition, not size. 3 hrs/day on one task is ~EUR 33,000/yr. If it doesn't add up, Koref says so.
+
+[obj_jobs_01] OBJECTION: will it cost jobs
+Triggers: "cost jobs", "replace my people", "what happens to my staff"
+Concern: team impact
+Say: Take seriously. Time usually goes to work now left undone, or avoids next hire. Owner decides. Koref helps explain to team.
+
+[obj_triedai_01] OBJECTION: tried AI, didn't work
+Triggers: "tried AI", "pilot failed", "didn't work for us"
+Concern: burned before
+Say: Common, pilots start with the tool, not the problem. Ask what their project was meant to solve.
+Proof: MIT 2025: most generative AI pilots showed no measurable profit impact, largely because they started with the tool instead of the problem.
+
+[obj_opensource_01] OBJECTION: open-source models are worse
+Triggers: "open source is worse", "not as good as GPT", "weaker models"
+Concern: quality
+Say: Largest models lead on general tasks. For one task on their own documents, smaller dedicated model is accurate and consistent. Tested on their real documents before go-live.
+
+== COMPETITORS (only when prospect raises them) ==
+[comp_aiagency_01] COMPETITOR: AI agency / tool built on OpenAI
+Mentions: "AI agency", "built on OpenAI", "GPT integration", "isn't OpenAI cheaper"
+They win: cheaper for a trial.
+We win: fixed price, open models, liability after go-live.
+Say: Daily process for years: pay per use at price someone else sets. Models retired on their schedule. Koref price fixed up front.
+Don't say: OpenAI trains on your data. Specific retirement dates. "5 to 10x cheaper".
+
+[comp_chatgpt_01] COMPETITOR: ChatGPT / Copilot licences
+Mentions: "we already use ChatGPT", "we have Copilot", "everyone has a Copilot licence", "we pay for ChatGPT"
+They win: helps one person work faster.
+We win: connects to their systems, removes whole process.
+Say: Those help individuals write faster. Koref removes the task, connected to their systems.
+
+[comp_hourlyit_01] COMPETITOR: hourly IT supplier
+Mentions: "our IT supplier", "our supplier bills by the hour", "our agency bills hours", "we have a developer we hire"
+We win: fixed price, payback guarantee. Client carries no overrun risk.
+Say: Hourly means they carry every overrun. Koref sells the outcome at a fixed price.
+
+[comp_freelancer_01] COMPETITOR: freelancer
+Mentions: "a freelancer", "a guy who builds stuff for us"
+We win: continuity, documentation anyone can take over, contractual responsibility.
+Say: Ask what happens when the freelancer is unavailable. Koref documents and stays responsible.
+
+[comp_inhouse_01] COMPETITOR: internal IT person
+Mentions: "our IT person could do this", "we'll build it ourselves"
+They win: knows the business, already paid.
+We win: time, documentation, knowledge stays.
+Say: Ask who maintains it when it breaks and what if that person leaves. Koref can build and hand over, fully documented.
+
+[comp_unknown] COMPETITOR: unknown vendor
+Mentions: any vendor or tool not in this salesbook
+Say: Ask what made them choose it. Ask what is missing today.
+
+== DIRECT ANSWERS ==
+[ans_data_01] Q: is our data safe? GDPR?
+A: Dutch-hosted, infra client or Koref controls, open-source models. No outside AI provider sees documents. Mutual NDA before assessment, verwerkersovereenkomst before build.
+Correct wording: "With closed providers, your documents pass through someone else's servers under their terms and jurisdiction."
+
+[ans_guarantee_01] Q: what if it doesn't pay back?
+A: Pays for itself within 18 months, or Koref pays back the difference. Example: pay EUR 15,000, save 13,000, get 2,000 back. Baseline written into proposal.
+Don't say: "or it's free".
+
+[ans_assessment_01] Q: how does the assessment work?
+A: EUR 500 fixed. 2 to 3 hrs with staff. Report within 2 days: cost per process, fastest payback, fixed quote each. Report is theirs to keep.
+
+[ans_accuracy_01] Q: does it make mistakes? how accurate?
+A: "It does not get tired. We build in validation checks and flag uncertain cases for a person to review."
+Don't say: perfect accuracy, absolute precision.
+
+[ans_timeline_01] Q: how long does a build take?
+A: Weeks, not quarters. No standard duration. Fixed date agreed before start.
+
+[ans_demoprod_01] Q: we have a prototype/app built with AI, can you make it production ready?
+A: Yes, demo to production. Code review within 48 hrs, then fixed quote. No standard price.
+
+[ans_training_01] Q: AI training / EU AI Act?
+A: Since 2 Feb 2025 EU companies using AI must support AI literacy (Art. 4). 4-hr on-site session, up to 15 people, own documents, written record. EUR 2,000 fixed.
+Proof: controlled studies 15 to 40% gains; in real companies ~3% of the week saved. Never promise a specific speed-up.
+Note: legal details, suggest their own adviser.
+
+[ans_training_02] Q: we have more than 15 people, can everyone be trained?
+A: Recommend the 15 trained staff train their colleagues, at no extra cost. They may record the session and use the video internally. Not for distribution outside the company.
+Say: Suggest the trained group trains the rest. Mention they can record it for internal use.
+
+[ans_hosting_01] Q: who maintains it after go-live?
+A: Hosting from EUR 200/month excl. VAT, 12-month minimum, compute at cost. Koref patches, fixes free, is liable.
+
+[ans_unknown_01] Q: anything not defined (exact hosting price, demo-to-prod price, references)
+A: Rep says they will confirm after the call. Never guess.
+
+== OPPORTUNITY SIGNALS ==
+[sig_vacancy_01] SIGNAL: open vacancy (admin, order entry, planning, customer service)
+Triggers: "open vacancy", "can't find anyone", "we're hiring for", "looking for a planner"
+Next step: vacancy is budgeted cost Koref could replace.
+Say: Ask what that role would spend its time on.
+
+[sig_manualentry_01] SIGNAL: documents typed into a system (invoices, orders, CVs, forms)
+Triggers: "type it in by hand", "retype every invoice", "orders from email into Exact", "enter it manually"
+Not: quotes or documents they create themselves (sig_manualdocs_01)
+Next step: pattern document in, structured data out. Get volume and time per item.
+Say: Ask how many per day and how long each takes.
+
+[sig_copypaste_01] SIGNAL: data copied between screens / systems (Exact, AFAS, Twinfield, webshop, ERP)
+Triggers: "copy from one system to the other", "export and import", "the systems don't talk"
+Next step: a person is the link between two systems.
+Say: Ask how data gets from one system to the other.
+
+[sig_inbox_01] SIGNAL: shared inbox, same questions repeated
+Triggers: "shared inbox", "info@ mailbox", "customers email the same questions"
+Not: colleagues asking each other internally (sig_lookup_01)
+Next step: pattern inbound message triage.
+Say: Ask how many messages a day and who answers them.
+
+[sig_lookup_01] SIGNAL: staff ask colleagues for info that is written down
+Triggers: "people keep asking me where", "colleagues ask for the price list", "it's on the drive but"
+Next step: pattern answers from own documents.
+Say: Ask how often that happens and who gets interrupted.
+
+[sig_manualdocs_01] SIGNAL: quotes, work orders, contracts, visit reports, plans built by hand or in spreadsheets
+Triggers: "quotes made by hand", "contracts in Word", "we write up visit reports", "planning in Excel"
+Not: typing incoming orders or invoices into a system (sig_manualentry_01)
+Next step: patterns generated documents, conversation to record, scheduling.
+Say: Ask how long one takes and how many per week.
+
+[sig_monitoring_01] SIGNAL: someone checks a portal or list daily for changes
+Triggers: "check the portal every day", "keep an eye on the list", "look for changes every morning"
+Next step: pattern watching a feed.
+Say: Ask how long the daily check takes.
+
+[sig_prototype_01] SIGNAL: prototype or internal tool built quickly with AI
+Triggers: "we built an app with AI", "vibe-coded", "our internal tool is shaky"
+Next step: possible demo to production.
+Say: Ask who uses it today and what happens if it breaks.
+
+[sig_chatgptstaff_01] SIGNAL: staff use ChatGPT without guidance or policy
+Triggers: "staff use ChatGPT on their own", "no rules for AI", "people paste things into ChatGPT"
+Not: company ChatGPT or Copilot licences named as an alternative (comp_chatgpt_01)
+Next step: AI literacy training cross-sell, later in call. Not main close.
+Say: Ask if there is a policy for AI use at work.
+
+[sig_buying_01] SIGNAL: asks about timeline, price, how assessment works, who is involved
+Next step: move to close. Book assessment on the call.
+Say: Play back process and yearly cost. Ask permission to suggest a next step.
+
+== RISK SIGNALS ==
+[risk_partner_01] RISK: needs to discuss with partner / other decision maker
+Triggers: "discuss with my partner", "my co-owner", "not my decision", "check with the director"
+Response: get decision maker to results meeting.
+Say: Ask what the partner will want to know. Offer short call with both to go through the numbers.
+
+[risk_badsupplier_01] RISK: bad experience with IT supplier or overrun project
+Triggers: "last supplier", "project ran over", "went way over budget", "burned before"
+Response: fixed price, fixed scope, delays are Koref's cost.
+Say: Ask what went wrong. Then: price and date fixed before any code.
+
+[risk_hourly_01] RISK: insists on hourly billing
+Triggers: "we only work hourly", "we want to pay per hour"
+Response: buying capacity, not outcomes. Usually not a fit.
+Say: Explain fixed-price outcome once. If they still insist, don't push.
+
+[risk_toosmall_01] RISK: yearly cost under ~EUR 7,000
+Triggers: calculated cost low, low volume, "only a few a week"
+Response: build unlikely to meet guarantee. Be honest.
+Say: Say clearly it is probably not worth building. Give practical advice anyway. Suggest training or a simpler fix.
+
+[risk_missing_01] RISK: call ending, key info unknown
+Triggers: close stage reached without yearly cost, decision maker, or timing
+Response: remind rep to ask before closing.
+Say: Ask the missing one: yearly cost, who decides, or when it matters most.
+
+== CORRECT WORDING FOR CLAIMS ==
+Gartner: "Gartner expects over 40% of agentic AI projects to be cancelled by the end of 2027, citing rising costs, unclear value and weak risk controls." Not "because of token costs".
+Cost vs closed models: "Our price is fixed up front, not per use."
+Labour cost: ~EUR 48/hr Dutch average, fully loaded. Always "approximate average".
+Outcome, correct: "Incoming orders are entered into Exact automatically by 1 March." Incorrect: "Around 40 hours of development."
+
+== DON'TS ==
+Never suggest hourly rate, day rate, or estimate in hours.
+Never invent case studies, client names, results, statistics, or prices. No published case studies exist.
+Never promise perfect accuracy or precision.
+Never say "it pays for itself or it's free".
+Never propose a build that does not pay back within 18 months.
+Never claim OpenAI or other providers train on client data.
+Never bring up OpenAI or competitors unless prospect raises them first.
+Never say internal info out loud: pricing formula, EUR 1,000 fee, 5% referral fee, qualification criteria.
+Never quote specific model retirement dates.
+No legal or tax advice (EU AI Act, KIA deduction, contracts): suggest their own adviser or accountant.
+No hype, no pressure tactics.
