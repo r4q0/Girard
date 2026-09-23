@@ -8,8 +8,6 @@ Girard agent service: the middle part between the audio helper and the dashboard
   with the fast lane in server.py (early start on partial speech, hedging, warm cache).
 - Research lane (Tavily), pre-call research, rolling call summary (slow lane),
   metrics and the post-call debrief.
-- "Demo call" output: plays demo_call.txt as live speech, so the whole pipeline
-  runs without a real call or audio.
 
 Run:  .venv/Scripts/python agent.py   (serves the WebSocket and the dev portal on :8000)
 """
@@ -31,7 +29,6 @@ ROOT = Path(__file__).parent
 HELPER_URL = os.environ.get("GIRARD_HELPER_URL", "http://127.0.0.1:8766")
 TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "")
 SLOW_MODEL = os.environ.get("GIRARD_SLOW_MODEL", "Qwen/Qwen3-235B-A22B-Instruct-2507")
-DEMO_SINK = "girard-demo"
 AGENT_NAME = "girard-agent 0.2.0"
 # USD per token for the slow lane (Token Factory catalog); fast lane prices live in server.py
 SLOW_PRICE_IN, SLOW_PRICE_OUT = 0.20 / 1e6, 0.60 / 1e6
@@ -82,12 +79,11 @@ RESEARCH_CACHE = {}  # entity (lowercase) -> finished research message, shared a
 
 
 class Call:
-    """One call session: source, transcript, cards, lanes and metrics."""
+    """One call session: transcript, cards, lanes and metrics."""
 
-    def __init__(self, prospect, source):
+    def __init__(self, prospect):
         self.id = uuid.uuid4().hex[:12]
         self.prospect = prospect or {}
-        self.source = source            # "helper" or "demo"
         self.state = "loading"
         self.started_at = None          # wall clock ms when listening began
         self.segments = {}              # segment_id -> latest transcript event
@@ -206,7 +202,7 @@ async def send_metrics(call):
 # ---------------------------------------------------------------- transcript -> cards
 
 async def on_transcript(call, event):
-    """Every transcript revision from the helper (or the demo): forward it, start early on
+    """Every transcript revision from the audio helper: forward it, start early on
     a pause in partial speech, and run the fast lane on final lines."""
     seg = str(event["segment_id"])
     event = {**event, "type": "transcript", "segment_id": seg, "speaker": "customer",
@@ -255,7 +251,7 @@ async def finish_card(call, seg, text, run, reused, head_start, arrived, arrived
     entry = card.get("entry") or {}
     proof = next((d.split(":", 1)[1].strip() for d in entry.get("details", []) if d.startswith("Proof:")), None)
     title = f"Unknown vendor: {card['q']}" if card["id"] == "comp_unknown" else entry.get("title", card["id"])
-    stt = max(0.0, (arrived - speech_end) * 1000) if call.source == "helper" else 0.0
+    stt = max(0.0, (arrived - speech_end) * 1000)
     # from the final line to the card request; 0 when it already started on partial speech
     trigger = 0.0 if reused else max(0.0, (run.t0 - arrived_perf) * 1000)
     total = max(0.0, (sent - speech_end) * 1000)
@@ -449,9 +445,7 @@ async def devices_message():
         outputs, streams = d.get("outputs", []), d.get("streams", [])
     except Exception:
         helper_ok = False
-    demo = {"id": DEMO_SINK, "name": "Demo call (scripted, no audio)", "sample_rate": 16000,
-            "is_default": not outputs}
-    return {"type": "devices", "outputs": outputs + [demo], "streams": streams}, helper_ok
+    return {"type": "devices", "outputs": outputs, "streams": streams}, helper_ok
 
 
 async def set_state(call, state, error=None):
@@ -509,40 +503,6 @@ async def run_helper(call, command):
             await asyncio.sleep(0.5)  # SSE dropped; reconnect for a fresh snapshot
 
 
-async def run_demo(call):
-    """Play demo_call.txt as if spoken: words arrive over time, then a short silence."""
-    lines = [l.split(":", 1)[1].strip() for l in (ROOT / "demo_call.txt").read_text(encoding="utf-8").splitlines()
-             if l.startswith("CUSTOMER:")]
-    await asyncio.sleep(0.4)
-    await set_state(call, "listening")
-    t0 = time.time()
-    word_s, silence_s = 0.22, 0.6
-
-    async def audio(level):
-        await HUB.send({"type": "audio", "level": level, "elapsed_seconds": round(time.time() - t0, 1)})
-
-    for i, text in enumerate(lines):
-        if call is not CALL or call.stopping:
-            return
-        seg, words = str(i + 1), text.split()
-        start_ms = round((time.time() - t0) * 1000)
-        for n in range(1, len(words) + 1):
-            await asyncio.sleep(word_s)
-            if call is not CALL or call.stopping:
-                return
-            await audio(0.04 + 0.02 * (n % 3))
-            await on_transcript(call, {"segment_id": seg, "start_ms": start_ms,
-                                       "end_ms": round((time.time() - t0) * 1000),
-                                       "text": " ".join(words[:n]), "is_final": False})
-        end_ms = round((time.time() - t0) * 1000)
-        await audio(0.002)
-        await asyncio.sleep(silence_s)
-        await on_transcript(call, {"segment_id": seg, "start_ms": start_ms, "end_ms": end_ms,
-                                   "text": text, "is_final": True})
-        await asyncio.sleep(1.2)
-    await HUB.notice("Demo call finished. Press Stop for the debrief.", "info")
-
-
 # ---------------------------------------------------------------- commands
 
 async def start_call(command):
@@ -550,8 +510,7 @@ async def start_call(command):
     if CALL and CALL.state in ("loading", "listening", "stopping"):
         await HUB.notice("A call is already running. Stop it first.")
         return
-    source = "demo" if command.get("sink_id") == DEMO_SINK else "helper"
-    call = CALL = Call(command.get("prospect") or {}, source)
+    call = CALL = Call(command.get("prospect") or {})
     for run in (S.spec, S.inflight):
         if run:
             run.cancel()
@@ -561,10 +520,7 @@ async def start_call(command):
     await set_state(call, "loading")
     asyncio.get_running_loop().create_task(warmup())
     call.spawn(summary_loop(call))
-    if source == "demo":
-        call.spawn(run_demo(call))
-    else:
-        call.spawn(run_helper(call, command))
+    call.spawn(run_helper(call, command))
 
 
 async def stop_call():
@@ -573,19 +529,18 @@ async def stop_call():
         return
     call.stopping = True
     await set_state(call, "stopping")
-    if call.source == "helper":
-        try:
-            await helper_post("/api/stop", {})
-            for _ in range(50):
-                st = await helper_get("/api/state")
-                if st.get("state") in ("idle", "error"):
-                    break
-                await asyncio.sleep(0.2)
-        except Exception as e:
-            await HUB.notice(f"Audio helper stop: {e}")
-        await asyncio.sleep(0.3)  # let the last final transcript events arrive
+    try:
+        await helper_post("/api/stop", {})
+        for _ in range(50):
+            st = await helper_get("/api/state")
+            if st.get("state") in ("idle", "error"):
+                break
+            await asyncio.sleep(0.2)
+    except Exception as e:
+        await HUB.notice(f"Audio helper stop: {e}")
+    await asyncio.sleep(0.3)  # let the last final transcript events arrive
     for task in list(call.tasks):
-        if not task.done() and task.get_coro().__name__ in ("run_demo", "run_helper", "summary_loop"):
+        if not task.done() and task.get_coro().__name__ in ("run_helper", "summary_loop"):
             task.cancel()
     await set_state(call, "idle")
     await debrief(call)
@@ -597,8 +552,7 @@ async def handle(command):
         message, ok = await devices_message()
         await HUB.send(message)
         if not ok:
-            await HUB.notice("Audio helper not running, so only the demo call is available. "
-                             "Start it with: linux-audio-helper/.venv/Scripts/call-audio serve --port 8766", "info")
+            await HUB.notice("Audio helper not running. Start Girard with start.ps1.", "warning")
     elif kind == "precall":
         asyncio.get_running_loop().create_task(precall(command))
     elif kind == "start":
@@ -628,8 +582,8 @@ async def ws_endpoint(ws: WebSocket):
         if PRECALL:
             await ws.send_text(json.dumps(PRECALL))
         if not ok:
-            await ws.send_text(json.dumps({"type": "notice", "level": "info", "message":
-                "Audio helper not running, so only the demo call is available."}))
+            await ws.send_text(json.dumps({"type": "notice", "level": "warning", "message":
+                "Audio helper not running. Start Girard with start.ps1."}))
         while True:
             raw = await ws.receive_text()
             try:

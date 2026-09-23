@@ -433,17 +433,6 @@ def state():
             "requests": S.metrics[-30:]}
 
 
-@app.get("/api/demo")
-def demo():
-    p = ROOT / "demo_call.txt"
-    lines = []
-    for raw in p.read_text(encoding="utf-8").splitlines():
-        if ":" in raw and raw.split(":", 1)[0].strip() == "CUSTOMER":
-            sp, tx = raw.split(":", 1)
-            lines.append({"speaker": sp.strip(), "text": tx.strip()})
-    return lines
-
-
 @app.post("/api/reset")
 async def reset():
     """Start a new call. Warms the cache so the first real line is fast."""

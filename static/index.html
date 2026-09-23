@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Girard Demo Portal</title>
+<title>Girard Dev Portal</title>
 <style>
 :root {
   --bg: #f6f5f2; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6a65; --line: #e4e2dc;
@@ -90,7 +90,7 @@ textarea { width: 100%; min-height: 90px; background: var(--panel); border: 1px 
 <body>
 <header>
   <h1>Girard</h1>
-  <span class="sub" id="modelName">demo portal</span>
+  <span class="sub" id="modelName">dev portal</span>
   <span class="spacer"></span>
   <label class="sub" for="salesbook">Salesbook</label>
   <select id="salesbook"></select>
@@ -110,10 +110,6 @@ textarea { width: 100%; min-height: 90px; background: var(--panel); border: 1px 
       </form>
       <div class="hint" id="typingStatus">&nbsp;</div>
       <div class="chips" id="presets"></div>
-      <div class="row" style="margin-top:10px">
-        <button id="demoBtn">Play demo call</button>
-        <span class="hint" id="demoStatus"></span>
-      </div>
     </div>
 
     <div class="panel">
@@ -150,7 +146,7 @@ textarea { width: 100%; min-height: 90px; background: var(--panel); border: 1px 
       <div class="row"><label for="optTimeout">Hard timeout</label>
         <input type="number" id="optTimeout" min="300" step="100" style="width:90px"> ms</div>
       <div class="row"><label><input type="checkbox" id="optSchema"> Enforce JSON schema</label></div>
-      <div class="row"><label for="optWordMs">Demo speech: ms per word</label>
+      <div class="row"><label for="optWordMs">Preset lines: ms per word</label>
         <input type="number" id="optWordMs" min="50" step="10" value="220" style="width:80px">
         <label for="optSilenceMs">silence before line ends</label>
         <input type="number" id="optSilenceMs" min="0" step="50" value="600" style="width:80px"> ms</div>
@@ -430,19 +426,6 @@ const saveSettings = () => api("/api/settings", {
   hedge_ms: +$("optHedgeMs").value, timeout_ms: +$("optTimeout").value });
 ["optSchema", "optHedge", "optHedgeMs", "optTimeout", "optSpec"].forEach(id => $(id).onchange = saveSettings);
 
-$("demoBtn").onclick = async () => {
-  const btn = $("demoBtn");
-  btn.disabled = true;
-  await newCall();
-  const lines = await api("/api/demo");
-  for (let i = 0; i < lines.length; i++) {
-    $("demoStatus").textContent = `line ${i + 1} of ${lines.length}`;
-    await speak(lines[i].text);
-    await sleep(500);
-  }
-  $("demoStatus").textContent = "done";
-  btn.disabled = false;
-};
 
 loadConfig().then(refresh);
 </script>

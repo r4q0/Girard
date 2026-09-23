@@ -50,7 +50,7 @@ Girard is three programs that run on your computer:
 
 ### Salesbook
 
-Girard's advice comes from a salesbook. It holds context and information about your business, plus a short list of entries on objections, competitors, common questions, proof points, and buying or risk signals. Cards only use facts from the salesbook. The demo uses [salesbook_koref.txt](salesbook_koref.txt). Any file named `salesbook_*.txt` in this folder works.
+Girard's advice comes from a salesbook. It holds context and information about your business, plus a short list of entries on objections, competitors, common questions, proof points, and buying or risk signals. Cards only use facts from the salesbook. Girard loads [salesbook_koref.txt](salesbook_koref.txt). Any file named `salesbook_*.txt` in this folder works.
 
 ## Run it
 
@@ -92,16 +92,11 @@ powershell -ExecutionPolicy Bypass -File start.ps1
 
 This opens three windows (audio helper, agent, dashboard) and then the dashboard at http://localhost:5173 in your browser. The first page load takes a few seconds while the dashboard builds.
 
-### Your first call
+### Run a call
 
-1. Fill in the prospect (company, website, contact, goal). Press **Research prospect** for a pre-call brief.
-2. Under **Playback output**, choose where your call's sound comes out:
-   - **Your speakers or headset** to use Girard on a real call. Girard hears everything that plays on that output, so close music and videos. Make sure the output is not muted: Windows gives muted outputs no sound to capture.
-   - **Demo call (scripted, no audio)** to see Girard work without a call. It plays [demo_call.txt](demo_call.txt) as if the prospect were speaking.
-3. Press **Start call**. Cards appear at the top of the screen, close to your camera.
-4. Press **End call** for the debrief.
-
-The dashboard also has **Run demo call**, which plays a demo inside the browser only, with no agent. Use **Start call** with the demo output to see the real pipeline.
+1. Start your call. Girard listens to your default playback output (your speakers or headset), so it hears the prospect. Close music and videos, and make sure that output is not muted: Windows gives muted outputs no sound to capture.
+2. Press **Start call**. Cards appear at the top of the screen, close to your camera.
+3. Press **End call** for the debrief.
 
 ### Linux and macOS
 
@@ -156,9 +151,8 @@ dashboard/               Dashboard (git submodule of the Lovable project)
 dashboard-protocol.md    Messages between the agent and the dashboard
 linux-audio-helper/      Audio helper: call audio capture and local speech-to-text
                          (Linux, and Windows via speaker loopback)
-salesbook_koref.txt      Salesbook used by the demo
+salesbook_koref.txt      Salesbook Girard loads
 salesbook_example.txt    Smaller example salesbook
-demo_call.txt            Scripted demo call (prospect lines)
 eval/                    Card accuracy test set, runner and results
 setup.ps1, start.ps1     Windows setup and start
 start.sh                 Linux and macOS start
@@ -168,4 +162,4 @@ CLAUDEcontext.md         Full project context and design decisions
 
 ## Status
 
-Hackathon project. Works end to end on Windows with the demo call. Live capture needs an unmuted playback output.
+Hackathon project. Runs end to end on Windows. Live capture needs an unmuted playback output.
