@@ -1,0 +1,651 @@
+"""
+Girard agent service: the middle part between the audio helper and the dashboard.
+
+    audio helper (127.0.0.1:8766, HTTP + SSE)  ->  agent (this, :8000/ws)  ->  dashboard (:5173)
+
+- Talks to the dashboard over one WebSocket, following dashboard-protocol.md.
+- Starts and stops capture on the audio helper and turns its transcript into cards
+  with the fast lane in server.py (early start on partial speech, hedging, warm cache).
+- Research lane (Tavily), pre-call research, rolling call summary (slow lane),
+  metrics and the post-call debrief.
+- "Demo call" output: plays demo_call.txt as live speech, so the whole pipeline
+  runs without a real call or audio.
+
+Run:  .venv/Scripts/python agent.py   (serves the WebSocket and the dev portal on :8000)
+"""
+import asyncio
+import json
+import os
+import re
+import time
+import uuid
+from pathlib import Path
+
+import aiohttp
+from fastapi import WebSocket, WebSocketDisconnect
+
+import server
+from server import MODEL, S, app, client, warmup
+
+ROOT = Path(__file__).parent
+HELPER_URL = os.environ.get("GIRARD_HELPER_URL", "http://127.0.0.1:8766")
+TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "")
+SLOW_MODEL = os.environ.get("GIRARD_SLOW_MODEL", "Qwen/Qwen3-235B-A22B-Instruct-2507")
+DEMO_SINK = "girard-demo"
+AGENT_NAME = "girard-agent 0.2.0"
+# USD per token for the slow lane (Token Factory catalog); fast lane prices live in server.py
+SLOW_PRICE_IN, SLOW_PRICE_OUT = 0.20 / 1e6, 0.60 / 1e6
+USD_TO_EUR = 0.92  # approximate
+SUMMARY_EVERY_S = 30
+PAUSE_S = 0.25           # a partial unchanged this long counts as a short pause
+STALE_CARD_S = 5.0       # drop cards that would arrive later than this after their line
+MAX_RESEARCH_PER_CALL = 5
+HELPER_HEADERS = {"X-Call-Audio": "1", "Content-Type": "application/json"}
+
+FAST_NOTE = "No filler. No articles. Fragments OK. Facts only."
+
+
+def now_ms():
+    return int(time.time() * 1000)
+
+
+def pct(values, p):
+    return server.pct(values, p)
+
+
+class Hub:
+    """Every connected dashboard gets every message."""
+
+    def __init__(self):
+        self.sockets = set()
+
+    async def send(self, message):
+        dead = []
+        for ws in list(self.sockets):
+            try:
+                await ws.send_text(json.dumps(message))
+            except Exception:
+                dead.append(ws)
+        for ws in dead:
+            self.sockets.discard(ws)
+
+    def post(self, message):
+        """Fire-and-forget send from sync code."""
+        asyncio.get_running_loop().create_task(self.send(message))
+
+    async def notice(self, message, level="warning"):
+        await self.send({"type": "notice", "level": level, "message": message})
+
+
+HUB = Hub()
+RESEARCH_CACHE = {}  # entity (lowercase) -> finished research message, shared across calls
+
+
+class Call:
+    """One call session: source, transcript, cards, lanes and metrics."""
+
+    def __init__(self, prospect, source):
+        self.id = uuid.uuid4().hex[:12]
+        self.prospect = prospect or {}
+        self.source = source            # "helper" or "demo"
+        self.state = "loading"
+        self.started_at = None          # wall clock ms when listening began
+        self.segments = {}              # segment_id -> latest transcript event
+        self.finals = []                # final lines in order: {segment_id, text, end_ms}
+        self.pause_timers = {}
+        self.cards = []
+        self.card_seq = 0
+        self.researched = set()
+        self.usage = {"slow": [0, 0, 0], "research": [0, 0, 0]}  # input, cached, output
+        self.usd = {"slow": 0.0, "research": 0.0}
+        self.calls = {"slow": 0, "research": 0}
+        self.lat = {"stt": [], "trigger": [], "ttft": [], "total": []}
+        self.summary_lines = 0
+        self.tasks = set()
+        self.stopping = False
+
+    def spawn(self, coro):
+        task = asyncio.get_running_loop().create_task(coro)
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
+        return task
+
+    def speech_end_wall(self, event):
+        """Wall clock (s) when this segment's speech ended, from helper timestamps."""
+        if self.started_at is None or event.get("end_ms") is None:
+            return time.time()
+        return self.started_at / 1000 + event["end_ms"] / 1000
+
+
+CALL: Call | None = None
+PRECALL = None  # last precall result, reused as context for the call
+
+
+# ---------------------------------------------------------------- model helpers
+
+async def llm_json(call, lane, model, system, user, max_tokens=700):
+    """One JSON-mode completion, with usage counted for the metrics."""
+    r = await client.chat.completions.create(
+        model=model, temperature=0.2, max_tokens=max_tokens,
+        response_format={"type": "json_object"},
+        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+    )
+    if call is not None and r.usage:
+        details = getattr(r.usage, "prompt_tokens_details", None)
+        cached = (getattr(details, "cached_tokens", None) if details else None) or 0
+        u = call.usage[lane]
+        u[0] += r.usage.prompt_tokens
+        u[1] += cached
+        u[2] += r.usage.completion_tokens
+        if model == SLOW_MODEL:
+            call.usd[lane] += r.usage.prompt_tokens * SLOW_PRICE_IN + r.usage.completion_tokens * SLOW_PRICE_OUT
+        else:
+            call.usd[lane] += r.usage.prompt_tokens * server.PRICE_IN + r.usage.completion_tokens * server.PRICE_OUT
+        call.calls[lane] += 1
+    text = r.choices[0].message.content or "{}"
+    text = re.sub(r"^```(json)?|```$", "", text.strip()).strip()
+    return json.loads(text)
+
+
+async def tavily(query, max_results=5):
+    if not TAVILY_API_KEY:
+        raise RuntimeError("TAVILY_API_KEY is not set")
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=12)) as session:
+        async with session.post("https://api.tavily.com/search",
+                                headers={"Authorization": f"Bearer {TAVILY_API_KEY}"},
+                                json={"query": query, "max_results": max_results,
+                                      "search_depth": "basic"}) as resp:
+            if resp.status != 200:
+                raise RuntimeError(f"Tavily returned HTTP {resp.status}")
+            data = await resp.json()
+    return data.get("results", [])
+
+
+def salesbook_text():
+    return (ROOT / S.salesbook_name).read_text(encoding="utf-8")
+
+
+def sources_from(results, n=4):
+    return [{"title": r.get("title") or r.get("url", ""), "url": r.get("url", "")} for r in results[:n]]
+
+
+def results_text(results):
+    return "\n\n".join(f"[{i + 1}] {r.get('title', '')} ({r.get('url', '')})\n{(r.get('content') or '')[:700]}"
+                       for i, r in enumerate(results))
+
+
+# ---------------------------------------------------------------- metrics
+
+async def send_metrics(call):
+    fast = S.metrics
+    f_in = sum(m.get("prompt_tokens") or 0 for m in fast)
+    f_cached = sum(m.get("cached_tokens") or 0 for m in fast)
+    f_out = sum(m.get("completion_tokens") or 0 for m in fast)
+    t_in = f_in + sum(u[0] for u in call.usage.values())
+    t_cached = f_cached + sum(u[1] for u in call.usage.values())
+    t_out = f_out + sum(u[2] for u in call.usage.values())
+    usd = sum(m.get("cost_usd") or 0 for m in fast) + sum(call.usd.values())
+
+    def stat(values):
+        if not values:
+            return None
+        return {"last": round(values[-1]), "p50": round(pct(values, 50)),
+                "p95": round(pct(values, 95)), "p99": round(pct(values, 99))}
+
+    latency = {k: s for k, s in ((k, stat(v)) for k, v in call.lat.items()) if s}
+    await HUB.send({
+        "type": "metrics",
+        "tokens": {"input": t_in, "cached": t_cached, "output": t_out},
+        "cost_eur": round(usd * USD_TO_EUR, 6),
+        "calls": {"fast": len(fast), "slow": call.calls["slow"], "research": call.calls["research"]},
+        "cache_hit_rate": round(t_cached / t_in, 4) if t_in else None,
+        "latency_ms": latency,
+    })
+
+
+# ---------------------------------------------------------------- transcript -> cards
+
+async def on_transcript(call, event):
+    """Every transcript revision from the helper (or the demo): forward it, start early on
+    a pause in partial speech, and run the fast lane on final lines."""
+    seg = str(event["segment_id"])
+    event = {**event, "type": "transcript", "segment_id": seg, "speaker": "customer",
+             "session_id": call.id}
+    event.pop("endpoint", None)
+    call.segments[seg] = event
+    await HUB.send({k: v for k, v in event.items()
+                    if k in ("type", "session_id", "segment_id", "start_ms", "end_ms", "text", "is_final", "speaker")})
+    text = event["text"].strip()
+    timer = call.pause_timers.pop(seg, None)
+    if timer:
+        timer.cancel()
+    if not event["is_final"]:
+        if re.search(r"[.?!,]$", text):
+            server.begin_partial(text)  # speech-to-text marked a phrase end
+        else:
+            call.pause_timers[seg] = asyncio.get_running_loop().call_later(
+                PAUSE_S, lambda: server.begin_partial(text) if not call.segments[seg]["is_final"] else None)
+        return
+    arrived, arrived_perf = time.time(), time.perf_counter()
+    call.finals.append({"segment_id": seg, "text": text, "end_ms": event.get("end_ms")})
+    run, reused, head_start = server.begin_line(text)
+    if run is None:
+        return
+    call.spawn(finish_card(call, seg, text, run, reused, head_start, arrived, arrived_perf,
+                           call.speech_end_wall(event)))
+
+
+async def finish_card(call, seg, text, run, reused, head_start, arrived, arrived_perf, speech_end):
+    await asyncio.wait([run.task])
+    if run.task.cancelled():
+        return  # a newer line took over
+    try:
+        card, m = server.complete_line(text, run, reused, head_start)
+    except Exception as e:
+        await HUB.notice(f"Card request failed: {type(e).__name__}: {e}")
+        return
+    sent = time.time()
+    if card is None:
+        await send_metrics(call)
+        return
+    if sent - arrived > STALE_CARD_S:
+        await send_metrics(call)
+        return
+    call.card_seq += 1
+    entry = card.get("entry") or {}
+    proof = next((d.split(":", 1)[1].strip() for d in entry.get("details", []) if d.startswith("Proof:")), None)
+    title = f"Unknown vendor: {card['q']}" if card["id"] == "comp_unknown" else entry.get("title", card["id"])
+    stt = max(0.0, (arrived - speech_end) * 1000) if call.source == "helper" else 0.0
+    # from the final line to the card request; 0 when it already started on partial speech
+    trigger = 0.0 if reused else max(0.0, (run.t0 - arrived_perf) * 1000)
+    total = max(0.0, (sent - speech_end) * 1000)
+    latency = {"stt": round(stt), "trigger": round(trigger), "ttft": round(m.get("ttft_ms") or 0), "total": round(total)}
+    for k, v in latency.items():
+        call.lat[k].append(v)
+    message = {
+        "type": "card", "card_id": f"c_{call.card_seq:04d}", "playbook_id": card["id"],
+        "kind": card["id"].split("_")[0], "title": title, "say": card.get("say") or [],
+        "proof": proof, "q": card.get("q"), "trigger": {"segment_id": seg, "text": text},
+        "latency_ms": latency, "created_at": now_ms(),
+    }
+    call.cards.append(message)
+    await HUB.send(message)
+    await send_metrics(call)
+    if card.get("q"):
+        call.spawn(research(call, card["q"], origin="live"))
+
+
+# ---------------------------------------------------------------- research lane
+
+async def research(call, entity, origin="live"):
+    key = entity.strip().lower()
+    if not key or (call and key in call.researched):
+        return
+    rid = "r_" + re.sub(r"[^a-z0-9]+", "_", key).strip("_")
+    if key in RESEARCH_CACHE:
+        cached = {**RESEARCH_CACHE[key], "origin": "cache" if origin == "live" else origin}
+        if call:
+            call.researched.add(key)
+        await HUB.send(cached)
+        return
+    if call:
+        if len(call.researched) >= MAX_RESEARCH_PER_CALL:
+            return
+        call.researched.add(key)
+    await HUB.send({"type": "research", "research_id": rid, "entity": entity, "status": "searching", "origin": origin})
+    t0 = time.perf_counter()
+    try:
+        results = await asyncio.wait_for(tavily(f"{entity} company product what they do"), 12)
+        out = await asyncio.wait_for(llm_json(call, "research", MODEL,
+            "Summarize web results about a vendor a sales prospect mentioned. "
+            'Return JSON {"bullets": [1 to 3 short factual bullets, max 15 words each]}. '
+            "Only facts from the results. " + FAST_NOTE,
+            f"Vendor: {entity}\n\nResults:\n{results_text(results)}", max_tokens=200), 8)
+        message = {"type": "research", "research_id": rid, "entity": entity, "status": "done", "origin": origin,
+                   "bullets": [str(b) for b in out.get("bullets", [])][:3], "sources": sources_from(results, 3),
+                   "took_ms": round((time.perf_counter() - t0) * 1000)}
+        RESEARCH_CACHE[key] = message
+        await HUB.send(message)
+    except Exception as e:
+        await HUB.send({"type": "research", "research_id": rid, "entity": entity, "status": "failed", "origin": origin,
+                        "took_ms": round((time.perf_counter() - t0) * 1000)})
+        if "TAVILY_API_KEY" in str(e):
+            await HUB.notice("Research is off: add TAVILY_API_KEY to .env and restart the agent.")
+    if call:
+        await send_metrics(call)
+
+
+async def precall(prospect):
+    """Research the prospect before the call."""
+    global PRECALL
+    company = (prospect.get("company") or "").strip()
+    if not company:
+        await HUB.send({"type": "precall", "status": "failed", "error": "Enter a company name first."})
+        return
+    await HUB.send({"type": "precall", "status": "searching", "company": company})
+    try:
+        query = f"{company} {prospect.get('website') or ''} company".strip()
+        results = await asyncio.wait_for(tavily(query, 6), 15)
+        out = await asyncio.wait_for(llm_json(None, "research", SLOW_MODEL,
+            "You prepare a sales rep for a discovery call. From the web results, return JSON "
+            '{"summary": "one or two sentences", "bullets": [3 to 5 short facts useful on the call], '
+            '"likely_competitors": [up to 4 vendors they may already use or compare, only if the results suggest it]}. '
+            "Only facts from the results.",
+            f"Company: {company}\nWebsite: {prospect.get('website') or '-'}\nContact: {prospect.get('contact') or '-'}\n"
+            f"Goal of the call: {prospect.get('goal') or '-'}\n\nResults:\n{results_text(results)}", 500), 25)
+        PRECALL = {"type": "precall", "status": "done", "company": company,
+                   "website": prospect.get("website") or None, "summary": out.get("summary", ""),
+                   "bullets": [str(b) for b in out.get("bullets", [])][:5],
+                   "likely_competitors": [str(c) for c in out.get("likely_competitors", [])][:4],
+                   "sources": sources_from(results, 4)}
+        PRECALL = {k: v for k, v in PRECALL.items() if v is not None}
+        await HUB.send(PRECALL)
+        for name in PRECALL["likely_competitors"][:3]:  # cached, so mentions during the call are instant
+            asyncio.get_running_loop().create_task(research(None, name, origin="pre_call"))
+    except Exception as e:
+        reason = "add TAVILY_API_KEY to .env" if "TAVILY_API_KEY" in str(e) else f"{type(e).__name__}"
+        await HUB.send({"type": "precall", "status": "failed", "company": company, "error": f"Research failed: {reason}."})
+
+
+# ---------------------------------------------------------------- slow lane
+
+async def summary_loop(call):
+    while call is CALL and not call.stopping:
+        await asyncio.sleep(SUMMARY_EVERY_S)
+        if call is CALL and len(call.finals) > call.summary_lines:
+            await summarize(call)
+
+
+async def summarize(call):
+    call.summary_lines = len(call.finals)
+    transcript = "\n".join(f"PROSPECT: {f['text']}" for f in call.finals)
+    shown = ", ".join(c["playbook_id"] for c in call.cards) or "none"
+    try:
+        out = await llm_json(call, "slow", SLOW_MODEL,
+            "You track a live sales discovery call. Only the prospect is transcribed; the rep is not. "
+            "Return JSON: "
+            '{"text": "call so far, max 60 words, terse: prospect, pain, numbers, decision maker, timing", '
+            '"stage": "one of Opening, Discovery, Qualification, Objections, Closing", '
+            '"ask_next": [up to 3 questions the rep has not covered yet], "risks": [up to 3], '
+            '"next_step": "best next step", "sentiment": {"value": -1 to 1, "label": "one word"}}. '
+            "Next steps and questions must fit the SALESBOOK and its DON'TS. " + FAST_NOTE,
+            f"Prospect context: {json.dumps(call.prospect)}\nPre-call research: {(PRECALL or {}).get('summary', '-')}\n"
+            f"Cards shown to the rep: {shown}\n\nTranscript:\n{transcript}\n\nSALESBOOK:\n{salesbook_text()}", 400)
+    except Exception as e:
+        await HUB.notice(f"Summary failed: {type(e).__name__}")
+        return
+    S.summary = str(out.get("text", ""))[:600]  # the fast lane's CALL SO FAR
+    await HUB.send({"type": "summary", "text": S.summary, "stage": out.get("stage"),
+                    "ask_next": [str(x) for x in out.get("ask_next", [])][:3],
+                    "risks": [str(x) for x in out.get("risks", [])][:3],
+                    "next_step": out.get("next_step"), "updated_at": now_ms()})
+    sentiment = out.get("sentiment") or {}
+    if isinstance(sentiment.get("value"), (int, float)):
+        await HUB.send({"type": "sentiment", "value": max(-1, min(1, float(sentiment["value"]))),
+                        "label": sentiment.get("label")})
+    await send_metrics(call)
+
+
+async def debrief(call):
+    await HUB.send({"type": "debrief", "status": "writing"})
+    transcript = "\n".join(f"PROSPECT: {f['text']}" for f in call.finals)
+    if not transcript:
+        await HUB.send({"type": "debrief", "status": "failed"})
+        await HUB.notice("No prospect speech was captured, so there is nothing to debrief.", "info")
+        return
+    cards = "\n".join(f"- {c['kind']}: {c['title']} (on: \"{c['trigger']['text']}\")" for c in call.cards) or "none"
+    try:
+        out = await llm_json(call, "slow", SLOW_MODEL,
+            "Write the post-call debrief for a sales rep. Only the prospect's side was transcribed; "
+            "you also get the advice cards the rep was shown. Do not claim what the rep said. "
+            "Only suggest offers, prices, timelines and claims that are in the SALESBOOK below, and "
+            "respect its DON'TS: never invent discounts, credits, guarantees or dates. "
+            "Plain, direct English for humans. Return JSON: "
+            '{"summary": "3 to 4 sentences", "went_well": [..], "improve": [..], "needs": [what the prospect needs], '
+            '"objections": [{"objection": "..", "handled": "what the card suggested", "status": "open or resolved"}], '
+            '"competitors": [..], "next_steps": [concrete actions], '
+            '"email": {"subject": "..", "body": "short follow-up email from the rep to the prospect"}}',
+            f"Prospect: {json.dumps(call.prospect)}\nPre-call research: {(PRECALL or {}).get('summary', '-')}\n"
+            f"Last call summary: {S.summary or '-'}\n\nCards shown:\n{cards}\n\nTranscript:\n{transcript}"
+            f"\n\nSALESBOOK:\n{salesbook_text()}", 1400)
+        message = {"type": "debrief", "status": "done", "summary": out.get("summary", "")}
+        for key in ("went_well", "improve", "needs", "competitors", "next_steps"):
+            message[key] = [str(x) for x in out.get(key, [])]
+        message["objections"] = [
+            {"objection": str(o.get("objection", "")), "handled": str(o.get("handled", "")),
+             "status": o.get("status") if o.get("status") in ("open", "resolved") else "open"}
+            for o in out.get("objections", []) if isinstance(o, dict)]
+        email = out.get("email") or {}
+        if email.get("subject") and email.get("body"):
+            message["email"] = {"subject": str(email["subject"]), "body": str(email["body"])}
+        await HUB.send(message)
+    except Exception as e:
+        await HUB.send({"type": "debrief", "status": "failed"})
+        await HUB.notice(f"Debrief failed: {type(e).__name__}: {e}", "error")
+    await send_metrics(call)
+
+
+# ---------------------------------------------------------------- audio sources
+
+async def helper_get(path):
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+        async with s.get(HELPER_URL + path) as r:
+            return await r.json()
+
+
+async def helper_post(path, body):
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
+        async with s.post(HELPER_URL + path, headers=HELPER_HEADERS, json=body) as r:
+            data = await r.json(content_type=None)
+            if r.status >= 400:
+                raise RuntimeError(data.get("error") or data.get("message") or f"HTTP {r.status}")
+            return data
+
+
+async def devices_message():
+    outputs, streams, helper_ok = [], [], True
+    try:
+        d = await helper_get("/api/devices")
+        outputs, streams = d.get("outputs", []), d.get("streams", [])
+    except Exception:
+        helper_ok = False
+    demo = {"id": DEMO_SINK, "name": "Demo call (scripted, no audio)", "sample_rate": 16000,
+            "is_default": not outputs}
+    return {"type": "devices", "outputs": outputs + [demo], "streams": streams}, helper_ok
+
+
+async def set_state(call, state, error=None):
+    call.state = state
+    if state == "listening" and call.started_at is None:
+        call.started_at = now_ms()
+    await HUB.send({"type": "state", "session_id": call.id, "state": state,
+                    "started_at": call.started_at, "error": error})
+
+
+async def run_helper(call, command):
+    """Start capture on the helper and consume its events until the session ends."""
+    body = {"sink_id": command.get("sink_id"), "engine": "local", "isolate": bool(command.get("isolate"))}
+    if body["isolate"] and command.get("stream_id") is not None:
+        body["stream_id"] = int(command["stream_id"])
+    try:
+        snap = await helper_post("/api/start", body)
+    except Exception as e:
+        await set_state(call, "error", f"Audio helper: {e}")
+        await HUB.notice(f"Could not start capture: {e}", "error")
+        return
+    helper_session = snap.get("session_id")
+    timeout = aiohttp.ClientTimeout(total=None, sock_read=None)
+    while call is CALL:
+        try:
+            async with aiohttp.ClientSession(timeout=timeout) as s:
+                async with s.get(HELPER_URL + "/api/events") as resp:
+                    async for raw in resp.content:
+                        line = raw.decode("utf-8", "replace").strip()
+                        if not line.startswith("data:"):
+                            continue
+                        ev = json.loads(line[5:])
+                        kind = ev.get("type")
+                        if ev.get("session_id") not in (None, helper_session):
+                            continue
+                        if kind == "transcript":
+                            await on_transcript(call, ev)
+                        elif kind == "metrics":
+                            await HUB.send({"type": "audio", "level": ev.get("level", 0),
+                                            "elapsed_seconds": ev.get("elapsed_seconds"),
+                                            "queue_ms": ev.get("queue_ms"), "processing_ms": ev.get("processing_ms")})
+                        elif kind == "state":
+                            st = ev.get("state")
+                            if st in ("loading", "listening", "stopping", "error") and st != call.state:
+                                await set_state(call, st, ev.get("error"))
+                            if st in ("idle", "error") and call.state != "loading":
+                                return
+                        elif kind in ("error", "warning"):
+                            await HUB.notice(ev.get("message", kind), "error" if kind == "error" else "warning")
+                        elif kind == "reconnect":
+                            break
+        except Exception:
+            if call is not CALL or call.stopping:
+                return
+            await asyncio.sleep(0.5)  # SSE dropped; reconnect for a fresh snapshot
+
+
+async def run_demo(call):
+    """Play demo_call.txt as if spoken: words arrive over time, then a short silence."""
+    lines = [l.split(":", 1)[1].strip() for l in (ROOT / "demo_call.txt").read_text(encoding="utf-8").splitlines()
+             if l.startswith("CUSTOMER:")]
+    await asyncio.sleep(0.4)
+    await set_state(call, "listening")
+    t0 = time.time()
+    word_s, silence_s = 0.22, 0.6
+
+    async def audio(level):
+        await HUB.send({"type": "audio", "level": level, "elapsed_seconds": round(time.time() - t0, 1)})
+
+    for i, text in enumerate(lines):
+        if call is not CALL or call.stopping:
+            return
+        seg, words = str(i + 1), text.split()
+        start_ms = round((time.time() - t0) * 1000)
+        for n in range(1, len(words) + 1):
+            await asyncio.sleep(word_s)
+            if call is not CALL or call.stopping:
+                return
+            await audio(0.04 + 0.02 * (n % 3))
+            await on_transcript(call, {"segment_id": seg, "start_ms": start_ms,
+                                       "end_ms": round((time.time() - t0) * 1000),
+                                       "text": " ".join(words[:n]), "is_final": False})
+        end_ms = round((time.time() - t0) * 1000)
+        await audio(0.002)
+        await asyncio.sleep(silence_s)
+        await on_transcript(call, {"segment_id": seg, "start_ms": start_ms, "end_ms": end_ms,
+                                   "text": text, "is_final": True})
+        await asyncio.sleep(1.2)
+    await HUB.notice("Demo call finished. Press Stop for the debrief.", "info")
+
+
+# ---------------------------------------------------------------- commands
+
+async def start_call(command):
+    global CALL
+    if CALL and CALL.state in ("loading", "listening", "stopping"):
+        await HUB.notice("A call is already running. Stop it first.")
+        return
+    source = "demo" if command.get("sink_id") == DEMO_SINK else "helper"
+    call = CALL = Call(command.get("prospect") or {}, source)
+    for run in (S.spec, S.inflight):
+        if run:
+            run.cancel()
+    S.reset()
+    if PRECALL and PRECALL.get("company") == call.prospect.get("company"):
+        S.summary = f"Prospect: {PRECALL['company']}. {PRECALL.get('summary', '')}"[:600]
+    await set_state(call, "loading")
+    asyncio.get_running_loop().create_task(warmup())
+    call.spawn(summary_loop(call))
+    if source == "demo":
+        call.spawn(run_demo(call))
+    else:
+        call.spawn(run_helper(call, command))
+
+
+async def stop_call():
+    call = CALL
+    if not call or call.state not in ("loading", "listening"):
+        return
+    call.stopping = True
+    await set_state(call, "stopping")
+    if call.source == "helper":
+        try:
+            await helper_post("/api/stop", {})
+            for _ in range(50):
+                st = await helper_get("/api/state")
+                if st.get("state") in ("idle", "error"):
+                    break
+                await asyncio.sleep(0.2)
+        except Exception as e:
+            await HUB.notice(f"Audio helper stop: {e}")
+        await asyncio.sleep(0.3)  # let the last final transcript events arrive
+    for task in list(call.tasks):
+        if not task.done() and task.get_coro().__name__ in ("run_demo", "run_helper", "summary_loop"):
+            task.cancel()
+    await set_state(call, "idle")
+    await debrief(call)
+
+
+async def handle(command):
+    kind = command.get("type")
+    if kind == "refresh_devices":
+        message, ok = await devices_message()
+        await HUB.send(message)
+        if not ok:
+            await HUB.notice("Audio helper not running, so only the demo call is available. "
+                             "Start it with: linux-audio-helper/.venv/Scripts/call-audio serve --port 8766", "info")
+    elif kind == "precall":
+        asyncio.get_running_loop().create_task(precall(command))
+    elif kind == "start":
+        await start_call(command)
+    elif kind == "stop":
+        await stop_call()
+    elif kind in ("feedback", "dismiss") and CALL:
+        for card in CALL.cards:
+            if card["card_id"] == command.get("card_id"):
+                card[kind] = command.get("useful", True)
+
+
+@app.websocket("/ws")
+async def ws_endpoint(ws: WebSocket):
+    await ws.accept()
+    HUB.sockets.add(ws)
+    try:
+        await ws.send_text(json.dumps({
+            "type": "hello", "protocol": 1, "agent": AGENT_NAME,
+            "models": {"fast": MODEL, "slow": SLOW_MODEL},
+            "playbook": {"name": S.salesbook_name, "entries": len(S.entries)}}))
+        message, ok = await devices_message()
+        await ws.send_text(json.dumps(message))
+        if CALL:
+            await ws.send_text(json.dumps({"type": "state", "session_id": CALL.id, "state": CALL.state,
+                                           "started_at": CALL.started_at, "error": None}))
+        if PRECALL:
+            await ws.send_text(json.dumps(PRECALL))
+        if not ok:
+            await ws.send_text(json.dumps({"type": "notice", "level": "info", "message":
+                "Audio helper not running, so only the demo call is available."}))
+        while True:
+            raw = await ws.receive_text()
+            try:
+                command = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+            try:
+                await handle(command)
+            except Exception as e:
+                await HUB.notice(f"{command.get('type')} failed: {type(e).__name__}: {e}", "error")
+    except WebSocketDisconnect:
+        pass
+    finally:
+        HUB.sockets.discard(ws)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=int(os.environ.get("PORT", 8000)))

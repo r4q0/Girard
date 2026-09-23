@@ -1,12 +1,9 @@
 """
-Girard demo portal: send transcript lines, get fast lane advice cards.
+Girard fast lane: prospect lines in, advice cards out, on Nebius Token Factory
+(serverless). Also serves the dev portal at / for typing lines by hand.
 
-Runs the fast lane on Nebius Token Factory (serverless, pay per token).
-
-Usage:
-    pip install openai fastapi uvicorn python-dotenv
-    # put NEBIUS_API_KEY=... in .env
-    python server.py            # then open http://localhost:8000
+agent.py imports this module, adds the dashboard WebSocket and runs the app:
+    python agent.py   (then http://localhost:8000)
 """
 import asyncio
 import json
@@ -160,7 +157,7 @@ def parse_salesbook(text):
 
 class Session:
     def __init__(self):
-        self.settings = {"schema": True, "hedge": True, "hedge_ms": 450, "timeout_ms": 3000,
+        self.settings = {"schema": True, "hedge": True, "hedge_ms": 450, "timeout_ms": 6000,
                          "speculate": True, "min_words": 3}
         self.warm = None
         self.last_request = 0.0
@@ -595,20 +592,61 @@ class Run:
             self.task.cancel()
 
 
-@app.post("/api/partial")
-async def add_partial(body: Line):
-    """Partial speech (the prospect is still talking). If it looks like a sentence,
-    start the fast lane early. Streams the same events as /api/line, ending with
-    "ready" (waiting for the final line) or "cancelled" (the prospect kept talking)."""
-    text = body.text.strip()
+def begin_partial(text):
+    """Partial speech (the prospect is still talking): start the fast lane early.
+    Returns the new Run, "same" if this exact text is already running, or None."""
+    text = text.strip()
     st = S.settings
     if not st["speculate"] or len(text.split()) < st["min_words"] or is_backchannel(text):
-        return event_stream(single({"type": "waiting"}))
+        return None
     if S.spec and S.spec.key == norm(text):
-        return event_stream(single({"type": "same"}))
+        return "same"
     if S.spec:
         S.spec.cancel()  # an older guess at this sentence
-    run = S.spec = Run(text, S.messages_for(text))
+    S.spec = Run(text, S.messages_for(text))
+    return S.spec
+
+
+def begin_line(text):
+    """Final prospect line (end of speech). Adds it to the transcript and returns
+    (run, reused, head_start_ms). run is None for backchannels ("yeah", "ok")."""
+    t_final = time.perf_counter()
+    spec, S.spec = S.spec, None
+    reused = spec is not None and spec.key == norm(text) and not spec.task.cancelled()
+    if spec and not reused:
+        spec.cancel()
+    # A newer line makes any earlier request stale
+    if S.inflight and S.inflight is not spec:
+        S.inflight.cancel()
+    if is_backchannel(text):
+        S.transcript.append({"speaker": "CUSTOMER", "text": text})
+        return None, False, 0.0
+    run = spec if reused else Run(text, S.messages_for(text))
+    S.transcript.append({"speaker": "CUSTOMER", "text": text})
+    S.inflight = run
+    return run, reused, (t_final - run.t0) * 1000 if reused else 0.0
+
+
+def complete_line(text, run, reused, head_start):
+    """After run finished: turn it into (card, metrics). Raises if it was cancelled."""
+    card, m = finalize(text, run.task.result())
+    m["early"] = reused
+    m["head_start_ms"] = round(head_start)
+    if run.card_ms is not None:
+        # What the rep feels: time from the end of speech until the card is on screen
+        m["after_speech_ms"] = max(0, round(run.card_ms - head_start))
+    return card, m
+
+
+@app.post("/api/partial")
+async def add_partial(body: Line):
+    """Partial speech. Streams the same events as /api/line, ending with "ready"
+    (waiting for the final line) or "cancelled" (the prospect kept talking)."""
+    run = begin_partial(body.text)
+    if run is None:
+        return event_stream(single({"type": "waiting"}))
+    if run == "same":
+        return event_stream(single({"type": "same"}))
 
     async def events():
         async for event in run.follow():
@@ -629,40 +667,21 @@ async def add_line(body: Line):
     text = body.text.strip()
     if not text:
         return event_stream(single({"type": "error", "error": "text required"}))
-    t_final = time.perf_counter()
-    spec, S.spec = S.spec, None
-    reused = spec is not None and spec.key == norm(text) and not spec.task.cancelled()
-    if spec and not reused:
-        spec.cancel()
-    # A newer line makes any earlier request stale
-    if S.inflight and S.inflight is not spec:
-        S.inflight.cancel()
-    if is_backchannel(text):
-        S.transcript.append({"speaker": "CUSTOMER", "text": text})
+    run, reused, head_start = begin_line(text)
+    if run is None:
         return event_stream(single({"type": "skipped", "reason": "backchannel filtered, no model call"}))
-
-    run = spec if reused else Run(text, S.messages_for(text))
-    S.transcript.append({"speaker": "CUSTOMER", "text": text})
-    S.inflight = run
-    head_start = (t_final - run.t0) * 1000 if reused else 0.0
 
     async def events():
         async for event in run.follow():
             yield sse(event)
         try:
-            res = run.task.result()
+            card, m = complete_line(text, run, reused, head_start)
         except asyncio.CancelledError:
             yield sse({"type": "cancelled", "reason": "a newer prospect line arrived"})
             return
         except Exception as e:  # surface API errors in the portal
             yield sse({"type": "error", "error": f"{type(e).__name__}: {e}"})
             return
-        card, m = finalize(text, res)
-        m["early"] = reused
-        m["head_start_ms"] = round(head_start)
-        if run.card_ms is not None:
-            # What the rep feels: time from the end of speech until the card is on screen
-            m["after_speech_ms"] = max(0, round(run.card_ms - head_start))
         yield sse({"type": "done", "card": card, "metrics": m})
 
     return event_stream(events())
@@ -711,5 +730,4 @@ async def keep_warm():
 
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=int(os.environ.get("PORT", 8000)))
+    raise SystemExit("Run the agent instead, it serves this portal too: python agent.py")

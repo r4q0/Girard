@@ -12,6 +12,7 @@ import json
 import re
 import shlex
 import subprocess
+import sys
 import threading
 import time
 import uuid
@@ -19,6 +20,9 @@ from collections.abc import Callable
 from typing import Any
 
 import numpy as np
+
+
+WINDOWS = sys.platform == "win32"
 
 
 class AudioError(RuntimeError):
@@ -57,8 +61,26 @@ def _rate(value: str) -> int:
     return rate
 
 
+def _windows_outputs() -> list[dict[str, Any]]:
+    """Windows: every speaker can be captured through WASAPI loopback."""
+    soundcard = importlib.import_module("soundcard")
+    default = soundcard.default_speaker()
+    return [
+        {
+            "id": speaker.id,
+            "name": speaker.name,
+            "monitor": speaker.id,  # the loopback source shares the speaker's id
+            "sample_rate": 48000,  # WASAPI converts to the requested rate
+            "is_default": speaker.id == default.id,
+        }
+        for speaker in soundcard.all_speakers()
+    ]
+
+
 def list_outputs() -> list[dict[str, Any]]:
     """List outputs with verified monitors, never physical input sources."""
+    if WINDOWS:
+        return _windows_outputs()
     sinks = _json("list", "sinks")
     sources = _json("list", "sources")
     default = _json("info").get("default_sink_name")
@@ -82,6 +104,8 @@ def list_outputs() -> list[dict[str, Any]]:
 
 
 def list_playback_streams() -> list[dict[str, Any]]:
+    if WINDOWS:
+        return []  # per-app isolation needs PulseAudio routing; not available on Windows
     sinks = {sink["index"]: sink["name"] for sink in _json("list", "sinks")}
     streams = []
     for stream in _json("list", "sink-inputs"):
@@ -212,6 +236,9 @@ class CaptureSource:
                 raise AudioError("The capture thread has not stopped; the audio server may be unresponsive.")
 
     def _capture(self) -> None:
+        if WINDOWS:
+            self._capture_windows()
+            return
         try:
             soundcard = importlib.import_module("soundcard")
             source = soundcard.get_microphone(id=self.monitor, include_loopback=True)
@@ -256,6 +283,46 @@ class CaptureSource:
         except Exception as exc:
             if not self._stop.is_set():
                 self.on_error(AudioError(f"Playback capture stopped: {exc}"))
+
+    def _capture_windows(self) -> None:
+        """WASAPI loopback of one speaker. Windows sends no loopback packets while
+        nothing plays, so a silent player keeps the stream flowing and Stop responsive."""
+        keepalive = None
+        try:
+            soundcard = importlib.import_module("soundcard")
+            speaker = soundcard.get_speaker(self.sink_id)
+            source = soundcard.get_microphone(id=self.monitor, include_loopback=True)
+            if source.id != self.monitor or not source.isloopback:
+                raise AudioError("Refusing capture: selected source is not the exact output loopback.")
+            blocksize = max(1, round(self.sample_rate * self.block_ms / 1000))
+            keepalive = threading.Thread(target=self._play_silence, args=(speaker,),
+                                         name="call-audio-keepalive", daemon=True)
+            keepalive.start()
+            with source.recorder(samplerate=self.sample_rate, channels=1, blocksize=blocksize) as recorder:
+                while not self._stop.is_set():
+                    data = recorder.record(numframes=blocksize)
+                    if self._stop.is_set():
+                        break
+                    samples = np.asarray(data, dtype=np.float32).reshape(-1)
+                    if samples.size:
+                        samples = np.clip(np.nan_to_num(samples), -1.0, 1.0)
+                        self.on_chunk(samples, self.sample_rate)
+        except Exception as exc:
+            if not self._stop.is_set():
+                self.on_error(AudioError(f"Playback capture stopped: {exc}"))
+        finally:
+            self._stop.set()
+            if keepalive is not None:
+                keepalive.join(timeout=1)
+
+    def _play_silence(self, speaker: Any) -> None:
+        try:
+            with speaker.player(samplerate=self.sample_rate, channels=1) as player:
+                silence = np.zeros(self.sample_rate // 20, dtype=np.float32)
+                while not self._stop.is_set():
+                    player.play(silence)
+        except Exception:
+            pass  # capture still works while the call itself plays audio
 
 
 def _module_arguments(value: str) -> dict[str, str]:

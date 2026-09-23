@@ -18,6 +18,31 @@ The API binds to `127.0.0.1`. Port 8765 is the default; the example uses 8766 to
 
 The model preloads, but capture stays **off** until an explicit `POST /api/start`. No login autostart or system-wide audio-default change is installed. Ctrl+C stops capture and restores owned temporary routes.
 
+## Windows
+
+The same API also runs on Windows 10 and 11. `/api/devices` lists every speaker, and capture uses WASAPI loopback of the chosen speaker. The code is in the `WINDOWS` branches of `src/call_audio/audio.py`; the Linux path is unchanged. Differences:
+
+- No per-app isolation: `streams` is always empty, so `isolate` cannot be used.
+- Windows gives no loopback audio for a muted output, so the call's output must be unmuted.
+- A silent player keeps the loopback stream running while nothing plays, so Stop stays responsive.
+- The Linux integration checks (`check_capture.py`, `check_session.py`) use `pactl` and do not run on Windows.
+
+```bash
+python -m venv .venv
+```
+
+```bash
+.venv\Scripts\python -m pip install -e .
+```
+
+```bash
+.venv\Scripts\call-audio prepare
+```
+
+```bash
+.venv\Scripts\call-audio serve --port 8766
+```
+
 ## Capture and retrieve text
 
 In another terminal, inspect health and available playback outputs:
