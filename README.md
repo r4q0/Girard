@@ -20,3 +20,40 @@ After the call, Girard provides a debriefing summarizing how the call went, what
 # Project Structure
 ## TODO
 
+## System overview
+
+```
+call playback audio -> [1] audio helper -> [2] agent service -> [3] dashboard (browser)
+                        localhost:8766      localhost:8000/ws     localhost:5173
+                        HTTP + SSE          WebSocket
+```
+
+| Part | Where it lives | Status |
+| --- | --- | --- |
+| [1] Audio helper: captures the other side of the call, transcribes locally (Moonshine) | Branch `feat/linux-audio-helper` (Linux, Josef). Branch `feat/macos-audio` adds macOS (ScreenCaptureKit). Folder `linux-audio-helper/`, see its README. | Works |
+| [2] Agent service: trigger logic, Nebius models, Tavily research, cards, debrief | Not built yet (Bilal). Contract: [dashboard-protocol.md](dashboard-protocol.md) | To do |
+| [3] Dashboard: live cards, research, transcript, cost and latency, debrief | `dashboard/` submodule, the Lovable project | Works, demo mode only until [2] exists |
+
+The browser never talks to the audio helper directly. The helper rejects cross-origin requests, so the agent service sits in between and relays start, stop and transcripts.
+
+## Running the dashboard
+
+`dashboard/` is a git submodule of the Lovable project [fragmential/girard-starter-spark](https://github.com/fragmential/girard-starter-spark) (private: you need access to it and a GitHub SSH key). It syncs both ways with Lovable, so make UI changes in Lovable, not here.
+
+```bash
+# fresh clone
+git clone --recurse-submodules git@github.com:r4q0/girard.git
+# or, in an existing clone
+git submodule update --init dashboard
+
+cd dashboard
+npm install --no-package-lock   # Lovable uses bun; this avoids a stray lockfile
+npx vite dev --port 5173
+```
+
+- http://localhost:5173/call?demo=1 plays a scripted demo call. It needs no other parts.
+- http://localhost:5173/ is the setup screen. It connects to the agent at `ws://localhost:8000/ws` (change it in settings or with `?agent=`).
+- To pull the latest Lovable changes: `git submodule update --remote dashboard`, then commit the new submodule pointer.
+
+Run the dashboard locally on the demo machine, so the page and the agent are both on localhost. A hosted https page connecting to `ws://localhost` can be blocked by some browsers.
+

@@ -37,3 +37,6 @@ pnpm-debug.log*
 # Logs / local data
 *.log
 tmp/
+
+# Claude Code local worktrees and state
+.claude/
