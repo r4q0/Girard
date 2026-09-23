@@ -74,6 +74,9 @@ class Hub:
 
 HUB = Hub()
 RESEARCH_CACHE = {}  # entity (lowercase) -> finished research message, shared across calls
+# Local competitor profiles (competitors.json), used before any web search
+PROFILES = {k: v for k, v in json.loads((ROOT / "competitors.json").read_text(encoding="utf-8")).items()
+            if not k.startswith("_")} if (ROOT / "competitors.json").exists() else {}
 
 
 class Call:
@@ -249,7 +252,10 @@ async def finish_card(call, seg, text, run, reused, head_start, arrived, arrived
     log(f"  -> CARD {card['id']}: {' / '.join(card.get('say') or [])}  ({round((sent - arrived) * 1000)} ms)")
     call.card_seq += 1
     entry = card.get("entry") or {}
-    proof = next((d.split(":", 1)[1].strip() for d in entry.get("details", []) if d.startswith("Proof:")), None)
+    details = entry.get("details", [])
+    proof = next((d.split(":", 1)[1].strip() for d in details if d.startswith("Proof:")), None)
+    if proof is None and card["id"].startswith("comp_"):  # competitor cards show how we compare
+        proof = next((d.strip() for d in details if d.startswith("We win:")), None)
     title = f"Unknown vendor: {card['q']}" if card["id"] == "comp_unknown" else entry.get("title", card["id"])
     stt = max(0.0, (arrived - speech_end) * 1000)
     # from the final line to the card request; 0 when it already started on partial speech
@@ -267,8 +273,10 @@ async def finish_card(call, seg, text, run, reused, head_start, arrived, arrived
     call.cards.append(message)
     await HUB.send(message)
     await send_metrics(call)
-    if card.get("q"):
-        call.spawn(research(call, card["q"], origin="live"))
+    # Research the vendor: an unknown one by name (q), or a salesbook competitor with a local profile
+    entity = card.get("q") or (entry.get("title") if card["id"].startswith("comp_") else None)
+    if entity and (card.get("q") or entity.strip().lower() in PROFILES):
+        call.spawn(research(call, entity, origin="live"))
 
 
 # ---------------------------------------------------------------- research lane
@@ -288,6 +296,13 @@ async def research(call, entity, origin="live"):
         if len(call.researched) >= MAX_RESEARCH_PER_CALL:
             return
         call.researched.add(key)
+    profile = PROFILES.get(key)
+    if profile:  # known competitor: profile and comparison straight from competitors.json
+        log(f"  -> research: {profile['name']} (local profile)")
+        await HUB.send({"type": "research", "research_id": rid, "entity": profile["name"], "status": "done",
+                        "origin": origin, "bullets": profile.get("about", []) + profile.get("compare", []),
+                        "sources": [], "took_ms": 0})
+        return
     await HUB.send({"type": "research", "research_id": rid, "entity": entity, "status": "searching", "origin": origin})
     t0 = time.perf_counter()
     try:

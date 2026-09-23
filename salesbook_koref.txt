@@ -139,6 +139,13 @@ Mentions: "our IT supplier", "our supplier bills by the hour", "our agency bills
 We win: fixed price, payback guarantee. Client carries no overrun risk.
 Say: Hourly means they carry every overrun. Koref sells the outcome at a fixed price.
 
+[comp_flowbase_01] COMPETITOR: Flowbase
+Mentions: "Flowbase", "a quote from Flowbase", "Flowbase is cheaper", "we looked at Flowbase"
+They win: low entry price, self-service start.
+We win: fixed price instead of per-document fees, Dutch hosting, open models, liability after go-live, 18-month payback guarantee.
+Don't say: anything negative about Flowbase itself.
+Say: Ask what the quote costs at their volume per year. Ask who maintains it after go-live. Compare per-document fees to one fixed price.
+
 [comp_freelancer_01] COMPETITOR: freelancer
 Mentions: "a freelancer", "a guy who builds stuff for us"
 We win: continuity, documentation anyone can take over, contractual responsibility.

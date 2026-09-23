@@ -17,9 +17,11 @@ The rep sells for Koref (the salesbook Girard loads). The prospect is Sanne, ope
 | 1 | Which task would you take off your team tomorrow? | Honestly, the work orders. Our planners type every order from email into Exact by hand. | Signal: documents typed into a system |
 | 2 | How many a day, and how long does each take? | Okay, but what's your hourly rate? | Objection: asks hourly rate |
 | 3 | We don't work by the hour. You pay a fixed price for the result. | And where would our customer data end up? | Answer: is our data safe? |
-| 4 | Everything stays in the Netherlands. No outside AI provider sees your documents. | We also had a quote from a company called Flowbase. | Competitor: unknown vendor (Flowbase) |
-| 5 | What made you look at them? | I'd have to discuss this with my co-owner first. | Risk: needs to discuss with partner |
+| 4 | Everything stays in the Netherlands. No outside AI provider sees your documents. | We also had a quote from a company called Flowbase. | Competitor: Flowbase, with a comparison, plus a Flowbase profile in the Research panel |
+| 5 | What would their quote cost you per year at sixty orders a day? And who maintains it after go-live? | I'd have to discuss this with my co-owner first. | Risk: needs to discuss with partner |
 | 6 | What will your co-owner want to know? Shall we do a short call with both of you? | *(end of call)* | |
+
+Flowbase is a made-up competitor. Its profile comes from competitors.json, not from the web.
 
 Then press **End call** and show the debrief.
 
