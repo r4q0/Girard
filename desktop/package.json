@@ -1,0 +1,16 @@
+{
+  "name": "girard-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Desktop window for the Girard dashboard",
+  "main": "main.js",
+  "scripts": {
+    "start": "node launch.js"
+  },
+  "devDependencies": {
+    "electron": "^44.4.5"
+  },
+  "allowScripts": {
+    "electron@44.4.5": true
+  }
+}

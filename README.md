@@ -55,5 +55,24 @@ npx vite dev --port 5173
 - http://localhost:5173/ is the setup screen. It connects to the agent at `ws://localhost:8000/ws` (change it in settings or with `?agent=`).
 - To pull the latest Lovable changes: `git submodule update --remote dashboard`, then commit the new submodule pointer.
 
+### As a desktop app
+
+`desktop/` wraps the dashboard in an Electron window. It starts the dashboard dev server itself if it is not running, and stops it on quit. Use View > Always on Top (Cmd/Ctrl+Shift+T) to keep it above the video call, for example right under the webcam.
+
+Double-click a launcher in `launchers/`. The first run installs dependencies (about a minute).
+
+| Platform | Launcher |
+| --- | --- |
+| macOS | `launchers/Girard.app` (drag it to the Dock, but keep it in `launchers/`; allow access to Documents if asked; log in `~/Library/Logs/Girard.log`) |
+| Windows | `launchers/Girard.bat` |
+| Linux | `launchers/Girard.sh` (run from a terminal) |
+
+To change what `Girard.app` does, open it in Script Editor. Or run it by hand:
+
+```bash
+cd dashboard && npm install --no-package-lock && cd ..   # once
+cd desktop && npm install && npm start
+```
+
 Run the dashboard locally on the demo machine, so the page and the agent are both on localhost. A hosted https page connecting to `ws://localhost` can be blocked by some browsers.
 

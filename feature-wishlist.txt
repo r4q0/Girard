@@ -1,0 +1,12 @@
+Dante:
+
+- When you scroll down, the large advice box reduces its margins and text size so you can read the rest of the dashboard. If the user wants to refocus on the advice panel all they have to do is scroll up (or click on the focus button)
+- History panel of previous advices expanded so you don't have to hover over one to see it. Even better, have a small right-side column where the histories stack, with the newest historical advice pushed at the top.
+- Light/Dark in the settings would be nice (optional)
+- I don't think it makes sense to be able to click x on the advice to delete them. Potentially it would be okay to have a minus on the historical ones on the side to collapse them.
+
+Bilal:
+
+- Call debrief should be just a file forwarded to the user's software.
+- Price counter
+- [Please add more stuff you wanted here]
