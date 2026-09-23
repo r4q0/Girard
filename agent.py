@@ -5,8 +5,8 @@ Girard agent service: the middle part between the audio helper and the dashboard
 
 - Talks to the dashboard over one WebSocket, following dashboard-protocol.md.
 - Starts and stops capture on the audio helper and turns its transcript into cards
-  with the fast lane in server.py (early start on partial speech, hedging, warm cache).
-- Research lane (Tavily), pre-call research, rolling call summary (slow lane),
+  with the fast lane in server.py (hedging, warm cache). Restarts capture if it stops.
+- Research lane (Tavily) on unknown vendors, rolling call summary (slow lane),
   metrics and the post-call debrief.
 
 Run:  .venv/Scripts/python agent.py   (serves the WebSocket and the dev portal on :8000)
@@ -34,8 +34,6 @@ AGENT_NAME = "girard-agent 0.2.0"
 SLOW_PRICE_IN, SLOW_PRICE_OUT = 0.20 / 1e6, 0.60 / 1e6
 USD_TO_EUR = 0.92  # approximate
 SUMMARY_EVERY_S = 30
-PAUSE_S = 0.25           # a partial unchanged this long counts as a short pause
-STALE_CARD_S = 5.0       # drop cards that would arrive later than this after their line
 MAX_RESEARCH_PER_CALL = 5
 HELPER_HEADERS = {"X-Call-Audio": "1", "Content-Type": "application/json"}
 
@@ -88,7 +86,7 @@ class Call:
         self.started_at = None          # wall clock ms when listening began
         self.segments = {}              # segment_id -> latest transcript event
         self.finals = []                # final lines in order: {segment_id, text, end_ms}
-        self.pause_timers = {}
+        self.restarts = 0               # capture restarts after a helper error
         self.cards = []
         self.card_seq = 0
         self.researched = set()
@@ -114,7 +112,6 @@ class Call:
 
 
 CALL: Call | None = None
-PRECALL = None  # last precall result, reused as context for the call
 
 
 # ---------------------------------------------------------------- model helpers
@@ -201,31 +198,31 @@ async def send_metrics(call):
 
 # ---------------------------------------------------------------- transcript -> cards
 
+def log(message):
+    print(f"[girard {time.strftime('%H:%M:%S')}] {message}", flush=True)
+
+
 async def on_transcript(call, event):
-    """Every transcript revision from the audio helper: forward it, start early on
-    a pause in partial speech, and run the fast lane on final lines."""
-    seg = str(event["segment_id"])
+    """Every transcript revision from the audio helper: forward it to the dashboard,
+    and run the fast lane on each final line."""
+    # Segment ids restart when capture restarts, so prefix them per capture run
+    seg = f"{call.restarts}-{event['segment_id']}"
     event = {**event, "type": "transcript", "segment_id": seg, "speaker": "customer",
              "session_id": call.id}
-    event.pop("endpoint", None)
     call.segments[seg] = event
     await HUB.send({k: v for k, v in event.items()
                     if k in ("type", "session_id", "segment_id", "start_ms", "end_ms", "text", "is_final", "speaker")})
-    text = event["text"].strip()
-    timer = call.pause_timers.pop(seg, None)
-    if timer:
-        timer.cancel()
     if not event["is_final"]:
-        if re.search(r"[.?!,]$", text):
-            server.begin_partial(text)  # speech-to-text marked a phrase end
-        else:
-            call.pause_timers[seg] = asyncio.get_running_loop().call_later(
-                PAUSE_S, lambda: server.begin_partial(text) if not call.segments[seg]["is_final"] else None)
         return
+    text = event["text"].strip()
+    if not text:
+        return
+    log(f"PROSPECT: {text}")
     arrived, arrived_perf = time.time(), time.perf_counter()
     call.finals.append({"segment_id": seg, "text": text, "end_ms": event.get("end_ms")})
     run, reused, head_start = server.begin_line(text)
     if run is None:
+        log("  -> filler, no card")
         return
     call.spawn(finish_card(call, seg, text, run, reused, head_start, arrived, arrived_perf,
                            call.speech_end_wall(event)))
@@ -234,19 +231,22 @@ async def on_transcript(call, event):
 async def finish_card(call, seg, text, run, reused, head_start, arrived, arrived_perf, speech_end):
     await asyncio.wait([run.task])
     if run.task.cancelled():
-        return  # a newer line took over
+        log("  -> request cancelled")
+        return
     try:
         card, m = server.complete_line(text, run, reused, head_start)
     except Exception as e:
+        log(f"  -> card request failed: {type(e).__name__}: {e}")
         await HUB.notice(f"Card request failed: {type(e).__name__}: {e}")
         return
     sent = time.time()
     if card is None:
+        reason = ("timeout" if m.get("timeout") else f"already shown ({m['repeat']})" if m.get("repeat")
+                  else m.get("invalid") or "nothing relevant")
+        log(f"  -> no card: {reason}")
         await send_metrics(call)
         return
-    if sent - arrived > STALE_CARD_S:
-        await send_metrics(call)
-        return
+    log(f"  -> CARD {card['id']}: {' / '.join(card.get('say') or [])}  ({round((sent - arrived) * 1000)} ms)")
     call.card_seq += 1
     entry = card.get("entry") or {}
     proof = next((d.split(":", 1)[1].strip() for d in entry.get("details", []) if d.startswith("Proof:")), None)
@@ -311,38 +311,6 @@ async def research(call, entity, origin="live"):
         await send_metrics(call)
 
 
-async def precall(prospect):
-    """Research the prospect before the call."""
-    global PRECALL
-    company = (prospect.get("company") or "").strip()
-    if not company:
-        await HUB.send({"type": "precall", "status": "failed", "error": "Enter a company name first."})
-        return
-    await HUB.send({"type": "precall", "status": "searching", "company": company})
-    try:
-        query = f"{company} {prospect.get('website') or ''} company".strip()
-        results = await asyncio.wait_for(tavily(query, 6), 15)
-        out = await asyncio.wait_for(llm_json(None, "research", SLOW_MODEL,
-            "You prepare a sales rep for a discovery call. From the web results, return JSON "
-            '{"summary": "one or two sentences", "bullets": [3 to 5 short facts useful on the call], '
-            '"likely_competitors": [up to 4 vendors they may already use or compare, only if the results suggest it]}. '
-            "Only facts from the results.",
-            f"Company: {company}\nWebsite: {prospect.get('website') or '-'}\nContact: {prospect.get('contact') or '-'}\n"
-            f"Goal of the call: {prospect.get('goal') or '-'}\n\nResults:\n{results_text(results)}", 500), 25)
-        PRECALL = {"type": "precall", "status": "done", "company": company,
-                   "website": prospect.get("website") or None, "summary": out.get("summary", ""),
-                   "bullets": [str(b) for b in out.get("bullets", [])][:5],
-                   "likely_competitors": [str(c) for c in out.get("likely_competitors", [])][:4],
-                   "sources": sources_from(results, 4)}
-        PRECALL = {k: v for k, v in PRECALL.items() if v is not None}
-        await HUB.send(PRECALL)
-        for name in PRECALL["likely_competitors"][:3]:  # cached, so mentions during the call are instant
-            asyncio.get_running_loop().create_task(research(None, name, origin="pre_call"))
-    except Exception as e:
-        reason = "add TAVILY_API_KEY to .env" if "TAVILY_API_KEY" in str(e) else f"{type(e).__name__}"
-        await HUB.send({"type": "precall", "status": "failed", "company": company, "error": f"Research failed: {reason}."})
-
-
 # ---------------------------------------------------------------- slow lane
 
 async def summary_loop(call):
@@ -365,7 +333,7 @@ async def summarize(call):
             '"ask_next": [up to 3 questions the rep has not covered yet], "risks": [up to 3], '
             '"next_step": "best next step", "sentiment": {"value": -1 to 1, "label": "one word"}}. '
             "Next steps and questions must fit the SALESBOOK and its DON'TS. " + FAST_NOTE,
-            f"Prospect context: {json.dumps(call.prospect)}\nPre-call research: {(PRECALL or {}).get('summary', '-')}\n"
+            f"Prospect context: {json.dumps(call.prospect)}\n"
             f"Cards shown to the rep: {shown}\n\nTranscript:\n{transcript}\n\nSALESBOOK:\n{salesbook_text()}", 400)
     except Exception as e:
         await HUB.notice(f"Summary failed: {type(e).__name__}")
@@ -401,7 +369,7 @@ async def debrief(call):
             '"objections": [{"objection": "..", "handled": "what the card suggested", "status": "open or resolved"}], '
             '"competitors": [..], "next_steps": [concrete actions], '
             '"email": {"subject": "..", "body": "short follow-up email from the rep to the prospect"}}',
-            f"Prospect: {json.dumps(call.prospect)}\nPre-call research: {(PRECALL or {}).get('summary', '-')}\n"
+            f"Prospect: {json.dumps(call.prospect)}\n"
             f"Last call summary: {S.summary or '-'}\n\nCards shown:\n{cards}\n\nTranscript:\n{transcript}"
             f"\n\nSALESBOOK:\n{salesbook_text()}", 1400)
         message = {"type": "debrief", "status": "done", "summary": out.get("summary", "")}
@@ -457,19 +425,37 @@ async def set_state(call, state, error=None):
 
 
 async def run_helper(call, command):
-    """Start capture on the helper and consume its events until the session ends."""
+    """Capture on the helper and consume its events until the call is stopped.
+    If capture stops by itself (an error on the helper), it is restarted, so the
+    call keeps going instead of ending in the middle."""
     body = {"sink_id": command.get("sink_id"), "engine": "local", "isolate": bool(command.get("isolate"))}
     if body["isolate"] and command.get("stream_id") is not None:
         body["stream_id"] = int(command["stream_id"])
-    try:
-        snap = await helper_post("/api/start", body)
-    except Exception as e:
-        await set_state(call, "error", f"Audio helper: {e}")
-        await HUB.notice(f"Could not start capture: {e}", "error")
-        return
-    helper_session = snap.get("session_id")
     timeout = aiohttp.ClientTimeout(total=None, sock_read=None)
-    while call is CALL:
+    while call is CALL and not call.stopping:
+        try:
+            snap = await helper_post("/api/start", body)
+        except Exception as e:
+            log(f"capture start failed: {e}")
+            if call.restarts == 0:
+                await set_state(call, "error", f"Audio helper: {e}")
+                await HUB.notice(f"Could not start capture: {e}", "error")
+                return
+            await asyncio.sleep(1)  # retry a restart
+            continue
+        helper_session = snap.get("session_id")
+        log(f"capture started (run {call.restarts})")
+        ended = await consume_helper(call, helper_session, timeout)
+        if call is not CALL or call.stopping:
+            return
+        call.restarts += 1
+        log(f"capture stopped ({ended}); restarting")
+        await HUB.notice(f"Audio capture stopped ({ended}). Restarting.", "warning")
+
+
+async def consume_helper(call, helper_session, timeout):
+    """Forward one helper session's events. Returns why it ended."""
+    while call is CALL and not call.stopping:
         try:
             async with aiohttp.ClientSession(timeout=timeout) as s:
                 async with s.get(HELPER_URL + "/api/events") as resp:
@@ -489,18 +475,22 @@ async def run_helper(call, command):
                                             "queue_ms": ev.get("queue_ms"), "processing_ms": ev.get("processing_ms")})
                         elif kind == "state":
                             st = ev.get("state")
-                            if st in ("loading", "listening", "stopping", "error") and st != call.state:
-                                await set_state(call, st, ev.get("error"))
-                            if st in ("idle", "error") and call.state != "loading":
-                                return
-                        elif kind in ("error", "warning"):
-                            await HUB.notice(ev.get("message", kind), "error" if kind == "error" else "warning")
+                            if st == "listening" and call.state != "listening":
+                                await set_state(call, "listening")
+                            elif st == "error":
+                                return ev.get("error") or "helper error"
+                            elif st == "idle" and ev.get("session_id") == helper_session and call.state == "listening":
+                                return "helper went idle"
+                        elif kind == "warning":
+                            await HUB.notice(ev.get("message", kind), "warning")
                         elif kind == "reconnect":
                             break
-        except Exception:
+        except Exception as e:
             if call is not CALL or call.stopping:
-                return
-            await asyncio.sleep(0.5)  # SSE dropped; reconnect for a fresh snapshot
+                return "stopped"
+            log(f"event stream dropped ({type(e).__name__}); reconnecting")
+            await asyncio.sleep(0.5)
+    return "stopped"
 
 
 # ---------------------------------------------------------------- commands
@@ -515,8 +505,6 @@ async def start_call(command):
         if run:
             run.cancel()
     S.reset()
-    if PRECALL and PRECALL.get("company") == call.prospect.get("company"):
-        S.summary = f"Prospect: {PRECALL['company']}. {PRECALL.get('summary', '')}"[:600]
     await set_state(call, "loading")
     asyncio.get_running_loop().create_task(warmup())
     call.spawn(summary_loop(call))
@@ -553,8 +541,6 @@ async def handle(command):
         await HUB.send(message)
         if not ok:
             await HUB.notice("Audio helper not running. Start Girard with start.ps1.", "warning")
-    elif kind == "precall":
-        asyncio.get_running_loop().create_task(precall(command))
     elif kind == "start":
         await start_call(command)
     elif kind == "stop":
@@ -579,8 +565,6 @@ async def ws_endpoint(ws: WebSocket):
         if CALL:
             await ws.send_text(json.dumps({"type": "state", "session_id": CALL.id, "state": CALL.state,
                                            "started_at": CALL.started_at, "error": None}))
-        if PRECALL:
-            await ws.send_text(json.dumps(PRECALL))
         if not ok:
             await ws.send_text(json.dumps({"type": "notice", "level": "warning", "message":
                 "Audio helper not running. Start Girard with start.ps1."}))

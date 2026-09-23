@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 
-from .audio import CaptureSource, IsolationRoute, list_outputs, list_playback_streams
+from .audio import WINDOWS, CaptureSource, IsolationRoute, list_outputs, list_playback_streams
 from .engines import AssemblyAIEngine, MoonshineEngine
 from .compression import RULES_VERSION, MinimalCompressor
 
@@ -35,7 +35,9 @@ def validate_compression_settings(settings):
 
 
 class Controller:
-    MAX_QUEUE_SECONDS = 1.5
+    # On Windows the CPU model can pause for 1 to 2 s while it finalizes a long
+    # sentence; it catches up afterwards. A short limit would end live calls there.
+    MAX_QUEUE_SECONDS = 12.0 if WINDOWS else 1.5
     CLOUD_USD_PER_HOUR = 0.15  # Estimate only; not a provider billing receipt.
 
     def __init__(self, model="small", token_counter=None, tokenizer_name=None):
@@ -257,7 +259,7 @@ class Controller:
 
     def _work(self, settings, output, session_id):
         stop_event = self._stop
-        pending = queue.Queue(maxsize=100)
+        pending = queue.Queue(maxsize=2000 if WINDOWS else 100)
         faults = queue.SimpleQueue()
         source = route = engine = None
         queued_seconds = 0.0
@@ -280,7 +282,7 @@ class Controller:
             duration = len(samples) / rate
             with queue_lock:
                 if queued_seconds + duration > self.MAX_QUEUE_SECONDS or pending.full():
-                    capture_error(RuntimeError("Audio backlog exceeded 1.5 seconds; capture stopped to avoid stale or missing speech. Try the tiny model or cloud."))
+                    capture_error(RuntimeError(f"Audio backlog exceeded {self.MAX_QUEUE_SECONDS:g} seconds; capture stopped to avoid stale or missing speech. Try the tiny model or cloud."))
                     return
                 queued_seconds += duration
                 pending.put_nowait((samples.copy(), rate, time.monotonic(), duration))

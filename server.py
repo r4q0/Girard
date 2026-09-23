@@ -604,9 +604,8 @@ def begin_line(text):
     reused = spec is not None and spec.key == norm(text) and not spec.task.cancelled()
     if spec and not reused:
         spec.cancel()
-    # A newer line makes any earlier request stale
-    if S.inflight and S.inflight is not spec:
-        S.inflight.cancel()
+    # Earlier lines keep running: in live speech one thought often arrives as two
+    # quick segments, and cancelling would silently lose the first card.
     if is_backchannel(text):
         S.transcript.append({"speaker": "CUSTOMER", "text": text})
         return None, False, 0.0

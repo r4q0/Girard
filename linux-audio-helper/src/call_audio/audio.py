@@ -15,6 +15,7 @@ import subprocess
 import sys
 import threading
 import time
+import warnings
 import uuid
 from collections.abc import Callable
 from typing import Any
@@ -294,7 +295,10 @@ class CaptureSource:
             source = soundcard.get_microphone(id=self.monitor, include_loopback=True)
             if source.id != self.monitor or not source.isloopback:
                 raise AudioError("Refusing capture: selected source is not the exact output loopback.")
-            blocksize = max(1, round(self.sample_rate * self.block_ms / 1000))
+            # Larger reads on Windows: fewer wakeups, so the recorder keeps up while
+            # the speech model runs, and WASAPI does not drop audio.
+            blocksize = max(1, round(self.sample_rate * max(self.block_ms, 100) / 1000))
+            warnings.filterwarnings("ignore", message="data discontinuity in recording")
             keepalive = threading.Thread(target=self._play_silence, args=(speaker,),
                                          name="call-audio-keepalive", daemon=True)
             keepalive.start()
