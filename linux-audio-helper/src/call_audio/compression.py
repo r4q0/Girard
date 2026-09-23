@@ -1,16 +1,17 @@
-"""Conservative, local-only shortening of finalized English STT segments.
+"""Bounded, local-only shortening of finalized English STT segments.
 
 This module does not detect language. Callers must retain the original text and
 must opt in before applying it to finalized English segments. Removing a filler
-also removes its hesitation signal; even these rules cannot promise semantic
-equivalence for arbitrary speech.
+also removes its hesitation signal. Version 2 additionally deletes standalone
+``the`` and sentence commas/periods: definiteness and sentence boundaries can be
+lost. These rules cannot promise semantic equivalence for arbitrary speech.
 
-Stable reasons (rules_version ``1``):
-* compressed: eligible fillers removed, with measured savings if configured.
-* no_eligible_fillers: no eligible lowercase comma-delimited filler run.
+Stable reasons (rules_version ``2``):
+* compressed: eligible changes applied, with measured savings if configured.
+* no_eligible_changes: no eligible filler, article, or sentence punctuation.
 * ambiguous_context: quotes, spelling/name discussion, boundaries, or controls.
 * protected_term: an edit would overlap a configured protected phrase.
-* limit_exceeded: more than 8192 characters or 64 candidate fillers; no token work.
+* limit_exceeded: more than 8192 characters, 64 fillers, or 512 candidate edits.
 * no_token_savings: a named tokenizer found no decrease; original returned.
 * token_count_failed: token counter failed/returned invalid data; original returned.
 
@@ -26,14 +27,22 @@ from collections.abc import Callable
 
 MAX_SEGMENT_CHARS = 8192
 MAX_REMOVED_FILLERS = 64
-RULES_VERSION = "1"
+MAX_EDITS = 512
+RULES_VERSION = "2"
 RULE_ID = "comma_delimited_filler_run"
+ARTICLE_RULE_ID = "remove_definite_article"
+PUNCTUATION_RULE_ID = "remove_sentence_punctuation"
 
 # Starting at a literal comma avoids a quadratic search through long whitespace.
 # One match consumes an entire adjacent filler run, including shared commas.
 _FILLER_RUN = re.compile(r",[ \t]*(?:um|uh)(?:[ \t]*,[ \t]*(?:um|uh))*[ \t]*,")
 _FILLER_WORD = re.compile(r"\b(?:um|uh)\b")
 _WORD = re.compile(r"[^\W_]+(?:['’][^\W_]+)*", re.UNICODE)
+_ARTICLE = re.compile(r"(?<![\w'’])the(?![\w'’])", re.IGNORECASE)
+_DOTTED = re.compile(r"(?<![\w-])[\w-]+(?:\.[\w-]+)+", re.UNICODE)
+_URL = re.compile(r"\b(?:[a-z][a-z0-9+.-]*://|www\.)[^\s<>\"']+", re.IGNORECASE)
+_EMAIL = re.compile(r"(?<![\w.!#$%&*+/=?^`{|}~-])[\w.!#$%&*+/=?^`{|}~-]+@[\w.-]+", re.UNICODE)
+_IDENTIFIER_JOINERS = frozenset("-_‐‑–—/@\\'’")
 _META_WORD = re.compile(
     r"\b(?:spell|spells|spelled|spelling|say|says|said|saying|word|words|phrase|"
     r"letter|letters|initial|initials|acronym|abbreviation|name|names|named|"
@@ -77,8 +86,77 @@ def _meaningful_context(text: str, start: int, end: int) -> bool:
     return not any(character in _CLAUSE_BOUNDARIES for character in surrounding)
 
 
+def _technical_spans(text: str) -> list[tuple[int, int]]:
+    """Conservative syntax clues, not URL parsing or language recognition.
+
+    In-token periods are retained even when a dotted token might instead be
+    unspaced prose. Trailing punctuation is treated as sentence punctuation.
+    URL query/path commas are retained; ordinary adjacent prose commas are not.
+    """
+    spans = [match.span() for match in _DOTTED.finditer(text)]
+    patterns = []
+    if "://" in text or "www." in text.lower():
+        patterns.append(_URL)
+    if "@" in text:
+        patterns.append(_EMAIL)
+    for pattern in patterns:
+        for match in pattern.finditer(text):
+            end = match.end()
+            while end > match.start() and text[end - 1] in ".,;:!?)]}":
+                end -= 1
+            spans.append((match.start(), end))
+    return spans
+
+
+def _technical_mask(text: str) -> bytearray:
+    mask = bytearray(len(text))
+    for start, end in _technical_spans(text):
+        mask[start:end] = b"\1" * (end - start)
+    return mask
+
+
+def _expanded_span(text: str, start: int, end: int) -> tuple[int, int]:
+    while start and text[start - 1] in " \t":
+        start -= 1
+    while end < len(text) and text[end] in " \t":
+        end += 1
+    return start, end
+
+
+def _article_fragment(text: str, start: int, end: int) -> bool:
+    return bool((start and text[start - 1] in _IDENTIFIER_JOINERS)
+                or (end < len(text) and text[end] in _IDENTIFIER_JOINERS))
+
+
+def _numeric_punctuation(text: str, index: int) -> bool:
+    before = text[index - 1] if index else ""
+    after = text[index + 1] if index + 1 < len(text) else ""
+    if before.isdigit() and after.isdigit():
+        return True
+    # Leading fractional decimals such as .5 or -.5, but not ellipses.
+    return text[index] == "." and after.isdigit() and not before.isalnum() and before != "."
+
+
+def _build_edits(text: str, candidates: list[tuple[int, int, str]]) -> list[dict]:
+    merged = []
+    for start, end, rule in sorted(candidates):
+        if merged and start <= merged[-1][1]:
+            old_start, old_end, rules = merged[-1]
+            merged[-1] = (old_start, max(old_end, end), rules + ([rule] if rule not in rules else []))
+        else:
+            merged.append((start, end, [rule]))
+    edits = []
+    for start, end, rules in merged:
+        replacement = " "
+        if start == 0 or end == len(text) or text[end] in ";:!?)]}" or text[start - 1] in "([{":
+            replacement = ""
+        edits.append({"start": start, "end": end, "text": text[start:end],
+                      "replacement": replacement, "rule_id": "+".join(rules)})
+    return edits
+
+
 class MinimalCompressor:
-    """A deterministic, bounded filler pass with an optional named tokenizer.
+    """A deterministic, bounded rule pass with an optional named tokenizer.
 
     ``token_counter`` must be local and return a non-negative integer. Both a
     counter and a nonempty ``tokenizer_name`` are needed to report token counts.
@@ -111,25 +189,37 @@ class MinimalCompressor:
         count = sum(len(_FILLER_WORD.findall(match.group())) for match in matches)
         if count > MAX_REMOVED_FILLERS:
             return self._result(text, "limit_exceeded")
-        if not matches:
-            return self._counted_result(text, text, "no_eligible_fillers")
         if _ambiguous(text):
             return self._counted_result(text, text, "ambiguous_context")
 
-        edits = []
+        # Filler eligibility is evaluated on ORIGINAL punctuation/context.
+        # Removing an article must not invent a new filler interpretation.
+        candidates = []
+        technical = _technical_mask(text)
         for match in matches:
             start, end = match.span()
-            if not _meaningful_context(text, start, end):
+            if any(technical[start:end]) or not _meaningful_context(text, start, end):
                 return self._counted_result(text, text, "ambiguous_context")
-            # Only normalize horizontal whitespace directly touching this edit.
-            while start > 0 and text[start - 1] in " \t":
-                start -= 1
-            while end < len(text) and text[end] in " \t":
-                end += 1
-            edits.append({
-                "start": start, "end": end, "text": text[start:end],
-                "replacement": " ", "rule_id": RULE_ID,
-            })
+            start, end = _expanded_span(text, start, end)
+            candidates.append((start, end, RULE_ID))
+
+        for match in _ARTICLE.finditer(text):
+            start, end = match.span()
+            if _article_fragment(text, start, end) or any(technical[start:end]):
+                continue
+            count += 1
+            start, end = _expanded_span(text, start, end)
+            candidates.append((start, end, ARTICLE_RULE_ID))
+        for index, character in enumerate(text):
+            if character not in ".," or _numeric_punctuation(text, index) or technical[index]:
+                continue
+            start, end = _expanded_span(text, index, index + 1)
+            candidates.append((start, end, PUNCTUATION_RULE_ID))
+        if len(candidates) > MAX_EDITS:
+            return self._result(text, "limit_exceeded")
+        if not candidates:
+            return self._counted_result(text, text, "no_eligible_changes")
+        edits = _build_edits(text, candidates)
 
         for protected in self._protected:
             for occurrence in protected.finditer(text):
@@ -142,7 +232,8 @@ class MinimalCompressor:
             cursor = edit["end"]
         parts.append(text[cursor:])
         candidate = "".join(parts)
-        if not candidate.strip():
+        remaining = list(_WORD.finditer(candidate))
+        if not remaining or all(word.group().lower() in ("um", "uh", "the") for word in remaining):
             return self._counted_result(text, text, "ambiguous_context")
         return self._counted_result(text, candidate, "compressed", edits, count)
 

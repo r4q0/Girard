@@ -78,6 +78,7 @@ def transcribe_file(args):
 def serve(args):
     from aiohttp import web
     from .server import create_app
+    from .compression import RULES_VERSION
     url = f"http://127.0.0.1:{args.port}"
     running = None
     try:
@@ -100,6 +101,11 @@ def serve(args):
             raise RuntimeError(
                 f"Port {args.port} is occupied by an older headless helper without minimal compression. "
                 "Choose another --port or stop that instance yourself; it has not been changed."
+            )
+        if running.get("compression_rules_version") != RULES_VERSION:
+            raise RuntimeError(
+                f"The running helper uses a different compression rules version (expected {RULES_VERSION}). "
+                "Choose another --port or restart it explicitly; it has not been changed."
             )
         if getattr(args, "tokenizer", None) and running.get("compression_tokenizer") != args.tokenizer:
             raise RuntimeError(

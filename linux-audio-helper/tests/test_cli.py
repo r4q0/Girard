@@ -6,6 +6,7 @@ import pytest
 from aiohttp import web
 
 from call_audio import cli, server
+from call_audio.compression import RULES_VERSION
 from call_audio.runtime import Controller
 
 
@@ -72,6 +73,7 @@ def test_serve_reuses_compatible_headless_api(monkeypatch, capsys, mocked_server
     health = mock_health(monkeypatch, {
         "app": "call-audio-helper", "mode": "headless", "api_version": 1,
         "capabilities": {"compression": ["none", "minimal"]},
+        "compression_rules_version": RULES_VERSION,
     })
 
     assert cli.main(["serve", "--port", "9000"]) == 0
@@ -119,7 +121,22 @@ def test_serve_loads_optional_tokenizer_before_startup(monkeypatch, mocked_serve
 
 def test_serve_refuses_silent_tokenizer_mismatch(monkeypatch, capsys, mocked_server):
     mock_health(monkeypatch, {"app": "call-audio-helper", "mode": "headless", "api_version": 1,
-                             "capabilities": {"compression": ["none", "minimal"]}, "compression_tokenizer": None})
+                             "capabilities": {"compression": ["none", "minimal"]}, "compression_tokenizer": None,
+                             "compression_rules_version": RULES_VERSION})
     assert cli.main(["serve", "--tokenizer", "o200k_base"]) == 1
     assert "different tokenizer" in capsys.readouterr().err
     mocked_server[1].assert_not_called()
+
+
+@pytest.mark.parametrize("rules_version", [None, "obsolete", "999"])
+def test_serve_refuses_stale_compression_rules(monkeypatch, capsys, mocked_server, rules_version):
+    mock_health(monkeypatch, {
+        "app": "call-audio-helper", "mode": "headless", "api_version": 1,
+        "capabilities": {"compression": ["none", "minimal"]},
+        "compression_rules_version": rules_version,
+    })
+    assert cli.main(["serve"]) == 1
+    assert "different compression rules version" in capsys.readouterr().err
+    mocked_server[1].assert_not_called()
+    mocked_server[2].assert_not_called()
+    mocked_server[3].assert_not_called()

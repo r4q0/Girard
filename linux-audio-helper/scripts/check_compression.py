@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit conservative cleanup on synthetic sales text, with warm CPU timings.
+"""Audit versioned minimal cleanup on synthetic sales text, with warm CPU timings.
 
 No call audio, customer data, hosted model, or paid API is used. The default
 needs no tokenizer package. --tokenizer uses an OPTIONAL reference encoding,
@@ -11,6 +11,7 @@ from all timings. Transcript strings are always encoded as ordinary text.
 from __future__ import annotations
 
 import argparse
+import datetime
 import importlib.metadata
 import json
 import platform
@@ -21,6 +22,12 @@ from pathlib import Path
 PROJECT = Path(__file__).resolve().parents[1]
 PREFIX = "Summarize the customer's needs, constraints, and next steps from this transcript:\n<transcript>\n"
 SUFFIX = "\n</transcript>"
+NARRATION_V2_EXPECTED = (
+    "It was best of times it was worst of times It was age of wisdom "
+    "It was age of foolishness It was epoch of belief It was epoch of incredulity "
+    "It was a season of light It was a season of darkness It was spring of hope "
+    "It was winter of despair We had everything before us we had nothing before us"
+)
 
 
 def prompt(text: str) -> str:
@@ -52,8 +59,11 @@ def audit_case(case: dict, compressor, token_counter=None) -> dict:
     raw = case["text"]
     result = compressor.compress(raw)
     compact = result["compact_text"]
-    assert compact == case["expected_compact"], (
-        f"{case['id']}: expected {case['expected_compact']!r}, got {compact!r}; "
+    expected = case["expected_compact"]
+    if token_counter and expected != raw and token_counter(expected) >= token_counter(raw):
+        expected = raw  # The optional positive-savings guard can reject an approved rule edit.
+    assert compact == expected, (
+        f"{case['id']}: expected {expected!r}, got {compact!r}; "
         f"reason={result['compression']['reason']}"
     )
     assert result == compressor.compress(raw), "Compression is not deterministic."
@@ -79,7 +89,8 @@ def audit_case(case: dict, compressor, token_counter=None) -> dict:
         }
     return {
         "id": case["id"], "category": case["category"], "raw_text": raw,
-        "compact_text": compact, "protected_terms": case.get("protected_terms", []),
+        "compact_text": compact, "expected_unguarded_compact": case["expected_compact"],
+        "protected_terms": case.get("protected_terms", []),
         "compression": result["compression"], "reference_prompt_tokens": counted,
     }
 
@@ -118,7 +129,7 @@ def stress_text(length: int) -> str:
 
 
 def benchmark(iterations: int = 250, tokenizer: str | None = None) -> dict:
-    from call_audio.compression import MinimalCompressor
+    from call_audio.compression import MinimalCompressor, RULES_VERSION
 
     encoding = None
     token_counter = None
@@ -134,18 +145,21 @@ def benchmark(iterations: int = 250, tokenizer: str | None = None) -> dict:
     def make(terms=()):
         return MinimalCompressor(protected_terms=terms, token_counter=token_counter, tokenizer_name=label)
 
-    cases = json.loads((PROJECT / "tests/fixtures/compression_cases.json").read_text(encoding="utf-8"))["cases"]
+    fixture = json.loads((PROJECT / "tests/fixtures/compression_cases.json").read_text(encoding="utf-8"))
+    assert fixture["rules_version"] == RULES_VERSION, "The fixture must describe the currently tested rules."
+    cases = fixture["cases"]
     work = [(make(case.get("protected_terms", ())), case["text"]) for case in cases]
     audits = [audit_case(case, compressor, token_counter)
               for case, (compressor, _) in zip(cases, work, strict=True)]
 
-    # A real recognizer's existing, clean narration is useful counterevidence
-    # to treating deliberately inserted synthetic fillers as typical speech.
+    # This is the same historical clean-recognizer narration, not new call data.
+    # V2 intentionally changes it through article/punctuation deletion even
+    # though it contains no eligible interior fillers. Keep a reviewed literal
+    # expectation rather than deriving the expected result from the compressor.
     narration_report = json.loads((PROJECT / "reports/local-benchmark.json").read_text(encoding="utf-8"))
     narration = narration_report["runs"][0]["final_text"]
     narration_audit = audit_case({"id": "clean_local_narration", "category": "clean_recognizer_output",
-                                 "text": narration, "expected_compact": narration}, make(), token_counter)
-    assert not narration_audit["compression"]["changed"]
+                                 "text": narration, "expected_compact": NARRATION_V2_EXPECTED}, make(), token_counter)
 
     stress = []
     for length in (2000, 8192, 8193):
@@ -187,9 +201,19 @@ def benchmark(iterations: int = 250, tokenizer: str | None = None) -> dict:
             },
         }
     return {
-        "corpus": "Synthetic sales cases, deliberately mixing eligible fillers and protected counterexamples; not a customer-call distribution.",
+        "rules_version": RULES_VERSION,
+        "evidence": {
+            "benchmark_revision": "minimal-v2",
+            "generated_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "fixture_rules_version": fixture["rules_version"],
+            "historical_report": "reports/compression-benchmark.json is version-1 evidence and is not overwritten.",
+            "clean_narration": "Historical recognized narration, not a sales call; v2 can remove articles/punctuation without any filler match.",
+        },
+        "corpus": "Synthetic sales cases, deliberately mixing eligible fillers, article/punctuation cleanup, and protected counterexamples; not a customer-call distribution.",
         "case_count": len(audits), "changed_cases": sum(item["compression"]["changed"] for item in audits),
         "unchanged_cases": sum(not item["compression"]["changed"] for item in audits),
+        "unguarded_expected_changed_cases": sum(item["expected_unguarded_compact"] != item["raw_text"] for item in audits),
+        "token_guard_rejected_cases": sum(item["compression"]["reason"] == "no_token_savings" for item in audits),
         "tokenizer": {"encoding": tokenizer, "label": label, "package_version": tokenizer_version,
                       "production_downstream_model_selected": False,
                       "literal_special_strings": "encode_ordinary", "prompt_prefix": PREFIX, "prompt_suffix": SUFFIX,
@@ -207,7 +231,7 @@ def benchmark(iterations: int = 250, tokenizer: str | None = None) -> dict:
         "platform": platform.platform(), "python": platform.python_version(),
         "iterations_per_case": iterations,
         "live_audio_used": False, "hosted_inference_used": False,
-        "limitations": "Synthetic expected outputs validate only approved rules and listed counterexamples. This is not proof of semantic equivalence for arbitrary speech, production token savings, or actual API-price savings. Sending both versions and audit metadata can cost more than raw text alone.",
+        "limitations": "Synthetic expected outputs validate only requested mechanical rules and listed counterexamples. Deleting articles or sentence punctuation can lose meaning; preserving all occurrences of for is not a semantic guarantee. This is not proof of semantic equivalence, production token savings, or actual API-price savings. Sending both versions and audit metadata can cost more than raw text alone.",
     }
 
 
@@ -219,6 +243,8 @@ def main():
     args = parser.parse_args()
     if not 20 <= args.iterations <= 5000:
         parser.error("iterations must be between 20 and 5000")
+    if args.report and args.report.resolve() == (PROJECT / "reports/compression-benchmark.json").resolve():
+        parser.error("The historical version-1 report is preserved; use reports/minimal-v2-benchmark.json instead.")
     report = benchmark(args.iterations, args.tokenizer)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)

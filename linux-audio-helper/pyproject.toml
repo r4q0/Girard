@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "call-audio-helper"
-version = "0.3.0"
+version = "0.4.0"
 description = "Headless Linux call-output capture and low-latency transcription API"
 requires-python = ">=3.12,<3.14"
 dependencies = [

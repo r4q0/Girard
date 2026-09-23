@@ -13,7 +13,7 @@ import numpy as np
 
 from .audio import CaptureSource, IsolationRoute, list_outputs, list_playback_streams
 from .engines import AssemblyAIEngine, MoonshineEngine
-from .compression import MinimalCompressor
+from .compression import RULES_VERSION, MinimalCompressor
 
 
 class SessionError(ValueError):
@@ -223,7 +223,7 @@ class Controller:
                         # capture, discard text, or expose transcript-bearing errors.
                         event.update({"compact_text": event["text"], "compression": {
                             "mode": "minimal", "changed": False, "removed_words": 0,
-                            "rules_version": "1", "reason": "compression_failed",
+                            "rules_version": RULES_VERSION, "reason": "compression_failed",
                             "removed_spans": [], "tokens": None,
                         }})
                         self.publish({"type": "warning", "session_id": session_id,

@@ -8,6 +8,7 @@ from urllib.parse import urlsplit
 from aiohttp import web
 
 from . import __version__
+from .compression import RULES_VERSION
 from .runtime import Controller, SessionError, validate_compression_settings
 
 CONTROLLER = web.AppKey("controller", Controller)
@@ -85,6 +86,7 @@ async def health(request):
         "app": "call-audio-helper", "version": __version__,
         "mode": "headless", "api_version": 1,
         "capabilities": {"compression": ["none", "minimal"]},
+        "compression_rules_version": RULES_VERSION,
         "compression_tokenizer": request.app[CONTROLLER].tokenizer_name,
     })
 

@@ -5,6 +5,7 @@ import pytest
 from aiohttp.test_utils import TestClient, TestServer
 
 from call_audio import runtime
+from call_audio.compression import RULES_VERSION
 from call_audio.server import create_app
 
 
@@ -25,6 +26,7 @@ def test_headless_routes_no_ui_or_automatic_capture(monkeypatch):
                 assert response.content_type == "application/json"
                 assert (await response.json())["mode"] == "headless"
                 assert (await response.json())["api_version"] == 1
+                assert (await response.json())["compression_rules_version"] == RULES_VERSION
             for path in ("/static/app.js", "/static/style.css", "/index.html", "/anything"):
                 response = await client.get(path)
                 assert response.status == 404

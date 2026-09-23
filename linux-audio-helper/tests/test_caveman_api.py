@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import re
 import time
 from contextlib import asynccontextmanager
 
@@ -19,6 +20,9 @@ OUTPUT = {
 SETTINGS = {"sink_id": "fake_output", "engine": "local", "isolate": False}
 HEADERS = {"X-Call-Audio": "1"}
 RAW = "We, um, cannot pay more than 500 euros per month."
+COMPACT = "We cannot pay more than 500 euros per month"
+V2_RAW = "The customer, um, needs the contract for the pilot."
+V2_COMPACT = "customer needs contract for pilot"
 
 
 def segment(identifier="one", text=RAW, final=True, start=0):
@@ -106,7 +110,8 @@ async def start(client, controller, **extra):
     return body
 
 
-def test_compression_is_off_by_default_and_raw_contract_is_unchanged(fake_audio):
+@pytest.mark.parametrize("raw", [RAW, V2_RAW])
+def test_compression_is_off_by_default_and_raw_contract_is_unchanged(fake_audio, raw):
     async def check():
         controller = runtime.Controller()
         assert controller.compression_mode == "none"
@@ -116,12 +121,12 @@ def test_compression_is_off_by_default_and_raw_contract_is_unchanged(fake_audio)
             assert controller.snapshot()["compression_mode"] == "none"
             assert controller.snapshot()["compression_tokenizer"] is None
             assert controller._compressor is None
-            final = segment()
+            final = segment(text=raw)
             controller._accept(controller.session_id, final)
             saved = controller.segments["one"]
             assert saved == {**final, "session_id": controller.session_id}
             transcript = await (await client.get("/api/transcript")).json()
-            assert transcript["text"] == RAW
+            assert transcript["text"] == raw
             assert "compact_text" not in transcript and "compression" not in transcript
             assert "compact_text" not in saved and "compression_ms" not in saved
             response = await client.post("/api/stop", headers=HEADERS)
@@ -160,12 +165,12 @@ def test_minimal_sse_retains_raw_text_and_polling_reuses_final_results(fake_audi
                 fake_audio["engines"][0].emit(final)
                 emitted = await next_event(stream, lambda event: event.get("segment_id") == "one" and event["is_final"])
                 assert emitted["text"] == RAW
-                assert emitted["compact_text"] != RAW
-                assert "cannot pay more than 500 euros per month" in emitted["compact_text"]
+                assert emitted["compact_text"] == COMPACT
                 assert emitted["compression_ms"] >= 0
                 metadata = emitted["compression"]
                 assert {"mode", "changed", "removed_words", "rules_version", "reason", "removed_spans", "tokens"} <= metadata.keys()
                 assert metadata["mode"] == "minimal" and metadata["changed"] is True
+                assert metadata["rules_version"] == "2"
                 assert metadata["removed_words"] >= 1 and metadata["removed_spans"]
                 assert "compact_text" not in final  # Original provider event was not mutated.
                 assert calls == [RAW]
@@ -244,6 +249,7 @@ def test_compressor_failure_falls_back_to_raw_without_breaking_session(fake_audi
             event = controller.segments["one"]
             assert event["text"] == event["compact_text"] == RAW
             assert event["compression"]["mode"] == "minimal"
+            assert event["compression"]["rules_version"] == "2"
             assert event["compression"]["changed"] is False
             assert event["compression"]["removed_words"] == 0
             assert event["compression"]["removed_spans"] == []
@@ -255,6 +261,130 @@ def test_compressor_failure_falls_back_to_raw_without_breaking_session(fake_audi
             transcript = await (await client.get("/api/transcript")).json()
             assert transcript["text"] == transcript["compact_text"] == RAW
             assert calls == [RAW]
+            await client.post("/api/stop", headers=HEADERS)
+    asyncio.run(check())
+
+
+def test_v2_exact_final_http_and_sse_preserve_raw_and_compress_once(fake_audio, monkeypatch):
+    async def check():
+        controller = runtime.Controller()
+        async with api(controller) as client:
+            await start(client, controller, compression="minimal")
+            compressor_type = type(controller._compressor)
+            real_compress = compressor_type.compress
+            calls = []
+
+            def counted(instance, text):
+                calls.append(text)
+                return real_compress(instance, text)
+
+            monkeypatch.setattr(compressor_type, "compress", counted)
+            async with client.get("/api/events") as stream:
+                await next_event(stream, lambda event: event["type"] == "state")
+                partial = segment(text=V2_RAW, final=False)
+                fake_audio["engines"][0].emit(partial)
+                provisional = await next_event(stream, lambda event: event.get("segment_id") == "one")
+                assert provisional == {**partial, "session_id": controller.session_id}
+                assert provisional["text"].encode("utf-8") == V2_RAW.encode("utf-8")
+                assert not calls
+
+                fake_audio["engines"][0].emit(segment(text=V2_RAW))
+                final = await next_event(stream, lambda event: event.get("segment_id") == "one" and event["is_final"])
+                assert final["text"].encode("utf-8") == V2_RAW.encode("utf-8")
+                assert final["compact_text"] == V2_COMPACT
+                assert final["compression"]["rules_version"] == "2"
+                assert final["compression"]["removed_words"] == 4
+                assert final["compression"]["tokens"] is None
+                reconstructed = V2_RAW
+                for span in reversed(final["compression"]["removed_spans"]):
+                    assert V2_RAW[span["start"]:span["end"]] == span["text"]
+                    reconstructed = reconstructed[:span["start"]] + span["replacement"] + reconstructed[span["end"]:]
+                assert reconstructed == V2_COMPACT
+
+            for _ in range(2):
+                body = await (await client.get("/api/transcript")).json()
+                assert body["text"].encode("utf-8") == V2_RAW.encode("utf-8")
+                assert body["compact_text"] == V2_COMPACT
+                assert body["segments"] == [final]
+                state = await (await client.get("/api/state")).json()
+                assert state["segments"] == [final]
+            controller._accept(controller.session_id, segment(text=V2_RAW))
+            controller._accept(controller.session_id, partial)
+            assert calls == [V2_RAW]
+            assert controller.segments["one"] == final
+            await client.post("/api/stop", headers=HEADERS)
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize(("raw", "compact"), [
+    ("THE team, uh, waits for the offer, um, for the pilot.", "team waits for offer for pilot"),
+    ("The customer, um, needs the pricing for the pilot, uh, for the team.",
+     "customer needs pricing for pilot for team"),
+    ("For the pilot, the customer needs THE contract.", "For pilot customer needs contract"),
+    ("The contract is FOR the pilot.", "contract is FOR pilot"),
+    ("The thermostat has the leather cover for another team.", "thermostat has leather cover for another team"),
+    ("The offer is $1,500.50 for the pilot, due at 10.30.", "offer is $1,500.50 for pilot due at 10.30"),
+    ("The file report.v2.csv is for the team, email sales@example.com.",
+     "file report.v2.csv is for team email sales@example.com"),
+])
+def test_v2_http_preserves_for_and_numeric_or_identifier_punctuation(fake_audio, raw, compact):
+    async def check():
+        controller = runtime.Controller()
+        async with api(controller) as client:
+            await start(client, controller, compression="minimal")
+            controller._accept(controller.session_id, segment(text=raw))
+            body = await (await client.get("/api/transcript")).json()
+            assert body["text"].encode("utf-8") == raw.encode("utf-8")
+            assert body["compact_text"] == compact
+            assert re.findall(r"\bfor\b", compact, flags=re.I) == re.findall(r"\bfor\b", raw, flags=re.I)
+            assert body["segments"][0]["compression"]["rules_version"] == "2"
+            await client.post("/api/stop", headers=HEADERS)
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize(("raw", "protected", "reason"), [
+    (V2_RAW, ["the pilot"], "protected_term"),
+    ('"The customer, um, needs the contract for the pilot."', [], "ambiguous_context"),
+])
+def test_v2_retains_entire_raw_segment_for_protection_and_quotes(fake_audio, raw, protected, reason):
+    async def check():
+        controller = runtime.Controller()
+        async with api(controller) as client:
+            await start(client, controller, compression="minimal", protected_terms=protected)
+            controller._accept(controller.session_id, segment(text=raw))
+            body = await (await client.get("/api/transcript")).json()
+            assert body["text"] == body["compact_text"] == raw
+            metadata = body["segments"][0]["compression"]
+            assert metadata["rules_version"] == "2"
+            assert metadata["reason"] == reason
+            assert not metadata["changed"] and not metadata["removed_spans"]
+            assert metadata["removed_words"] == 0
+            await client.post("/api/stop", headers=HEADERS)
+    asyncio.run(check())
+
+
+def test_v2_named_tokenizer_without_savings_retains_raw_and_cached_metadata(fake_audio):
+    async def check():
+        counted = []
+
+        def counter(text):
+            counted.append(text)
+            return 42
+
+        controller = runtime.Controller(token_counter=counter, tokenizer_name="test-no-savings")
+        async with api(controller) as client:
+            await start(client, controller, compression="minimal")
+            controller._accept(controller.session_id, segment(text=V2_RAW))
+            for _ in range(2):
+                body = await (await client.get("/api/transcript")).json()
+                assert body["text"] == body["compact_text"] == V2_RAW
+                metadata = body["segments"][0]["compression"]
+                assert metadata["rules_version"] == "2"
+                assert metadata["reason"] == "no_token_savings"
+                assert not metadata["changed"] and not metadata["removed_spans"]
+                assert metadata["removed_words"] == 0
+                assert metadata["tokens"] == {"tokenizer": "test-no-savings", "raw": 42, "compact": 42, "saved": 0}
+            assert counted == [V2_RAW, V2_COMPACT]
             await client.post("/api/stop", headers=HEADERS)
     asyncio.run(check())
 

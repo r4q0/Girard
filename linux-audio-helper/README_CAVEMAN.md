@@ -1,8 +1,8 @@
 # Minimal caveman: changes, integration, and performance
 
-Version 0.3.0 · verified 2026-09-23
+Version 0.4.0 · minimal rules version 2 · updated 2026-09-23
 
-This implements the approved conservative filler-removal plan. The helper is now headless: browser/desktop-call playback → local English STT → localhost JSON/SSE, with an optional compact copy of finalized speech. No UI, extra language model, hosted compression service, or microphone capture is introduced.
+This implements the selected final caveman rules: the existing minimal filler cleanup, plus standalone `the` removal and sentence period/comma removal. **`for` is never filtered.** The helper remains headless: browser/desktop-call playback → local English STT → localhost JSON/SSE, with an optional compact copy of finalized speech. No extra language model, hosted compression service, or microphone capture is introduced.
 
 ## What changed
 
@@ -11,12 +11,13 @@ This implements the approved conservative filler-removal plan. The helper is now
 - Added per-session `compression: "minimal"`, defaulting to `"none"`. Each final segment is processed once; polling, duplicate finals, and SSE reconnection reuse retained results. Partial text is unchanged and no additional endpointing wait is introduced.
 - Added a dependency-free local compressor, original-character-span audit, protected phrases, raw fallback, and per-final-segment processing time.
 - Added optional local tokenizer counting, a synthetic sales corpus, API/safety tests, and reproducible benchmark reports. The tokenizer dependency is not needed for normal operation.
+- Updated minimal mode to rules version 2 without enabling the experimental article/copula/preposition stoplists. Raw text remains unchanged; defaults remain `compression: "none"` until explicitly enabled.
 
 The audio path remains native-rate mono capture with requested 20 ms buffers and preloaded Moonshine Small Streaming on CPU. Compression is not audio preprocessing and does not improve recognition accuracy or shorten the STT engine's endpointing delay.
 
 ## Start and consume
 
-Follow [installation and audio setup](README.md#run-the-helper), then run `./launch.sh --port 8766`. The server starts idle. Use another free port if an older instance occupies it; the launcher never stops an existing service for you.
+Follow [installation and audio setup](README.md#run-the-helper), then run `./launch.sh --port 8766`. The server starts idle. Restart an older instance explicitly or use another free port; the launcher checks `compression_rules_version` in health and never stops or silently reuses a server with different rules.
 
 ```bash
 api_base=http://127.0.0.1:8766
@@ -46,16 +47,17 @@ For each final segment, existing `text`, timestamps, IDs, and endpoint fields re
 ```json
 {
   "text": "We, um, need approval.",
-  "compact_text": "We need approval.",
+  "compact_text": "We need approval",
   "is_final": true,
   "compression": {
     "mode": "minimal",
     "changed": true,
     "removed_words": 1,
-    "rules_version": "1",
+    "rules_version": "2",
     "reason": "compressed",
     "removed_spans": [
-      {"start": 2, "end": 8, "text": ", um, ", "replacement": " ", "rule_id": "comma_delimited_filler_run"}
+      {"start": 2, "end": 8, "text": ", um, ", "replacement": " ", "rule_id": "remove_sentence_punctuation+comma_delimited_filler_run"},
+      {"start": 21, "end": 22, "text": ".", "replacement": "", "rule_id": "remove_sentence_punctuation"}
     ],
     "tokens": null
   }
@@ -70,15 +72,18 @@ With `compression: "none"`, no compact fields are added to transcript events/sna
 
 ## Exact rules and safeguards
 
-Only lowercase `um` and `uh` between commas, with meaningful speech on both sides within a segment, are eligible. Adjacent eligible filler runs are handled together. Only touching whitespace/punctuation is repaired; other words remain unchanged.
+1. Keep the original filler rule: remove only lowercase `um`/`uh` between commas, with meaningful speech on both sides. Detect these runs before removing punctuation; do not broaden cleanup to initial fillers, discourse markers, or acknowledgments.
+2. Remove standalone `the`, case-insensitively, including `The` and `THE`. Do not remove that substring from other words or identifier fragments.
+3. Remove sentence periods and commas. Preserve necessary word separation instead of joining neighboring words. Keep punctuation inside numeric values, dates, domains, versions/IP addresses, URLs, and email addresses.
+4. Never delete `for`, `For`, or `FOR`. Do not delete other articles (`a`/`an`), copulas, or prepositions through a generic stopword list. Question marks, exclamation marks, and other non-target punctuation remain.
 
-Quotes, spelling/name/code discussions, possible letter spelling, sentence-boundary ambiguity, uppercase fillers, and segment-initial/final fillers stay raw. Hyphenated `uh-huh`/`uh-uh`, negation, amounts, dates, names, pronouns, modality, repetitions, and words such as `like`, `well`, `just`, and `maybe` are not deleted. There is no general stopword list, summarization, paraphrasing, or language detection; enable this only for English.
+Existing ambiguity checks remain: quoted/metalinguistic/control-character input or an ambiguous eligible filler may make the whole segment stay raw. Uppercase or initial/final fillers are not removed, though other eligible article/punctuation edits may still apply. Hyphenated `uh-huh`/`uh-uh`, negation, numeric values, pronouns, modality, repetitions, and words such as `like`, `well`, `just`, and `maybe` are not targeted. Names containing `the` need explicit `protected_terms`; this pass is not entity recognition. There is no paraphrasing or language detection; enable it only for English.
 
 `protected_terms` accepts up to 64 nonempty strings of at most 128 characters each. Terms are trimmed and matched as case-insensitive literal phrases. If an edit overlaps a match, the entire segment stays raw. Nonempty terms require minimal mode and reset with each new session.
 
-More than 8,192 characters or 64 candidate fillers returns raw immediately, without token counting. Ambiguity, tokenizer errors, and unexpected compressor exceptions also retain raw text. Raw `text` is always authoritative: even removing a hesitation can lose a signal of uncertainty, so this cannot guarantee semantic equivalence for arbitrary speech.
+More than 8,192 characters, 64 candidate fillers, or 512 candidate edits returns raw without token counting. Ambiguity, an empty/nonmeaningful candidate, tokenizer errors, and unexpected compressor exceptions also retain raw text. Raw `text` is always authoritative: filler removal loses hesitation, article removal can weaken references, and punctuation removal loses sentence/list boundaries. No semantic-equivalence guarantee is made.
 
-Reasons are `compressed`, `no_eligible_fillers`, `ambiguous_context`, `protected_term`, `limit_exceeded`, `no_token_savings`, `token_count_failed`, or runtime fallback `compression_failed`. Unchanged results have zero removed words and an empty audit. Unexpected compressor exceptions publish a generic warning without transcript-bearing exception details.
+Reasons are `compressed`, `no_eligible_changes`, `ambiguous_context`, `protected_term`, `limit_exceeded`, `no_token_savings`, `token_count_failed`, or runtime fallback `compression_failed`. `removed_words` counts removed fillers/articles, not punctuation; a punctuation-only edit can therefore be changed with zero removed words. Audit spans identify the applied rules and reconstruct the exact compact string. Unexpected compressor exceptions publish a generic warning without transcript-bearing exception details.
 
 ## Lowest-cost configuration and optional counting
 
@@ -100,7 +105,25 @@ The server counts standalone segments, not a complete model request. Joining seg
 
 Send **one** chosen string to the LLM, e.g. `snapshot.get("compact_text", snapshot["text"])`; keep raw text/audits outside that prompt. Sending the entire JSON response duplicates text and can cost more than the original. This component never calls the downstream LLM itself.
 
-## Measured and expected performance
+## Current verification — rules version 2
+
+Example, without token counting: `The customer, um, needs the contract for the pilot.` → `customer needs contract for pilot`.
+
+**333 text-only and mocked API tests passed** on 2026-09-23. No TTS, speech recognition, audio playback, or capture tests were rerun for this change. The checks cover rule boundaries, preservation of `for`, numeric/identifier punctuation, protected phrases, original-span reconstruction, unchanged raw/partial text, one-time final processing, API metadata, and detection of an older running helper. Existing aiohttp string-key warnings remain.
+
+The [new text-only benchmark](reports/minimal-v2-benchmark.json) uses the same 42 synthetic inputs as version 1, not new audio or representative customer calls. With the reference `cl100k_base` complete-prompt guard, separate prompts totaled **1,527 → 1,461 tokens: 66 / 4.32% saved**, versus 38 / 2.49% under version 1. The guard retained raw text for six otherwise changed cases; 27 of 42 cases shortened after guarding. This is a controlled comparison, not an expected production saving.
+
+| Warm local pass, p95 | No token counter | Reference full-prompt token guard |
+| --- | ---: | ---: |
+| Synthetic short segments, 10,500 samples | 0.018 ms | 0.034 ms |
+| 2,000-character stress segment | 0.428 ms | 0.536 ms |
+| 8,192-character stress segment | 1.716 ms | 2.038 ms |
+
+These measurements are compression overhead on this CPU-only laptop, excluding startup, STT, capture, network delivery, and downstream LLM processing. The implementation adds no model calls, API fees, or endpointing wait. Local text processing still uses CPU/battery; latency and token savings vary with inputs and hardware.
+
+## Historical measurements — rules version 1
+
+**The following figures describe the original filler-only rules, not version 2.** Keep the old reports as historical evidence; do not use their savings percentages for the expanded implementation. The updated synthetic benchmark writes to `reports/minimal-v2-benchmark.json`.
 
 Measurements below are from this Linux laptop (Ryzen 7 250, 30 GiB RAM, CPU only, Python 3.12), not a guarantee for other machines. Warm timings exclude imports, model/tokenizer startup, and vocabulary downloads. The timing corpus has 42 equally weighted synthetic examples, each repeated 250 times; it deliberately includes 11 eligible cases and 31 unchanged counterexamples, not a representative call distribution.
 
@@ -118,17 +141,21 @@ The benchmark injects a full-prompt counter; the server's optional CLI counter m
 
 ## Reproduce verification
 
+The following checks use only text and mocked API sessions; they do not synthesize, transcribe, play, or capture audio:
+
 ```bash
-.venv/bin/python -m pytest -q
+.venv/bin/python -m pytest -q \
+  tests/test_compression.py tests/test_compression_benchmark.py \
+  tests/test_caveman_api.py tests/test_headless_api.py tests/test_cli.py \
+  tests/test_tokens.py tests/test_experiments.py tests/test_real_call_eval.py
 .venv/bin/python scripts/check_compression.py
 # Requires the optional extra; reproduces reference-token audit and warm timings.
 .venv/bin/python scripts/check_compression.py --tokenizer cl100k_base \
-  --report reports/compression-benchmark.json
-# Requires access to the existing PulseAudio/PipeWire service and pacat.
-.venv/bin/python scripts/check_session.py --compression minimal --tokenizer o200k_base \
-  --report reports/caveman-session-check.json
+  --report reports/minimal-v2-benchmark.json
 ```
 
-The full suite passed **237 tests**, covering existing capture/lifecycle behavior, deterministic/idempotent edits, original-span reconstruction, preservation counterexamples, token/error fallbacks, cached final results, API validation, HTTP/SSE consistency, and session resets. Existing aiohttp string-key recommendations appear as warnings, not failures.
+`scripts/check_session.py` performs a separate live audio integration check. It was deliberately **not run** for version 2, as requested.
 
-The private-output integration check uses bundled recorded narration, not a real call or microphone. It verified model preload without capture, explicit Start, 32 unchanged partial events, five finalized raw/compact segments, Stop flushing in 212 ms, and removal of all owned temporary audio resources with original settings preserved. Its five finals had 0.420 ms p95 compression time with `o200k_base`; this small live-pipeline sample is distinct from the warm isolated benchmark. See [caveman-session-check.json](reports/caveman-session-check.json). The clean fixture removed zero fillers, with zero cloud fees and no physical playback. Paid cloud transcription has not been live-tested. Long calls, accents, prices/names, and end-to-end word latency still need representative validation.
+The original version-1 release passed **237 tests**, covering existing capture/lifecycle behavior, deterministic/idempotent edits, original-span reconstruction, preservation counterexamples, token/error fallbacks, cached final results, API validation, HTTP/SSE consistency, and session resets. Version 2 extends the checks for definite articles, punctuation, protected numeric/identifier text, and unconditional `for` preservation. Existing aiohttp string-key recommendations appear as warnings, not failures.
+
+The historical version-1 private-output integration check used bundled recorded narration, not a real call or microphone. It verified model preload without capture, explicit Start, 32 unchanged partial events, five finalized raw/compact segments, Stop flushing in 212 ms, and removal of all owned temporary audio resources with original settings preserved. Its five finals had 0.420 ms p95 compression time with `o200k_base`; this small live-pipeline sample is distinct from the warm isolated benchmark. See [caveman-session-check.json](reports/caveman-session-check.json). That run removed zero fillers; version 2 can shorten the same clean narration through article/punctuation removal. Paid cloud transcription has not been live-tested. Long calls, accents, prices/names, and end-to-end word latency still need representative validation.
