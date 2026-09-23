@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "call-audio-helper"
+version = "0.1.0"
+description = "Local Linux call-output capture and low-latency transcription"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "aiohttp>=3.12,<4",
+  "numpy>=2,<3",
+  "soundcard>=0.4.5,<0.5",
+  "moonshine-voice>=0.0.50,<0.2",
+  "websockets>=15,<17",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[project.scripts]
+call-audio = "call_audio.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/call_audio"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

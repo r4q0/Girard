@@ -1,0 +1,24 @@
+{
+  "direct_private_output": {
+    "sample_rate": 48000,
+    "channels": 1,
+    "rms": 0.14142,
+    "chunks": 50,
+    "mean_chunk_ms": 20.0,
+    "stop_ms": 30.43
+  },
+  "isolated_private_output": {
+    "sample_rate": 48000,
+    "channels": 1,
+    "rms": 0.14142,
+    "chunks": 50,
+    "mean_chunk_ms": 20.0,
+    "stop_ms": 31.59
+  },
+  "original_playback_destination_restored": true,
+  "removed_monitor_stops_without_source_fallback": [
+    "Playback capture stopped: The selected output monitor disconnected; refresh outputs."
+  ],
+  "original_audio_state_preserved": true,
+  "all_temporary_resources_removed": true
+}

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Call Audio</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script defer src="/static/app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="page-header">
+        <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><h1>Call Audio</h1><p>Hear the call. Keep the words.</p></div></div>
+        <div class="header-status"><span id="connection-status" class="connection-status">Connecting</span><span id="state-badge" class="state-badge" data-state="idle"><span class="status-dot"></span><span id="state-label">Ready</span></span></div>
+      </header>
+
+      <div id="connection-notice" class="notice connection-notice" role="status" hidden><span id="connection-message"></span><button id="reconnect-button" class="secondary-button" type="button">Reconnect now</button></div>
+      <div id="notice" class="notice" role="alert" hidden></div>
+
+      <main class="workspace">
+        <aside class="capture-panel panel" aria-labelledby="capture-heading">
+          <div class="section-heading"><span class="eyebrow">CAPTURE</span><span class="small-tag">Playback only</span></div>
+          <h2 id="capture-heading">Your call, in text.</h2>
+          <p class="panel-intro">Choose where your call plays. This helper never captures your microphone.</p>
+
+          <form id="capture-form">
+            <div class="field-label"><label for="output-device">Audio output</label><button id="refresh-devices" class="text-button" type="button" title="Refresh output devices and playing apps">Refresh</button></div>
+            <select id="output-device" name="output-device" required><option value="">Loading outputs…</option></select>
+            <p id="output-help" class="field-help">Use the same headphones or speakers as your call.</p>
+
+            <div class="isolation-control"><label class="checkbox-label" for="isolate-app"><input id="isolate-app" type="checkbox"><span>Only selected app</span></label></div>
+            <div id="app-picker" hidden>
+              <label for="playback-app">Playing app</label>
+              <select id="playback-app" name="playback-app"><option value="">No playing apps found</option></select>
+              <p class="field-help">Start audio in your call app, then refresh.</p>
+            </div>
+            <p id="isolation-help" class="field-help isolation-help">All audio on this output is captured, including notifications.</p>
+
+            <fieldset class="engine-fieldset">
+              <legend>Transcription</legend>
+              <div class="engine-choices">
+                <label class="engine-choice"><input type="radio" name="engine" value="local" checked><span><strong>On device</strong><small>Moonshine</small></span></label>
+                <label class="engine-choice"><input type="radio" name="engine" value="cloud"><span><strong>Cloud</strong><small>AssemblyAI</small></span></label>
+              </div>
+            </fieldset>
+            <p id="engine-help" class="engine-help">Runs on this computer. No transcription API charge.</p>
+
+            <div class="level-heading"><span>Playback level</span><span id="level-label">Silent</span></div>
+            <div id="level-meter" class="level-meter" role="meter" aria-label="Playback audio level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="level-fill"></div></div>
+
+            <button id="start-button" class="primary-button" type="submit" disabled><span aria-hidden="true">●</span> <span id="start-label">Start listening</span></button>
+            <button id="stop-button" class="stop-button" type="button" hidden><span aria-hidden="true">■</span> <span id="stop-label">Stop listening</span></button>
+            <p id="capture-status" class="capture-status" aria-live="polite">Connecting to your audio helper…</p>
+          </form>
+          <div class="scope-note"><span aria-hidden="true">↳</span><p>Remote voices only. Your own voice usually isn’t played through the call output.</p></div>
+        </aside>
+
+        <section class="transcript-panel panel" aria-labelledby="transcript-heading">
+          <div class="transcript-header"><div><span class="eyebrow">LIVE TRANSCRIPT</span><h2 id="transcript-heading">The conversation</h2></div><div class="transcript-actions"><button id="copy-transcript" class="secondary-button" type="button" disabled>Copy</button><button id="export-transcript" class="secondary-button" type="button" disabled>Download</button><button id="clear-transcript" class="text-button clear-button" type="button" disabled>Clear</button></div></div>
+
+          <dl class="metrics">
+            <div><dt>Elapsed</dt><dd id="elapsed-value">00:00</dd></div>
+            <div><dt>Est. API cost <span class="metric-unit">USD</span></dt><dd id="cost-value">$0.0000</dd></div>
+            <div><dt>Audio queue</dt><dd id="queue-value">— <span>ms</span></dd></div>
+            <div><dt id="processing-label">Local processing</dt><dd id="processing-value">— <span>ms</span></dd></div>
+          </dl>
+          <p id="metrics-help" class="metrics-help">Queue and processing times are per audio chunk, not total transcription latency.</p>
+
+          <div id="transcript-scroll" class="transcript-scroll">
+            <div id="empty-state" class="empty-state"><div class="empty-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><h3>Ready when you are.</h3><p>Start listening to see words appear here.<br>English transcription is enabled.</p></div>
+            <div id="transcript-list" class="transcript-list" role="log" aria-label="Call transcript" aria-live="polite" aria-relevant="additions text"></div>
+          </div>
+          <div class="transcript-footer"><span><span class="partial-dot" aria-hidden="true"></span>Muted text is still being recognized.</span><button id="jump-latest" class="text-button" type="button" hidden>Jump to latest ↓</button><span id="segment-count">0 segments</span></div>
+        </section>
+      </main>
+      <footer class="page-footer"><span>Audio starts only when you choose.</span><span id="mode-footer">ON-DEVICE TRANSCRIPTION</span></footer>
+      <div id="action-status" class="sr-only" aria-live="polite"></div>
+    </div>
+  </body>
+</html>
