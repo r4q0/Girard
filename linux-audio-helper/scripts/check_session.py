@@ -27,6 +27,7 @@ import numpy as np
 
 from call_audio.audio import _json, _list_modules, _module_arguments, _pactl
 from call_audio.server import CONTROLLER, create_app
+from call_audio.tokens import load_token_counter
 from check_capture import protected_state
 
 
@@ -40,7 +41,7 @@ async def until(predicate, timeout=10, description="condition"):
     raise AssertionError(f"Timed out waiting for {description}.")
 
 
-async def check_session() -> dict:
+async def check_session(compression="none", tokenizer_name=None) -> dict:
     identifier = uuid.uuid4().hex[:12]
     private_sink = f"helper_session_check_{identifier}"
     application = f"CallAudioSessionCheck_{identifier}"
@@ -102,7 +103,8 @@ async def check_session() -> dict:
     try:
         module_id = int(_pactl("load-module", "module-null-sink", f"sink_name={private_sink}",
                                "rate=48000", "channels=2", "sink_properties=device.description=Session_Check_Private"))
-        app = create_app(port=port, model="small")
+        token_counter = load_token_counter(tokenizer_name)
+        app = create_app(port=port, model="small", token_counter=token_counter, tokenizer_name=tokenizer_name)
         runner = web.AppRunner(app, access_log=None, shutdown_timeout=3)
         await runner.setup()
         await web.SockSite(runner, bound).start()
@@ -110,19 +112,22 @@ async def check_session() -> dict:
 
         health, _ = await request("GET", "/api/health")
         assert health["app"] == "call-audio-helper"
-        for path in ("/", "/static/app.js", "/static/style.css"):
+        assert health["mode"] == "headless" and health["api_version"] == 1
+        for path in ("/", "/api/health", "/api/transcript"):
             content, headers = await request("GET", path)
             assert content
             assert "frame-ancestors 'none'" in headers["Content-Security-Policy"]
             assert headers["X-Content-Type-Options"] == "nosniff"
             assert headers["Cache-Control"] == "no-store"
+        for path in ("/static/app.js", "/static/style.css", "/index.html"):
+            await request("GET", path, expected=404)
         await request("POST", "/api/start", expected=403,
                       headers={"Origin": "https://unrelated.invalid"}, body={})
         await request("POST", "/api/start", expected=403,
                       headers={"X-Call-Audio": ""}, body={})
         await request("GET", "/api/health", expected=403,
                       headers={"Host": f"unrelated.invalid:{port}"})
-        report["http_assets_health_security_headers_and_origin_checks"] = True
+        report["headless_api_no_ui_security_headers_and_origin_checks"] = True
 
         controller = app[CONTROLLER]
         await until(lambda: controller.model_ready or controller.model_error,
@@ -143,7 +148,7 @@ async def check_session() -> dict:
 
         loaded_model = controller._local._transcriber
         state, _ = await request("POST", "/api/start", body={
-            "engine": "local", "sink_id": private_sink, "isolate": False,
+            "engine": "local", "sink_id": private_sink, "isolate": False, "compression": compression,
         })
         assert state["state"] in ("loading", "listening")
         session_id = state["session_id"]
@@ -183,10 +188,19 @@ async def check_session() -> dict:
         assert stopped["state"] == "idle" and stopped["error"] is None
         assert stopped["estimated_cost_usd"] == 0
         assert stopped["segments"] and all(segment["is_final"] for segment in stopped["segments"])
+        snapshot, _ = await request("GET", "/api/transcript")
+        assert snapshot["session_id"] == session_id
+        assert snapshot["complete"] and not snapshot["has_pending"]
+        assert snapshot["segments"] == stopped["segments"]
+        assert snapshot["text"] == "\n".join(segment["text"] for segment in stopped["segments"])
         transcripts = [event for event in events if event.get("type") == "transcript"]
         partials = [event for event in transcripts if not event["is_final"]]
         finals = [event for event in transcripts if event["is_final"]]
         assert partials and finals
+        assert all("compact_text" not in event for event in partials)
+        if compression == "minimal":
+            assert all(event["compression"]["mode"] == "minimal" for event in finals)
+            assert snapshot["compact_text"] == "\n".join(segment["compact_text"] for segment in stopped["segments"])
         assert all(event["session_id"] == session_id for event in transcripts)
         final_ids = [event["segment_id"] for event in finals]
         assert len(set(final_ids)) == len(final_ids), "Duplicate finalized transcript event."
@@ -204,8 +218,13 @@ async def check_session() -> dict:
             "observed_processing_ms_p95": round(float(np.percentile([e["processing_ms"] for e in metrics], 95)), 2),
             "observed_queue_ms_max": max(e["queue_ms"] for e in metrics),
             "cost_usd": stopped["estimated_cost_usd"],
+            "compression_mode": compression,
+            "compression_tokenizer": tokenizer_name,
+            "compression_ms_p95": round(float(np.percentile([event.get("compression_ms", 0) for event in finals], 95)), 4),
+            "removed_filler_words": sum(event.get("compression", {}).get("removed_words", 0) for event in finals),
+            "finalized_transcript_json_verified": True,
             "final_state": stopped["state"], "final_text": combined,
-            "fixture": str(fixture), "sample_rate": 48000,
+            "fixture": "moonshine_voice/assets/two_cities.wav", "sample_rate": 48000,
             "cloud_used": False, "physical_playback_used": False,
             "note": "Metric snapshots sample the live pipeline; this is not a word-latency benchmark or a full-call accuracy test.",
         })
@@ -262,8 +281,10 @@ async def check_session() -> dict:
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--report", type=Path)
+    parser.add_argument("--compression", choices=("none", "minimal"), default="none")
+    parser.add_argument("--tokenizer", choices=("cl100k_base", "o200k_base"))
     args = parser.parse_args()
-    report = asyncio.run(check_session())
+    report = asyncio.run(check_session(args.compression, args.tokenizer))
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

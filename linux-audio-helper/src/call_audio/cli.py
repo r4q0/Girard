@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
-import subprocess
 import sys
 import time
 import urllib.error
@@ -80,25 +79,43 @@ def serve(args):
     from aiohttp import web
     from .server import create_app
     url = f"http://127.0.0.1:{args.port}"
+    running = None
     try:
         with urllib.request.urlopen(url + "/api/health", timeout=0.5) as response:
-            if json.load(response).get("app") == "call-audio-helper":
-                if args.open:
-                    subprocess.Popen(["xdg-open", url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                print(f"Call Audio is already running at {url}")
-                return
+            running = json.load(response)
     except (OSError, ValueError):
         pass
-    app = create_app(port=args.port, model=args.model)
-    if args.open:
-        async def open_browser(app):
-            import asyncio
-            async def open_later():
-                await asyncio.sleep(0.5)
-                subprocess.Popen(["xdg-open", url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            asyncio.create_task(open_later())
-        app.on_startup.append(open_browser)
-    print("Local model preloads in the background; capture remains OFF until Start.")
+    if isinstance(running, dict) and running.get("app") == "call-audio-helper":
+        if running.get("mode") != "headless":
+            raise RuntimeError(
+                f"Port {args.port} is occupied by the legacy Call Audio UI. "
+                "Choose another --port or stop that instance yourself; it has not been changed."
+            )
+        if running.get("api_version") != 1:
+            raise RuntimeError(
+                f"Port {args.port} is occupied by an incompatible Call Audio API version. "
+                "Choose another --port or stop that instance yourself; it has not been changed."
+            )
+        if "minimal" not in (running.get("capabilities") or {}).get("compression", []):
+            raise RuntimeError(
+                f"Port {args.port} is occupied by an older headless helper without minimal compression. "
+                "Choose another --port or stop that instance yourself; it has not been changed."
+            )
+        if getattr(args, "tokenizer", None) and running.get("compression_tokenizer") != args.tokenizer:
+            raise RuntimeError(
+                "The running helper uses a different tokenizer; choose another --port or restart it explicitly."
+            )
+        print(f"Call Audio headless API is already running at {url}")
+        return
+    if getattr(args, "tokenizer", None):
+        from .tokens import load_token_counter
+        print("Loading the optional tokenizer before capture; first use may download vocabulary.")
+        token_counter = load_token_counter(args.tokenizer)
+        app = create_app(port=args.port, model=args.model, token_counter=token_counter, tokenizer_name=args.tokenizer)
+    else:
+        app = create_app(port=args.port, model=args.model)
+    print(f"Call Audio headless API at {url}")
+    print("Local model preloads in the background; capture remains OFF until POST /api/start.")
     print("Keep this process running. Ctrl+C stops capture and restores owned routes.")
     web.run_app(app, host="127.0.0.1", port=args.port, access_log=None)
 
@@ -106,10 +123,11 @@ def serve(args):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Local English transcription of Linux call playback, never the microphone.")
     commands = parser.add_subparsers(dest="command", required=True)
-    server = commands.add_parser("serve", help="Run the local UI; no automatic capture")
+    server = commands.add_parser("serve", help="Run the headless local API; no automatic capture")
     server.add_argument("--port", type=int, default=8765)
-    server.add_argument("--open", action="store_true", help="Open the local page in your browser")
     server.add_argument("--model", choices=("tiny", "small", "medium"), default="small")
+    server.add_argument("--tokenizer", choices=("cl100k_base", "o200k_base"),
+                        help="Optional local token counting for compact segments; select your downstream encoding")
     commands.add_parser("devices", help="List playback outputs and app streams")
     commands.add_parser("doctor", help="Check dependencies and output-only audio discovery")
     prepare = commands.add_parser("prepare", help="Download the local English model; opens no audio device")

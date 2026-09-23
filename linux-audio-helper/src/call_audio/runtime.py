@@ -13,17 +13,32 @@ import numpy as np
 
 from .audio import CaptureSource, IsolationRoute, list_outputs, list_playback_streams
 from .engines import AssemblyAIEngine, MoonshineEngine
+from .compression import MinimalCompressor
 
 
 class SessionError(ValueError):
     pass
 
 
+def validate_compression_settings(settings):
+    mode = settings.get("compression", "none")
+    if mode not in ("none", "minimal"):
+        raise ValueError("compression must be none or minimal.")
+    terms = settings.get("protected_terms", [])
+    if not isinstance(terms, list) or len(terms) > 64:
+        raise ValueError("protected_terms must be a list of at most 64 strings.")
+    if any(not isinstance(term, str) or not term.strip() or len(term) > 128 for term in terms):
+        raise ValueError("Each protected term must be non-empty and at most 128 characters.")
+    if mode == "none" and terms:
+        raise ValueError("protected_terms requires compression=minimal.")
+    return mode, tuple(dict.fromkeys(term.strip() for term in terms))
+
+
 class Controller:
     MAX_QUEUE_SECONDS = 1.5
     CLOUD_USD_PER_HOUR = 0.15  # Estimate only; not a provider billing receipt.
 
-    def __init__(self, model="small"):
+    def __init__(self, model="small", token_counter=None, tokenizer_name=None):
         self.model = model
         self.state = "idle"
         self.error = None
@@ -34,6 +49,11 @@ class Controller:
         self.outputs = []
         self.streams = []
         self.segments = {}
+        self.compression_mode = "none"
+        self._token_counter = token_counter
+        self.tokenizer_name = tokenizer_name if token_counter is not None else None
+        self._compressor = None
+        self._finalized_ids = set()
         self.subscribers = set()
         self._pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="inference")
         self._local = None
@@ -69,17 +89,36 @@ class Controller:
         return {
             "state": self.state, "error": self.error, "session_id": self.session_id,
             "engine": self.engine, "cloud_configured": self.cloud_configured,
+            "compression_mode": self.compression_mode,
+            "compression_tokenizer": self.tokenizer_name,
             "model_ready": self.model_ready, "model_error": self.model_error,
             "segments": sorted(self.segments.values(), key=lambda item: item["start_ms"]),
             "outputs": self.outputs, "streams": self.streams, **self.metrics(),
         }
+
+    def transcript(self, final_only=True):
+        """Raw text for API consumers; revisions replace the same segment ID."""
+        ordered = sorted(self.segments.values(), key=lambda item: item["start_ms"])
+        pending = any(not item["is_final"] for item in ordered)
+        selected = [dict(item) for item in ordered if item["is_final"] or not final_only]
+        result = {
+            "session_id": self.session_id, "state": self.state, "error": self.error,
+            "final_only": final_only, "has_pending": pending,
+            "complete": bool(self.session_id and self.state == "idle" and not self.error and not pending),
+            "text": "\n".join(item["text"] for item in selected),
+            "segments": selected,
+        }
+        if self.compression_mode == "minimal":
+            result["compact_text"] = "\n".join(item.get("compact_text", item["text"]) for item in selected)
+            result["compression"] = {"mode": "minimal", "tokenizer": self.tokenizer_name}
+        return result
 
     def publish(self, event):
         for subscriber in tuple(self.subscribers):
             try:
                 subscriber.put_nowait(event)
             except asyncio.QueueFull:
-                # Force a slow browser to reconnect and obtain a full snapshot.
+                # Force a slow API consumer to reconnect for a full snapshot.
                 self.subscribers.discard(subscriber)
                 while not subscriber.empty():
                     subscriber.get_nowait()
@@ -128,6 +167,10 @@ class Controller:
             raise SessionError("Cloud is not configured; use local or set a server-side AssemblyAI credential.")
         if not isinstance(settings.get("isolate", False), bool):
             raise SessionError("isolate must be true or false.")
+        try:
+            compression_mode, protected_terms = validate_compression_settings(settings)
+        except ValueError as exc:
+            raise SessionError(str(exc)) from None
         await self.devices()
         # Recheck after await: two simultaneous POSTs must not open two sessions.
         if self._closing or (self._task and not self._task.done()):
@@ -144,6 +187,12 @@ class Controller:
         self.engine = engine
         self.error = None
         self.segments = {}
+        self._finalized_ids.clear()
+        self.compression_mode = compression_mode
+        self._compressor = MinimalCompressor(
+            protected_terms=protected_terms,
+            token_counter=self._token_counter, tokenizer_name=self.tokenizer_name,
+        ) if compression_mode == "minimal" else None
         self._started_at = self._ended_at = None
         self._bill_started = self._bill_ended = None
         self._queue_ms = self._processing_ms = self._level = 0.0
@@ -158,9 +207,28 @@ class Controller:
         event = {**event, "session_id": session_id}
         if event["type"] == "transcript":
             key = event["segment_id"]
+            if key in self._finalized_ids:
+                return
             previous = self.segments.get(key)
             if previous and previous["is_final"] and not event["is_final"]:
                 return
+            if event["is_final"]:
+                self._finalized_ids.add(key)
+                if self._compressor is not None:
+                    started = time.perf_counter()
+                    try:
+                        event.update(self._compressor.compress(event["text"]))
+                    except Exception:
+                        # Compaction is optional and must never interrupt audio
+                        # capture, discard text, or expose transcript-bearing errors.
+                        event.update({"compact_text": event["text"], "compression": {
+                            "mode": "minimal", "changed": False, "removed_words": 0,
+                            "rules_version": "1", "reason": "compression_failed",
+                            "removed_spans": [], "tokens": None,
+                        }})
+                        self.publish({"type": "warning", "session_id": session_id,
+                                      "message": "Compression failed; raw transcript retained."})
+                    event["compression_ms"] = round((time.perf_counter() - started) * 1000, 4)
             self.segments[key] = event
         elif event["type"] == "error":
             self.error = event["message"]

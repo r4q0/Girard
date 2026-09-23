@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "call-audio-helper"
-version = "0.1.0"
-description = "Local Linux call-output capture and low-latency transcription"
+version = "0.3.0"
+description = "Headless Linux call-output capture and low-latency transcription API"
 requires-python = ">=3.12,<3.14"
 dependencies = [
   "aiohttp>=3.12,<4",
@@ -17,6 +17,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10"]
+tokens = ["tiktoken>=0.11,<1"]
 
 [project.scripts]
 call-audio = "call_audio.cli:main"
@@ -26,4 +27,3 @@ packages = ["src/call_audio"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-

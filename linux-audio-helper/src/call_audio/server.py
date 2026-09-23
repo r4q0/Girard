@@ -1,31 +1,39 @@
-"""Loopback-only UI with origin checks; no audio or transcript persistence."""
+"""Headless loopback-only transcription API; no audio/transcript persistence."""
 from __future__ import annotations
 
 import asyncio
 import json
-from pathlib import Path
 from urllib.parse import urlsplit
 
 from aiohttp import web
 
-from .runtime import Controller, SessionError
+from . import __version__
+from .runtime import Controller, SessionError, validate_compression_settings
 
-STATIC = Path(__file__).parent / "static"
 CONTROLLER = web.AppKey("controller", Controller)
+SECURITY_HEADERS = {
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+    "Referrer-Policy": "no-referrer",
+}
 
 
 @web.middleware
 async def local_only(request, handler):
     # Host check also closes the usual DNS-rebinding route to localhost APIs.
     if request.host not in request.app["allowed_hosts"]:
-        raise web.HTTPForbidden(text="Localhost access only.")
+        return web.json_response({"error": "Localhost access only."}, status=403, headers=SECURITY_HEADERS)
     origin = request.headers.get("Origin")
     if origin:
-        parsed = urlsplit(origin)
+        try:
+            parsed = urlsplit(origin)
+        except ValueError:
+            return web.json_response({"error": "Invalid Origin header."}, status=403, headers=SECURITY_HEADERS)
         if parsed.scheme != "http" or parsed.netloc != request.host:
-            raise web.HTTPForbidden(text="Cross-origin requests are not allowed.")
+            return web.json_response({"error": "Cross-origin requests are not allowed."}, status=403, headers=SECURITY_HEADERS)
     if request.method == "POST" and request.headers.get("X-Call-Audio") != "1":
-        raise web.HTTPForbidden(text="Missing local request header.")
+        return web.json_response({"error": "Missing X-Call-Audio: 1 request header."}, status=403, headers=SECURITY_HEADERS)
     try:
         response = await handler(request)
     except SessionError as exc:
@@ -34,10 +42,9 @@ async def local_only(request, handler):
         response = web.json_response({"error": str(exc)}, status=400)
     except RuntimeError as exc:
         response = web.json_response({"error": str(exc)}, status=503)
-    response.headers["Cache-Control"] = "no-store"
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src 'self'; style-src 'self'; script-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
-    response.headers["Referrer-Policy"] = "no-referrer"
+    except web.HTTPException as exc:
+        response = web.json_response({"error": exc.reason}, status=exc.status)
+    response.headers.update(SECURITY_HEADERS)
     return response
 
 
@@ -50,7 +57,19 @@ async def devices(request):
 
 
 async def start(request):
-    return web.json_response(await request.app[CONTROLLER].start(await request.json()))
+    if request.content_type != "application/json":
+        raise ValueError("Send the start settings as application/json.")
+    settings = await request.json()
+    if not isinstance(settings, dict):
+        raise ValueError("Expected a JSON object.")
+    allowed = {"sink_id", "engine", "isolate", "stream_id", "compression", "protected_terms"}
+    unknown = set(settings) - allowed
+    if unknown:
+        raise ValueError("Unsupported start fields: " + ", ".join(sorted(unknown)))
+    if not isinstance(settings.get("sink_id"), str) or not settings["sink_id"]:
+        raise ValueError("sink_id must be a non-empty playback output ID.")
+    validate_compression_settings(settings)
+    return web.json_response(await request.app[CONTROLLER].start(settings))
 
 
 async def stop(request):
@@ -62,7 +81,21 @@ async def clear(request):
 
 
 async def health(request):
-    return web.json_response({"app": "call-audio-helper", "version": "0.1.0"})
+    return web.json_response({
+        "app": "call-audio-helper", "version": __version__,
+        "mode": "headless", "api_version": 1,
+        "capabilities": {"compression": ["none", "minimal"]},
+        "compression_tokenizer": request.app[CONTROLLER].tokenizer_name,
+    })
+
+
+async def transcript(request):
+    if set(request.query) - {"final_only"}:
+        raise ValueError("The only supported transcript query parameter is final_only.")
+    value = request.query.get("final_only", "true")
+    if value not in ("true", "false"):
+        raise ValueError("final_only must be true or false.")
+    return web.json_response(request.app[CONTROLLER].transcript(final_only=value == "true"))
 
 
 async def events(request):
@@ -71,6 +104,7 @@ async def events(request):
     controller.subscribers.add(subscriber)
     subscriber.put_nowait({"type": "state", **controller.snapshot()})
     response = web.StreamResponse(headers={
+        **SECURITY_HEADERS,
         "Content-Type": "text/event-stream", "Cache-Control": "no-store",
         "X-Accel-Buffering": "no",
     })
@@ -89,13 +123,6 @@ async def events(request):
     finally:
         controller.subscribers.discard(subscriber)
     return response
-
-
-async def static(request):
-    name = request.match_info.get("name", "index.html")
-    if name not in ("index.html", "app.js", "style.css"):
-        raise web.HTTPNotFound()
-    return web.FileResponse(STATIC / name)
 
 
 async def lifecycle(app):
@@ -123,21 +150,20 @@ async def shutdown(app):
         subscriber.put_nowait({"type": "reconnect"})
 
 
-def create_app(port=8765, model="small", controller=None, preload=True):
+def create_app(port=8765, model="small", controller=None, preload=True, token_counter=None, tokenizer_name=None):
     app = web.Application(middlewares=[local_only], client_max_size=16 * 1024)
-    app[CONTROLLER] = controller or Controller(model)
+    app[CONTROLLER] = controller or Controller(model, token_counter=token_counter, tokenizer_name=tokenizer_name)
     app["allowed_hosts"] = {f"127.0.0.1:{port}", f"localhost:{port}"}
     app["preload"] = preload
     app.cleanup_ctx.append(lifecycle)
     app.on_shutdown.append(shutdown)
-    app.router.add_get("/", static)
+    app.router.add_get("/", health)
     app.router.add_get("/api/health", health)
     app.router.add_get("/api/state", state)
     app.router.add_get("/api/devices", devices)
     app.router.add_get("/api/events", events)
+    app.router.add_get("/api/transcript", transcript)
     app.router.add_post("/api/start", start)
     app.router.add_post("/api/stop", stop)
     app.router.add_post("/api/clear", clear)
-    app.router.add_get("/static/{name}", static)
-    app.router.add_get("/{name}", static)
     return app

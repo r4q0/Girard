@@ -1,71 +1,111 @@
-# Call Audio — Linux
+# Call Audio — headless Linux API
 
-A local-first helper for Josef's scope: capture **call playback**, turn it into live English text, and keep capture/processing latency and API cost visible. It does not capture your microphone, send text to an LLM, perform emotion detection, or create sales reports.
+Josef's playback → English speech-to-text → API component. It captures call audio output and runs Moonshine Small Streaming locally on CPU by default. It never captures the microphone. There is no browser UI, automatic recording, LLM invocation, or sales-report generation. Optional minimal “caveman” compression provides a compact copy of final text; the original transcript is always retained.
 
-## Start using it
+## Run the helper
 
-Requirements: Linux with PipeWire's PulseAudio compatibility service (or PulseAudio), the `pactl` command, libpulse, Python 3.12, and `uv`. The capture integration tests also need `pacat`; opening the browser uses `xdg-open`. Keep the existing audio server; do not start a competing PulseAudio daemon.
+Requirements: Linux with PipeWire's PulseAudio compatibility service (or PulseAudio), `pactl`, libpulse, Python 3.12, and `uv`. Audio integration tests also require `pacat`. Keep the existing audio server; do not start a competing PulseAudio daemon.
 
-From this directory, install the locked dependencies and download the English model, then start the local page at **http://127.0.0.1:8765**:
+From this directory:
 
 ```bash
 uv sync --locked --python 3.12 --extra dev
 .venv/bin/call-audio prepare
-./launch.sh
+./launch.sh --port 8766
 ```
 
-1. Start your browser meeting, desktop call app, or softphone. Select the same **Audio output** in Call Audio that your call uses.
-2. Leave **On device** selected: English Moonshine Small Streaming is downloaded and preloaded; no STT API charges or cloud upload.
-3. Optionally select **Only selected app**. Start playback in that app, press **Refresh**, and choose its playback stream. A temporary virtual output forwards it once to the chosen output; Stop restores its previous destination.
-4. Press **Start listening**. The UI revises provisional text and finalizes segments as you speak/hear speech. **Stop listening** stops capture and flushes pending text.
-5. **Copy** or **Download** exports the transcript only when you request it. Export important text before starting another session, which clears the prior transcript.
+The API binds to `127.0.0.1`. Port 8765 is the default; the example uses 8766 to avoid an older desktop/UI helper that may still occupy 8765. If the health response identifies a legacy UI or a headless instance without compression support, the launcher reports the conflict and leaves it untouched. Choose another port or stop that instance yourself. A compatible headless API already using the requested port is reused; an explicitly requested tokenizer must also match that instance.
 
-**Closing the browser tab does not stop an active session.** Use Stop, or Ctrl+C in the helper's terminal. Stopping the program closes capture and cleans up its temporary routes. No login autostart, background recording, or system-wide audio-default change is installed.
+The model preloads, but capture stays **off** until an explicit `POST /api/start`. No login autostart or system-wide audio-default change is installed. Ctrl+C stops capture and restores owned temporary routes.
 
-The helper leaves system mute/volume unchanged. Unmute in your desktop controls when you want to hear a call. A muted output can affect monitor capture depending on the audio-server setup; the playback meter is your check. Isolated capture is taken before the physical output.
+## Capture and retrieve text
 
-## Implementation and cost controls
+In another terminal, inspect health and available playback outputs:
+
+```bash
+api_base=http://127.0.0.1:8766
+curl --fail-with-body -sS "$api_base/api/health"
+curl --fail-with-body -sS "$api_base/api/devices"
+```
+
+Health includes `"mode":"headless"`, `"api_version":1`, and `"capabilities":{"compression":["none","minimal"]}`. Devices returns `outputs` and `streams`. Choose the `id` of the output your call uses and substitute it below. Every POST requires `X-Call-Audio: 1`; send JSON with `Content-Type: application/json`.
+
+```bash
+curl --fail-with-body -sS "$api_base/api/start" \
+  -H 'X-Call-Audio: 1' -H 'Content-Type: application/json' \
+  -d '{"sink_id":"PASTE_AN_OUTPUT_ID_FROM_DEVICES","engine":"local","isolate":false}'
+```
+
+This captures all playback on that output, including notifications. To isolate a call stream, first make the app produce audio, fetch `/api/devices`, and start with `"isolate":true` and its integer `"stream_id"`. A temporary virtual output forwards that stream to the chosen output. Stop restores its previous destination. Browser tabs may share one playback stream; use a separate call-browser instance when isolation matters.
+
+For live events, run this in a separate consumer terminal:
+
+```bash
+curl --fail-with-body -N http://127.0.0.1:8766/api/events
+```
+
+Retrieve text or inspect progress without changing capture:
+
+```bash
+curl --fail-with-body -sS "$api_base/api/transcript"
+curl --fail-with-body -sS "$api_base/api/transcript?final_only=false"
+curl --fail-with-body -sS "$api_base/api/state"
+```
+
+Stop explicitly, then retrieve the final snapshot:
+
+```bash
+curl --fail-with-body -sS "$api_base/api/stop" \
+  -H 'X-Call-Audio: 1' -H 'Content-Type: application/json' -d '{}'
+curl --fail-with-body -sS "$api_base/api/state"
+curl --fail-with-body -sS "$api_base/api/transcript"
+```
+
+Stop flushes captured speech. It can return `"state":"stopping"` while work completes; poll `/api/state` until idle or error before treating the transcript as finished. Closing an SSE connection, stopping `curl`, or disconnecting any client **does not stop capture**. Use `/api/stop` or Ctrl+C in the helper's terminal.
+
+## API contract
+
+| Endpoint | Behavior |
+| --- | --- |
+| `GET /` or `/api/health` | JSON health, including headless mode and API version. |
+| `GET /api/devices` | Refresh available output monitors and playback streams. |
+| `GET /api/state` | Session state, segments, device lists, model readiness, errors, and metrics. |
+| `POST /api/start` | Start with `sink_id`, `engine` (`local` or `cloud`), optional `isolate`/`stream_id`, `compression` (`none` or `minimal`), and `protected_terms`. |
+| `GET /api/events` | SSE beginning with a full state snapshot, then transcript/state/metric/error/warning events. |
+| `GET /api/transcript` | Raw finalized STT text and segments, plus `compact_text` in minimal mode; `final_only=false` includes provisional text. |
+| `POST /api/stop` | Stop capture and flush pending transcription. |
+| `POST /api/clear` | Clear the transcript while stopped; active sessions reject this request. |
+
+Static/browser routes return 404. The API checks Host and any supplied Origin; cross-origin access is not enabled. Local software with access to this account remains within the trust boundary.
+
+Transcript SSE events contain `session_id`, `segment_id`, `start_ms`, `end_ms`, `text`, `is_final`, and `endpoint`. **Upsert by `(session_id, segment_id)`**; replace provisional text as it changes instead of appending every event. Discard events from previous sessions. After a disconnect, reconnect for a fresh state snapshot; SSE is not a durable event log. State and error events tell the consumer whether capture is still running or ended unsuccessfully. Surface warnings, including a missing cloud termination acknowledgement, to the caller.
+
+`/api/transcript` returns `session_id`, `state`, `error`, `final_only`, `has_pending`, `complete`, `text`, and `segments`. Its `text` joins selected segments in timestamp order with newlines, preserving the recognizer's words. `has_pending` describes all segments, even when provisional ones are excluded. `complete` is true only for an existing session that is idle, has no error, and has no pending segments; it does not certify recognition accuracy. A fresh, never-started helper is not a completed session.
+
+There is one in-memory session, with no audio files, transcript database, or server-side export. The caller saves any text it needs. Starting the next session clears the previous transcript; process exit also loses it. GET polling and SSE subscriptions never start capture.
+
+## Processing and cost
 
 ```text
-Selected PipeWire/PulseAudio output monitor
-  → 20 ms requested capture buffers, mono float32 at native rate
+Validated playback monitor
+  → requested 20 ms mono buffers at the output's native sample rate
   → bounded worker queue
-  → preloaded Moonshine Small Streaming English on CPU
-  → partial/final transcript events → localhost UI
+  → preloaded English Moonshine on CPU
+  → unchanged partial revisions / optional local compaction of final segments
+  → raw text + optional compact copy over localhost HTTP/SSE
 ```
 
-- Monitor sources are explicitly validated. The capture stream is pinned so disappearing headphones cannot silently fall back to a microphone.
-- The inference worker is separate from capture/UI. A backlog over 1.5 seconds stops with an explicit error instead of silently dropping or transcribing increasingly old speech.
-- No extra denoiser, echo canceller, lossy compression, LLM cleanup, or unnecessary resampling is inserted. Call apps already process remote speech; extra processing needs a measured benefit.
-- Audio is not recorded to disk. Transcripts remain in process/browser memory unless you export them. Model files live in `~/.cache/moonshine_voice/`; dependencies are isolated in this project's `.venv`.
-- The UI binds to `127.0.0.1` only, uses same-origin/Host checks and a required POST header, and displays transcript text without interpreting HTML. Other software/users with access to the same local account remain in the trust boundary.
-- Local transcription costs **$0 in API fees**, but uses CPU and battery. Queue and processing metrics are individual-stage measurements, **not** end-to-end word latency.
-- English is implemented; other spoken languages are not enabled in this version. Your own voice normally does not appear in remote playback and therefore is absent from this transcript.
+The capture stream is pinned: disappearing headphones cannot silently fall back to a microphone. Capture and inference run separately. A backlog exceeding 1.5 seconds stops with an error instead of silently dropping speech. Additional denoising, echo cancellation, lossy compression, and LLM cleanup are absent.
 
-## Measured on the development computer
+Local mode costs **$0 in STT API fees** and uses CPU/battery. Models are cached in `~/.cache/moonshine_voice/`; dependencies live in this project's `.venv`. Queue and processing times measure individual audio chunks, not end-to-end word latency. In cloud mode, processing time measures client packet handling/sending, not the provider's inference latency. Your own voice normally is not present in remote playback and is therefore absent from this transcript. English is the only language enabled here.
 
-AMD Ryzen 7 250 (8 cores / 16 threads), 30 GiB RAM, Linux/PipeWire, no dedicated GPU. Tests used harmless recorded narration and private virtual audio outputs, never a real call or microphone.
+Cloud is optional. Set `ASSEMBLYAI_TOKEN` or `ASSEMBLYAI_API_KEY` in the server environment and explicitly start with `"engine":"cloud"`; no credential field is accepted in `/api/start`. Prefer a short-lived backend-issued token for a team deployment. A single-use temporary token needs replacement for a subsequent session.
 
-- 24 seconds of English test narration plus a 1-second silent tail processed in **9.07 seconds** when fed as fast as possible: about **2.76× realtime throughput**.
-- Real-time replay produced **74 provisional updates / 9 final segments**. Per-20-ms-feed processing time: **91 ms p95**, **243 ms maximum**; decoding is intermittent, not incurred on every chunk.
-- Native model loaded in approximately **0.14–0.27 seconds** with files cached. Subsequent sessions reuse the model.
-- Direct and app-isolated capture both delivered **20 ms mono 48 kHz chunks**; capture-thread Stop took about **31 ms**. Removing the selected monitor stopped capture with an error, without microphone fallback.
-- The full HTTP → private playback capture → recognition → live UI-event test produced **31 partial updates / 5 final segments**. Stop during unfinished speech flushed the final segment and returned idle in **126 ms**, with original audio settings and module inventory preserved.
-- These are a short functional benchmark, **not** validated word latency or sales-call accuracy. The test recognized the known opening phrase, with some article substitutions later. Prices, names, accents, interruptions and long calls need a representative acceptance test.
+The cloud adapter uses AssemblyAI's EU endpoint, explicitly selects `universal-streaming-english`, sends 50 ms mono PCM16 packets, and requests partials. Stop requests finalization and termination, then closes the connection with bounded waits. Cloud transport has mock coverage; it has not been verified with a paid live session. The estimate uses **$0.15 per connected hour**, including silence; it is not an invoice. Verify [current provider pricing](https://www.assemblyai.com/pricing) before opting in. No paid account or API credential was created.
 
-See [the saved local benchmark](reports/local-benchmark.json), [full-session test](reports/session-check.json), [capture/routing test](reports/capture-check.json), and the verification scripts below. Timing varies with load. The UI was also checked in an isolated Brave browser at desktop and mobile widths; [screenshot](reports/control-page.png).
+## Verification and measurements
 
-## Optional cloud fallback
-
-Cloud is disabled in the UI unless the server process has an `ASSEMBLYAI_TOKEN` (temporary token) or `ASSEMBLYAI_API_KEY` environment variable. Restart the helper with that environment to enable it; do not paste secrets into the browser or commit them. Prefer a backend-issued short-lived token for a team deployment.
-
-The adapter uses AssemblyAI's EU streaming endpoint, explicitly pins `universal-streaming-english`, sends 50 ms mono PCM16 packets, and requests partial text and short endpointing thresholds. Stop forces a final endpoint, sends Terminate, and closes the connection with bounded waits. Audio leaves the computer **only when you explicitly select Cloud and Start**. This integration is unit-tested with a mock transport, not verified against a paid live session.
-
-The displayed cloud estimate uses the researched **$0.15/session-hour** English rate; connection time including silence matters, not just speaking time. It is not an invoice and excludes taxes or provider changes. Check [AssemblyAI pricing](https://www.assemblyai.com/pricing) before enabling it. No API credentials or paid account were created during installation.
-
-## Diagnostics and repeatable checks
-
-From the `linux-audio-helper` directory:
+From this component directory:
 
 ```bash
 .venv/bin/call-audio doctor
@@ -73,44 +113,47 @@ From the `linux-audio-helper` directory:
 .venv/bin/python -m pytest -q
 .venv/bin/python scripts/check_transcription.py
 .venv/bin/python scripts/check_capture.py
-.venv/bin/python scripts/check_session.py
+.venv/bin/python scripts/check_session.py --report reports/headless-session-check.json
 ```
 
-`check_transcription.py` uses a short excerpt of the test WAV distributed with the installed Moonshine package. The audio tests create and remove private virtual outputs; they do not play to physical speakers or modify microphone/default/mute settings. `check_session.py` tests the real HTTP → capture → recognition → transcript path using that fixture.
+Integration checks use recorded narration from the installed Moonshine test fixture and private virtual audio outputs, never a real call or microphone. They restore owned routes and check original audio settings.
 
-To transcribe/benchmark a WAV you intentionally provide, without opening a live audio device:
+The [current headless integration report](reports/headless-session-check.json) verifies HTTP → private output capture → STT → SSE and finalized transcript JSON. Its recorded run produced 36 partial events and 5 final segments. Stop flushed the pending segment and returned idle in approximately 177 ms; no cloud or physical playback was used, and temporary audio resources were removed. This is a short functional check, not a word-latency or full-call accuracy benchmark.
+
+Earlier prototype measurements on an AMD Ryzen 7 250, 30 GiB RAM, Linux/PipeWire: 24 seconds of narration plus a silent tail processed in 9.07 seconds when fed as fast as possible. Real-time replay had 91 ms p95 per-feed processing time; cached loading took 0.14–0.27 seconds. These historical results are in [local-benchmark.json](reports/local-benchmark.json), [capture-check.json](reports/capture-check.json), and the older [session-check.json](reports/session-check.json). They are not a new headless latency benchmark. Validate prices, names, accents, interruptions, and long calls on representative audio.
+
+Benchmark a PCM16 WAV you intentionally supply, without opening live capture:
 
 ```bash
 .venv/bin/call-audio transcribe-file /path/to/pcm16.wav --realtime
 ```
 
-To try lower CPU usage at a potential accuracy cost, prepare and select the smaller English model:
+For lower CPU demand at a potential accuracy cost, prepare `tiny`, then start a new API instance on a free port:
 
 ```bash
 .venv/bin/call-audio prepare --model tiny
-.venv/bin/call-audio serve --model tiny --open
+./launch.sh --port 8767 --model tiny
 ```
 
-Stop an already-running server first; a second launch simply opens its existing UI. `medium` is also supported explicitly, but is not the low-latency default.
+Reusing a running API does not change its model. `medium` is available explicitly but is not the latency-focused default.
 
-## Troubleshooting and limits
+## Limits and recovery
 
-- **No app listed:** it must be actively creating a playback stream. Play a test sound in the app, then Refresh. Multiple browser tabs can share one stream; use a separate call browser instance if isolation matters.
-- **No speech:** verify output selection and the playback meter. This helper captures output, not your mic. Check the call's mute/output controls.
-- **Headphones/Bluetooth profile changes:** Stop, Refresh, select the new output, then Start. Automatic mid-call device migration is intentionally not implemented.
-- **App restarts/recreates its stream:** refresh/reselect and restart isolation; a newly created stream is not silently moved by this prototype.
-- **Browser tab says disconnected:** capture may still be running. Try Stop or reopen the local page. Ctrl+C in the terminal stops the helper.
-- **Backlog error:** close heavy apps, try `tiny`, or explicitly opt into cloud. Do not interpret per-chunk decode time as word delay.
-- **Forced kill/power loss:** normal Stop/Ctrl+C cleans up routes, but SIGKILL cannot run cleanup. A leftover temporary output is named `call_audio_<random>`. In desktop audio settings move the affected app back to its original output; inspect `pactl list short modules` and remove only the matching helper-owned loopback/null-sink IDs, never all audio modules. Restarting the audio server can disrupt other calls, so is not done automatically.
-- Desktop/browser call support uses their output stream, not vendor-specific meeting integrations. Native availability of each call app on Linux varies.
-- Confirm participants' consent and your organization's recording/transcription rules before transcribing real calls.
+- No playback stream: make the call app play audio, then query `/api/devices` again.
+- No speech: check `level` in `/api/state`, the selected output, and call mute/output settings. The helper does not change system volume or mute. A muted physical output may affect monitor capture; isolated capture occurs before that output.
+- Headphone/profile changes or app stream recreation: stop, refresh devices, and start with the new IDs. Automatic migration is not implemented.
+- Client disconnected: capture may continue; reconnect for state or call `/api/stop`. Starting a new session before saving the previous transcript loses the previous text.
+- Backlog: reduce competing CPU load, try `tiny`, or explicitly choose cloud. Per-chunk processing time is not word delay.
+- Forced kill/power loss: cleanup cannot run after SIGKILL. A leftover output is named `call_audio_<random>`. Restore the affected app's output in desktop audio settings; inspect `pactl list short modules` and remove only the matching helper-owned modules, never all audio modules. The helper does not restart the audio server.
 
-## Project and handoff
+Desktop/browser support uses output streams rather than vendor meeting integrations. Participant consent and organizational transcription rules apply to real calls.
 
-Python 3.12 is used because the host's Python 3.14 is outside the selected package support range. `uv.lock` records installed dependency versions. To recreate the environment: `uv sync --python 3.12 --extra dev`, then `.venv/bin/call-audio prepare`.
+## Compression and handoff
 
-Modules: `audio.py` (validated monitors and temporary routes), `engines.py` (local/cloud STT), `runtime.py` (session lifecycle and bounded worker), `server.py` (local API/SSE), `static/` (UI), and `cli.py` (launcher/diagnostics).
+Add `"compression":"minimal"` to `/api/start` to remove only eligible lowercase, comma-delimited interior `um`/`uh` fillers. Default `"none"` keeps the original raw-only transcript contract. Partial events are never compacted; a final segment is processed once, with cached results used for polling and reconnects. `text` stays raw, while `compact_text`, `compression`, and `compression_ms` are additive final-segment fields. No extra model or paid API is used.
 
-For the next team's component, `/api/events` emits JSON SSE with `session_id`, `segment_id`, `start_ms`, `end_ms`, `text`, `is_final`, `endpoint`, plus state/error/metric events. Upsert by session and segment; provisional text can change. Deciding when to send transcript text to an LLM remains outside this implementation.
+See [README_CAVEMAN.md](README_CAVEMAN.md) for configuration, protected terms, audit fields, optional local token counting, measured performance, costs, and reproducible tests. Synthetic reference prompts saved 2.49% of tokens; clean narration saved zero. These are not expected savings for an arbitrary call. Send only the selected transcript text to your LLM, not both copies and metadata.
 
-The original installed desktop helper remains separate from this repository checkout; cloning this branch does not install a desktop shortcut or change system audio settings.
+Modules: `audio.py` validates monitors and owns temporary routes; `engines.py` implements local/cloud STT; `runtime.py` manages sessions and queues; `compression.py` implements the bounded deterministic pass; `tokens.py` optionally loads a local tokenizer before capture; `server.py` serves JSON/SSE; `cli.py` provides launch and diagnostics. LLM triggering and retrieval belong to the consuming application. `uv.lock` records the dependency versions.
+
+The original installed desktop helper is separate from this checkout. This headless component installs no desktop shortcut and does not modify that instance. The repository's `READMEbig.md` describes the historical UI prototype, not this API.

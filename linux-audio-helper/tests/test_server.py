@@ -19,12 +19,14 @@ async def handler(req):
     request(host="attacker.example:8765"),
     request(Origin="https://attacker.example"),
     request(Origin="null"),
+    request(Origin="http://[invalid"),
     request("POST"),
     request("POST", **{"Origin": "http://evil.example", "X-Call-Audio": "1"}),
 ])
 def test_block_cross_site_and_rebinding(req):
-    with pytest.raises(web.HTTPForbidden):
-        asyncio.run(local_only(req, handler))
+    response = asyncio.run(local_only(req, handler))
+    assert response.status == 403
+    assert response.content_type == "application/json"
 
 
 def test_local_post_requires_header_and_has_security_headers():
