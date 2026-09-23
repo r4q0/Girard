@@ -50,8 +50,9 @@ CARD_SCHEMA = {
 
 
 def card_schema(exclude=()):
-    """Schema whose id can only be a salesbook id not shown yet, or null.
-    Makes invented ids and repeated cards impossible."""
+    """Schema whose id can only be a salesbook id (minus `exclude`) or null.
+    Makes invented ids impossible. Excluding shown ids tested worse: the model
+    then picks another wrong card instead of null, so repeats are filtered after."""
     ids = [i for i in S.entries if i not in exclude]
     if "comp_unknown" not in ids:
         ids.append("comp_unknown")  # always allowed; repeats are per vendor name
@@ -61,8 +62,8 @@ def card_schema(exclude=()):
 
 SYSTEM_TEMPLATE = """You help a sales rep respond live to a prospect on a sales call.
 You only hear the prospect (CUSTOMER). The rep's side is not transcribed.
-React only to the CUSTOMER line marked NEW. Earlier lines are context only;
-never react to them again.
+React only to the line under NEW. Lines under EARLIER were already handled;
+use them only to understand the NEW line, never react to them again.
 
 Return {{"id":null}} when:
 - it is small talk, a greeting, or a filler reply
@@ -100,34 +101,39 @@ EXAMPLES
 {examples}"""
 
 EXAMPLES = """CARDS SHOWN: none
-RECENT:
-CUSTOMER: So what's your hourly rate, roughly?   <- NEW
+EARLIER: (none)
+NEW: CUSTOMER: So what's your hourly rate, roughly?
 -> {"id":"obj_hourly_01","say":["We don't work by the hour...","You pay a fixed price for the result...","What does this process cost you today..."],"q":null}
 
 CARDS SHOWN: none
-RECENT:
-CUSTOMER: Where would our customer data be stored?   <- NEW
+EARLIER: (none)
+NEW: CUSTOMER: Where would our customer data be stored?
 -> {"id":"ans_data_01","say":["Everything stays in the Netherlands...","No outside AI provider sees your documents...","We sign an NDA before we start..."],"q":null}
 
 CARDS SHOWN: none
-RECENT:
-CUSTOMER: We're also talking to a company called Brightflow.   <- NEW
+EARLIER: (none)
+NEW: CUSTOMER: We're also talking to a company called Brightflow.
 -> {"id":"comp_unknown","say":["What made you look at them...","What's missing for you today..."],"q":"Brightflow"}
 
 CARDS SHOWN: none
-RECENT:
-CUSTOMER: Yeah, that makes sense.   <- NEW
+EARLIER: (none)
+NEW: CUSTOMER: Yeah, that makes sense.
 -> {"id":null}
 
 CARDS SHOWN: none
-RECENT:
-CUSTOMER: Around two hundred a week, mostly our office manager.   <- NEW
+EARLIER: (none)
+NEW: CUSTOMER: Around two hundred a week, mostly our office manager.
 -> {"id":null}
 
 CARDS SHOWN: obj_hourly_01
-RECENT:
-CUSTOMER: But roughly how many hours would it take you?   <- NEW
--> {"id":null}"""
+EARLIER: CUSTOMER: What's your hourly rate?
+NEW: CUSTOMER: But roughly how many hours would it take you?
+-> {"id":null}
+
+CARDS SHOWN: sig_inbox_01
+EARLIER: CUSTOMER: Our shared inbox gets the same questions all day.
+NEW: CUSTOMER: I'd have to run this past my co-owner first.
+-> {"id":"risk_partner_01","say":["What will your co-owner want to know...","Shall we do a short call with both of you..."],"q":null}"""
 
 ENTRY_RE = re.compile(r"^\[([a-z0-9_]+)\]\s*([A-Za-z ]+):\s*(.*)$")
 
@@ -174,14 +180,13 @@ class Session:
 
 
 def build_user_message(summary, cards_shown, recent):
-    """recent: list of {speaker, text}; the last line is marked NEW."""
-    lines = []
-    for i, l in enumerate(recent):
-        mark = "   <- NEW" if i == len(recent) - 1 else ""
-        lines.append(f"{l['speaker']}: {l['text']}{mark}")
+    """recent: list of {speaker, text}; the last line is the NEW one."""
+    earlier = "\n".join(f"{l['speaker']}: {l['text']}" for l in recent[:-1]) or "(none)"
+    new = recent[-1]
     return (f"CALL SO FAR:\n{summary.strip() or '(start of call)'}\n\n"
             f"CARDS SHOWN: {', '.join(cards_shown) or 'none'}\n\n"
-            "RECENT:\n" + "\n".join(lines))
+            f"EARLIER (context only, already handled):\n{earlier}\n\n"
+            f"NEW:\n{new['speaker']}: {new['text']}")
 
 
 S = Session()

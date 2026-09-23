@@ -57,7 +57,7 @@ Girard's advice comes from a salesbook. It holds context and information about y
 
 ## Run the demo portal
 
-The portal lets you type transcript lines as the customer or the rep and see the advice cards, latency and cost live.
+The portal lets you type what the prospect says (only the prospect is transcribed) and watch the advice cards stream in live.
 
 ```bash
 python -m venv .venv
@@ -68,10 +68,10 @@ python -m venv .venv
 
 Open http://localhost:8000. Click "Play demo call" to run the scripted call in `demo_call.txt`.
 
-You can also send lines without the page:
+You can also send lines without the page. The response is a stream of server-sent events:
 
 ```bash
-curl -X POST localhost:8000/api/line -H "Content-Type: application/json" -d '{"speaker":"CUSTOMER","text":"What is your hourly rate?"}'
+curl -N -X POST localhost:8000/api/line -H "Content-Type: application/json" -d '{"text":"What is your hourly rate?"}'
 ```
 
 ## Configuration
@@ -89,6 +89,8 @@ salesbook_example.txt    Smaller example salesbook
 requirements.txt         Python dependencies
 cache_test.py            Prompt caching and latency test
 cache_test_results.csv   Raw results from the last test run
+eval/testset.jsonl       60 labelled prospect lines with the correct card
+eval/run_eval.py         Scores the fast lane on the test set
 context-spec.txt         Early notes on prompt structure
 ```
 

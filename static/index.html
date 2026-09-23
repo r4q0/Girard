@@ -328,6 +328,8 @@ const saveSettings = () => api("/api/settings", {
 $("demoBtn").onclick = async () => {
   const btn = $("demoBtn");
   btn.disabled = true;
+  await api("/api/reset", {});
+  resetView();
   const lines = await api("/api/demo");
   for (let i = 0; i < lines.length; i++) {
     $("demoStatus").textContent = `line ${i + 1} of ${lines.length}`;
