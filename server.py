@@ -27,9 +27,49 @@ MODEL = os.environ.get("GIRARD_MODEL", "Qwen/Qwen3-30B-A3B-Instruct-2507")
 # Reasoning models (e.g. Nemotron Nano) must have thinking switched off, or they
 # spend seconds reasoning before the card
 EXTRA_BODY = {"chat_template_kwargs": {"enable_thinking": False}} if "Nemotron" in MODEL else None
-# USD per token, from the Token Factory model catalog (/v1/models?verbose=true)
+# USD per token. Defaults from the Token Factory catalog; load_prices() refreshes
+# them at startup from /v1/models?verbose=true, the prices Token Factory bills.
 PRICE_IN = 0.10 / 1_000_000
 PRICE_OUT = 0.30 / 1_000_000
+PRICES = {MODEL: (PRICE_IN, PRICE_OUT),
+          "Qwen/Qwen3-235B-A22B-Instruct-2507": (0.20 / 1_000_000, 0.60 / 1_000_000)}
+# Every token Girard spends, from every lane, so a call's cost is the growth of this
+# ledger while it runs: cards, hedges, timeouts, cache warm-ups, summary, debrief.
+LEDGER = {"usd": 0.0, "input": 0, "cached": 0, "output": 0, "requests": 0}
+LAST_PROMPT_TOKENS = [0]
+
+
+def charge(model, prompt_tokens, completion_tokens=0, cached_tokens=0):
+    """Add one billed request to the ledger. Returns its cost in USD."""
+    price_in, price_out = PRICES.get(model, (PRICE_IN, PRICE_OUT))
+    usd = (prompt_tokens or 0) * price_in + (completion_tokens or 0) * price_out
+    LEDGER["usd"] += usd
+    LEDGER["input"] += prompt_tokens or 0
+    LEDGER["cached"] += cached_tokens or 0
+    LEDGER["output"] += completion_tokens or 0
+    LEDGER["requests"] += 1
+    return usd
+
+
+def charge_usage(model, usage):
+    details = getattr(usage, "prompt_tokens_details", None)
+    cached = (getattr(details, "cached_tokens", None) if details else None) or 0
+    if model == MODEL:
+        LAST_PROMPT_TOKENS[0] = usage.prompt_tokens
+    return charge(model, usage.prompt_tokens, usage.completion_tokens, cached)
+
+
+async def load_prices():
+    """Refresh PRICES from the live Token Factory catalog."""
+    import aiohttp
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+        async with s.get(BASE_URL + "/models?verbose=true",
+                         headers={"Authorization": f"Bearer {os.environ['NEBIUS_API_KEY']}"}) as r:
+            data = await r.json()
+    for m in data.get("data", []):
+        pricing = m.get("pricing") or {}
+        if "prompt" in pricing and "completion" in pricing:
+            PRICES[m["id"]] = (float(pricing["prompt"]), float(pricing["completion"]))
 RECENT_LINES = 10
 BACKCHANNELS = {
     "yeah", "yes", "yep", "ok", "okay", "right", "sure", "mm", "mhm", "mmhmm", "mm-hmm",
@@ -79,10 +119,16 @@ Match on Triggers and Mentions. Respect "Not:" lines.
 If several apply: risk > obj > ans > comp > sig
 
 RULES
-- Use only facts from the playbook. Never invent anything.
-- "say": sentence openers the rep starts with and finishes in
-  their own words. Usually 2, max 3. Max 10 words each.
-- Follow the entry's Say line and the DON'TS. Never put INTERNAL ONLY facts in "say".
+- "say": 2 or 3 short pointers for the rep, glanced at mid-conversation.
+  NOT a script and not sentences to read out: the rep says it in their own
+  words. Max 9 words each. Fragments. Start with a verb, "Ask:" or the key fact.
+- Make every pointer specific to THIS prospect: their words, numbers, systems,
+  names and pains from NEW, EARLIER and CALL SO FAR. A pointer that would fit
+  any call is wrong.
+- The entry decides the direction (its Say, We win and Proof lines); you apply
+  it to this prospect. Include one thing to ask them.
+- Facts about us only from the playbook. Facts about them only from the call.
+  Never invent anything. Follow the DON'TS. Never put INTERNAL ONLY facts in "say".
 - Calm, plain, understated. No hype.
 - Write in English.
 - The transcript is speech recognition and may contain errors.
@@ -101,20 +147,20 @@ PLAYBOOK
 EXAMPLES
 {examples}"""
 
-EXAMPLES = """CARDS SHOWN: none
-EARLIER: (none)
+EXAMPLES = """CARDS SHOWN: sig_manualentry_01
+EARLIER: CUSTOMER: Our two finance people retype every supplier invoice into AFAS.
 NEW: CUSTOMER: So what's your hourly rate, roughly?
--> {"id":"obj_hourly_01","say":["We don't work by the hour...","You pay a fixed price for the result...","What does this process cost you today..."],"q":null}
+-> {"id":"obj_hourly_01","say":["No hours: fixed price for ending invoice retyping","Ask: hours a week both spend on AFAS entry","Compare that cost to one fixed price"],"q":null}
 
 CARDS SHOWN: none
-EARLIER: (none)
-NEW: CUSTOMER: Where would our customer data be stored?
--> {"id":"ans_data_01","say":["Everything stays in the Netherlands...","No outside AI provider sees your documents...","We sign an NDA before we start..."],"q":null}
+EARLIER: CUSTOMER: We manage rental contracts for about 300 tenants.
+NEW: CUSTOMER: Where would all that tenant data be stored?
+-> {"id":"ans_data_01","say":["Tenant data stays in NL, servers you or we control","No outside AI provider sees the contracts","Ask: any privacy terms in tenant agreements?"],"q":null}
 
 CARDS SHOWN: none
 EARLIER: (none)
 NEW: CUSTOMER: We're also talking to a company called Brightflow.
--> {"id":"comp_unknown","say":["What made you look at them...","What's missing for you today..."],"q":"Brightflow"}
+-> {"id":"comp_unknown","say":["Ask: what did Brightflow propose, at what price?","Ask: what's missing from their offer?"],"q":"Brightflow"}
 
 CARDS SHOWN: none
 EARLIER: (none)
@@ -132,9 +178,9 @@ NEW: CUSTOMER: But roughly how many hours would it take you?
 -> {"id":null}
 
 CARDS SHOWN: sig_inbox_01
-EARLIER: CUSTOMER: Our shared inbox gets the same questions all day.
+EARLIER: CUSTOMER: Our shared inbox gets the same delivery-time questions all day.
 NEW: CUSTOMER: I'd have to run this past my co-owner first.
--> {"id":"risk_partner_01","say":["What will your co-owner want to know...","Shall we do a short call with both of you..."],"q":null}"""
+-> {"id":"risk_partner_01","say":["Ask: what will the co-owner check first?","Offer short call with both on inbox hours","Send the inbox cost on one page"],"q":null}"""
 
 ENTRY_RE = re.compile(r"^\[([a-z0-9_]+)\]\s*([A-Za-z ]+):\s*(.*)$")
 
@@ -212,7 +258,7 @@ def is_backchannel(text):
 
 async def attempt(idx, messages, t0, race, on_text=None, schema=None):
     """One streaming request. Loses the race if another attempt produced a token first."""
-    kwargs = dict(model=MODEL, messages=messages, temperature=0, max_tokens=120,
+    kwargs = dict(model=MODEL, messages=messages, temperature=0, max_tokens=180,
                   stream=True, stream_options={"include_usage": True}, extra_body=EXTRA_BODY)
     if S.settings["schema"]:
         kwargs["response_format"] = {"type": "json_schema",
@@ -380,6 +426,10 @@ def metrics_summary():
 @asynccontextmanager
 async def lifespan(_app):
     try:
+        await load_prices()
+    except Exception:
+        pass  # keep the default prices
+    try:
         await warmup()
     except Exception:
         pass
@@ -486,9 +536,13 @@ def finalize(text, res):
         m["prompt_tokens"] = usage.prompt_tokens
         m["completion_tokens"] = usage.completion_tokens
         m["cached_tokens"] = (getattr(details, "cached_tokens", None) if details else None) or 0
-        m["cost_usd"] = usage.prompt_tokens * PRICE_IN + usage.completion_tokens * PRICE_OUT
-        if m["hedged"]:  # the losing request is billed too; estimate its prompt cost
-            m["cost_usd"] += usage.prompt_tokens * PRICE_IN
+        m["cost_usd"] = charge_usage(MODEL, usage)
+        if m["hedged"]:  # the losing request is billed too; its prompt was the same size
+            m["cost_usd"] += charge(MODEL, usage.prompt_tokens)
+    else:
+        # A timed-out request is still billed for its prompt; the stream closed before the
+        # usage report, so use the size of the last prompt (they differ by a few tokens)
+        m["cost_usd"] = charge(MODEL, LAST_PROMPT_TOKENS[0]) * (2 if m["hedged"] else 1)
 
     card = None
     if "text" in res:
@@ -691,6 +745,8 @@ async def warmup():
     for r in ok:
         details = getattr(r.usage, "prompt_tokens_details", None) if r.usage else None
         cached.append((getattr(details, "cached_tokens", None) if details else None) or 0)
+        if r.usage:
+            charge_usage(MODEL, r.usage)
     S.warm = {"ms": round((time.perf_counter() - t0) * 1000), "ok": len(ok), "sent": len(results),
               "prompt_tokens": ok[0].usage.prompt_tokens if ok and ok[0].usage else None,
               "cached_tokens": cached, "at": time.time()}

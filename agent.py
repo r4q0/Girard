@@ -30,9 +30,7 @@ HELPER_URL = os.environ.get("GIRARD_HELPER_URL", "http://127.0.0.1:8766")
 TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "")
 SLOW_MODEL = os.environ.get("GIRARD_SLOW_MODEL", "Qwen/Qwen3-235B-A22B-Instruct-2507")
 AGENT_NAME = "girard-agent 0.2.0"
-# USD per token for the slow lane (Token Factory catalog); fast lane prices live in server.py
-SLOW_PRICE_IN, SLOW_PRICE_OUT = 0.20 / 1e6, 0.60 / 1e6
-USD_TO_EUR = 0.92  # approximate
+USD_TO_EUR = 0.92  # only for the protocol's cost_eur; the dashboard shows cost_usd
 SUMMARY_EVERY_S = 30
 MAX_RESEARCH_PER_CALL = 5
 HELPER_HEADERS = {"X-Call-Audio": "1", "Content-Type": "application/json"}
@@ -93,8 +91,7 @@ class Call:
         self.cards = []
         self.card_seq = 0
         self.researched = set()
-        self.usage = {"slow": [0, 0, 0], "research": [0, 0, 0]}  # input, cached, output
-        self.usd = {"slow": 0.0, "research": 0.0}
+        self.ledger0 = dict(server.LEDGER)  # spend so far; the call's cost is the growth
         self.calls = {"slow": 0, "research": 0}
         self.lat = {"stt": [], "trigger": [], "ttft": [], "total": []}
         self.summary_lines = 0
@@ -126,17 +123,9 @@ async def llm_json(call, lane, model, system, user, max_tokens=700):
         response_format={"type": "json_object"},
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
     )
-    if call is not None and r.usage:
-        details = getattr(r.usage, "prompt_tokens_details", None)
-        cached = (getattr(details, "cached_tokens", None) if details else None) or 0
-        u = call.usage[lane]
-        u[0] += r.usage.prompt_tokens
-        u[1] += cached
-        u[2] += r.usage.completion_tokens
-        if model == SLOW_MODEL:
-            call.usd[lane] += r.usage.prompt_tokens * SLOW_PRICE_IN + r.usage.completion_tokens * SLOW_PRICE_OUT
-        else:
-            call.usd[lane] += r.usage.prompt_tokens * server.PRICE_IN + r.usage.completion_tokens * server.PRICE_OUT
+    if r.usage:
+        server.charge_usage(model, r.usage)
+    if call is not None:
         call.calls[lane] += 1
     text = r.choices[0].message.content or "{}"
     text = re.sub(r"^```(json)?|```$", "", text.strip()).strip()
@@ -172,15 +161,15 @@ def results_text(results):
 
 # ---------------------------------------------------------------- metrics
 
+def call_spend(call):
+    """What this call has cost so far: the ledger's growth since the call started."""
+    return {k: server.LEDGER[k] - call.ledger0[k] for k in call.ledger0}
+
+
 async def send_metrics(call):
     fast = S.metrics
-    f_in = sum(m.get("prompt_tokens") or 0 for m in fast)
-    f_cached = sum(m.get("cached_tokens") or 0 for m in fast)
-    f_out = sum(m.get("completion_tokens") or 0 for m in fast)
-    t_in = f_in + sum(u[0] for u in call.usage.values())
-    t_cached = f_cached + sum(u[1] for u in call.usage.values())
-    t_out = f_out + sum(u[2] for u in call.usage.values())
-    usd = sum(m.get("cost_usd") or 0 for m in fast) + sum(call.usd.values())
+    spend = call_spend(call)
+    t_in, t_cached, t_out, usd = spend["input"], spend["cached"], spend["output"], spend["usd"]
 
     def stat(values):
         if not values:
@@ -192,6 +181,7 @@ async def send_metrics(call):
     await HUB.send({
         "type": "metrics",
         "tokens": {"input": t_in, "cached": t_cached, "output": t_out},
+        "cost_usd": round(usd, 6),  # exact: Token Factory list prices, billed in USD
         "cost_eur": round(usd * USD_TO_EUR, 6),
         "calls": {"fast": len(fast), "slow": call.calls["slow"], "research": call.calls["research"]},
         "cache_hit_rate": round(t_cached / t_in, 4) if t_in else None,
@@ -326,6 +316,16 @@ async def research(call, entity, origin="live"):
         await send_metrics(call)
 
 
+async def metrics_loop(call):
+    """Keep the dashboard's cost counter live, also when no card is being made."""
+    last = None
+    while call is CALL and not call.stopping:
+        await asyncio.sleep(2)
+        if server.LEDGER["usd"] != last:
+            last = server.LEDGER["usd"]
+            await send_metrics(call)
+
+
 # ---------------------------------------------------------------- slow lane
 
 async def summary_loop(call):
@@ -439,6 +439,19 @@ async def set_state(call, state, error=None):
                     "started_at": call.started_at, "error": error})
 
 
+async def stop_helper_capture():
+    """Stop any capture on the helper and wait until it is idle."""
+    state = (await helper_get("/api/state")).get("state")
+    if state in ("idle", "error"):
+        return
+    log(f"stopping a capture that was still running on the helper ({state})")
+    await helper_post("/api/stop", {})
+    for _ in range(50):
+        if (await helper_get("/api/state")).get("state") in ("idle", "error"):
+            return
+        await asyncio.sleep(0.2)
+
+
 async def run_helper(call, command):
     """Capture on the helper and consume its events until the call is stopped.
     If capture stops by itself (an error on the helper), it is restarted, so the
@@ -449,6 +462,7 @@ async def run_helper(call, command):
     timeout = aiohttp.ClientTimeout(total=None, sock_read=None)
     while call is CALL and not call.stopping:
         try:
+            await stop_helper_capture()  # a capture left over from an earlier agent run blocks a new one
             snap = await helper_post("/api/start", body)
         except Exception as e:
             log(f"capture start failed: {e}")
@@ -523,6 +537,7 @@ async def start_call(command):
     await set_state(call, "loading")
     asyncio.get_running_loop().create_task(warmup())
     call.spawn(summary_loop(call))
+    call.spawn(metrics_loop(call))
     call.spawn(run_helper(call, command))
 
 
@@ -543,7 +558,7 @@ async def stop_call():
         await HUB.notice(f"Audio helper stop: {e}")
     await asyncio.sleep(0.3)  # let the last final transcript events arrive
     for task in list(call.tasks):
-        if not task.done() and task.get_coro().__name__ in ("run_helper", "summary_loop"):
+        if not task.done() and task.get_coro().__name__ in ("run_helper", "summary_loop", "metrics_loop"):
             task.cancel()
     await set_state(call, "idle")
     await debrief(call)
@@ -564,6 +579,17 @@ async def handle(command):
         for card in CALL.cards:
             if card["card_id"] == command.get("card_id"):
                 card[kind] = command.get("useful", True)
+
+
+@app.post("/api/hear")
+async def hear(body: server.Line):
+    """Testing without audio: feed one final prospect line into the running call,
+    exactly as if the audio helper had transcribed it."""
+    if not CALL or CALL.state != "listening":
+        return {"error": "start a call first"}
+    CALL.hear_seq = getattr(CALL, "hear_seq", 0) + 1
+    await on_transcript(CALL, {"segment_id": f"typed{CALL.hear_seq}", "text": body.text, "is_final": True})
+    return {"ok": True}
 
 
 @app.websocket("/ws")
