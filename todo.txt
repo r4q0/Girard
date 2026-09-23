@@ -1,0 +1,25 @@
+-- CREATE A TEST TRANSCRIPT FILE / DEMO CONVERSATION
+
+-- capture audio (josef)
+-- convert audio to text (locally? or fastest option) (josef)
+-- audio optimizer / caveman esque technique or application (josef)
+-- DECIDE WHEN TO SEND TRANSCRIPT TO LLM  (ALL)
+
+
+-- salesbook standard INPUT (milan + noah)
+-- decide HOW WE WANT output TO BE formatted (noah)
+-- llm optimization / context feed rag?? (noah)
+-- build in retrieval system with tavily (competitors that are brought up) (NOAH)
+-- POST CALL SUMMARY REPORT (NOAH)
+
+
+-- pre call strategy retrieval TAVELY COMPANY WEBSITE MAYBE LINKEDIN???? (for whoever has time!!!)
+
+-- BUILD UI WITH LOVEABLE (live price counter, emotion reading (Stretch), latency per part,  output close to camera) (MILAN, ALL OF US WHEN REST DONE)
+
+
+-- MAKE PROPER PRESENTATION (all of us!!!)
+-- RECORD DEMO (write concept then record!! ULTRA HIGH QUALITY DEMANDED ) (noah write concept ALL OF US ACT!!!)
+-- launch on producthunt, and similar websites AND WRITE LINKEDIN COPY AND STRATEGY AND MESSAGES TO REACH OUT TO PEOPLE AND PEOPLE LIST (ALL OF US!!!)
+
+-- STRETCH GOAL (EMOTIONAL INDICATOR JEV??) (2 HOURS)
