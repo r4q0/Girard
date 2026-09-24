@@ -15,7 +15,7 @@ During a video or phone call, Girard hears the other side of the call, transcrib
 
 - **Advice in about half a second.** One point of 15 words or fewer, built from what the prospect actually said, your company's facts and everything said earlier in the call. It never invents prices, clients or results.
 - **Hears only the prospect.** Girard records the output your call plays through, never your microphone.
-- **Local speech-to-text.** Parakeet 0.6B runs on your CPU: about 0.2 s per chunk, 0.6% word errors in our benchmark, no audio leaves your laptop.
+- **Local speech-to-text.** Parakeet 0.6B runs on your CPU: about 0.2 s per chunk, and no audio leaves your laptop.
 - **Smart filter.** Drops "yeah" and "mm-hmm", strips filler words, keeps questions, numbers and names, and fixes misheard company names ("Zap here" becomes Zapier).
 - **Live company research.** When the prospect names a competitor or a tool they use, Girard looks it up with Tavily and shows three bullets with sources. Companies it has seen in the last 7 days show instantly.
 - **Mood pop-up.** Reads the largest face on your screen and the prospect's words, fully local, and pops up their mood: positive, interested, neutral, skeptical, worried or annoyed.
@@ -71,7 +71,6 @@ Mood from a face counts as emotion recognition under the EU AI Act: since 2 Augu
 | Mood engine | Screenshots of the whole screen 3 times a second; YuNet finds the largest face and HSEmotion reads it; a local RoBERTa model reads the words. Runs at low priority so it never slows the advice | `emotion/` (Python, onnxruntime, OpenCV) |
 | App | Electron shell that starts both engines; advice, call memory, research summaries and debrief with GLM-5.2 on Nebius Token Factory; a local JSON store for research; Word export | `app/src/main/` (TypeScript) |
 | Screens | Menu, company context, live call, end screen | `app/src/renderer/` (React, Tailwind) |
-| Benchmarks | Model bake-off across all Nebius models, speech-to-text benchmark, advice style examples, filter check | `bench/` |
 
 The path from the prospect to your screen: their voice is cut into chunks, Parakeet transcribes each one, the filter cleans it, and GLM-5.2 writes the advice. If GLM has not started answering within 650 ms, a second copy of the request is sent and the faster one wins. Every AI answer is cleaned of em dashes before it is shown or saved.
 

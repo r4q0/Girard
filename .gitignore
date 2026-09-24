@@ -50,3 +50,4 @@ app/out/
 .venv/
 audio/models/
 emotion/models/
+bench/
