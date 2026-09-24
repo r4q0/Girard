@@ -37,21 +37,73 @@ During a video or phone call, Girard hears the other side of the call, transcrib
   - **Nebius Token Factory** (required): advice, call memory and debrief. Get one at [tokenfactory.nebius.com](https://tokenfactory.nebius.com).
   - **Tavily** (optional): company research. Get one at [app.tavily.com](https://app.tavily.com). Without it Girard works, just without research.
 
-## Setup
+## Getting started
 
-1. Clone the repo:
-   ```
-   git clone https://github.com/r4q0/girard.git
-   cd girard
-   ```
-2. Copy `.env.example` to `.env` and fill in your keys:
-   ```
-   NEBIUS_API_KEY=your-key
-   TAVILY_API_KEY=your-key
-   ```
-3. Double-click **`Girard.bat`**.
+### 1. Install the tools
 
-The first start takes a few minutes: it installs the app and both Python engines and downloads the speech and mood models (about 850 MB). After that it starts in seconds.
+Girard needs Git, Node.js and uv. Open **PowerShell** and run:
+
+```
+winget install Git.Git OpenJS.NodeJS.LTS astral-sh.uv
+```
+
+Close and reopen PowerShell afterwards so the new commands are found.
+
+### 2. Download Girard
+
+```
+git clone https://github.com/r4q0/girard.git
+cd girard
+```
+
+### 3. Get your API keys
+
+- **Nebius Token Factory** (required): sign up at [tokenfactory.nebius.com](https://tokenfactory.nebius.com), open **API keys** and create a key.
+- **Tavily** (optional, for company research): sign up at [app.tavily.com](https://app.tavily.com) and copy your API key from the dashboard.
+
+### 4. Add the keys
+
+Copy the example settings file:
+
+```
+copy .env.example .env
+```
+
+Open `.env` in Notepad (`notepad .env`) and paste your keys after the `=` signs:
+
+```
+NEBIUS_API_KEY=your-nebius-key
+TAVILY_API_KEY=your-tavily-key
+```
+
+Save the file. Keep `.env` to yourself: it is never uploaded to GitHub.
+
+### 5. Start Girard
+
+Double-click **`Girard.bat`** in the `girard` folder (or run `.\Girard.bat` in PowerShell).
+
+The first start takes a few minutes: it installs the app and both Python engines and downloads the speech and mood models (about 850 MB). After that Girard opens in seconds.
+
+### 6. Your first call
+
+1. Pick the headset or speakers your call plays through.
+2. Check the company you sell for. Girard starts with a sample company; click **Edit** and drop in PDFs about your own business to replace it.
+3. Click **Start call**, join your Zoom, Teams or Meet call, and advice appears as the prospect talks.
+
+<details>
+<summary>For developers</summary>
+
+```
+cd app && npm run dev                 # app with hot reload
+cd audio && uv run check_filter.py    # filter on sample lines
+cd audio && uv run live_check.py      # audio engine on a test call played through your speakers
+```
+
+`GIRARD_SELFTEST=<seconds>` runs one call on the default output, logs advice, research, mood, stats and the debrief, saves a Word file to the temp folder and quits.
+
+Screens can be checked in a browser with demo data: `node app/node_modules/vite/bin/vite.js --config app/vite.preview.config.ts`, then open `http://localhost:5174/?demo=call` (or `start`, `debrief`).
+
+</details>
 
 ## Using it
 
@@ -71,18 +123,6 @@ The first start takes a few minutes: it installs the app and both Python engines
 | Screens | Menu, company context, live call, end screen | `app/src/renderer/` (React, Tailwind) |
 
 The path from the prospect to your screen: their voice is cut into chunks, Parakeet transcribes each one, the filter cleans it, and GLM-5.2 writes the advice. If GLM has not started answering within 650 ms, a second copy of the request is sent and the faster one wins. Every AI answer is cleaned of em dashes before it is shown or saved.
-
-## Develop
-
-```
-cd app && npm run dev                 # app with hot reload
-cd audio && uv run check_filter.py    # filter on sample lines
-cd audio && uv run live_check.py      # audio engine on a test call played through your speakers
-```
-
-`GIRARD_SELFTEST=<seconds>` runs one call on the default output, logs advice, research, mood, stats and the debrief, saves a Word file to the temp folder and quits.
-
-Screens can be checked in a browser with demo data: `node app/node_modules/vite/bin/vite.js --config app/vite.preview.config.ts`, then open `http://localhost:5174/?demo=call` (or `start`, `debrief`).
 
 ## License
 
