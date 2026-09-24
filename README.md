@@ -29,7 +29,7 @@ During a video or phone call, Girard hears the other side of the call, transcrib
 ## Requirements
 
 - Windows 10 or 11
-- A laptop with 16 GB RAM (no GPU needed)
+- 8 GB RAM (Girard itself uses about 1.6 GB during a call; no GPU needed)
 - About 3 GB of free disk space
 - [Node.js](https://nodejs.org/) 20 or newer
 - [uv](https://docs.astral.sh/uv/) (Python package manager)
