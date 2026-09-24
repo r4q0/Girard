@@ -1,0 +1,20 @@
+[project]
+name = "girard-audio"
+version = "0.1.0"
+description = "Girard audio sidecar: call-audio loopback capture, local speech-to-text and the line filter."
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+    "sherpa-onnx==1.13.8",
+    "soundcard>=0.4.3",
+    "rapidfuzz>=3.9",
+    "sherpa-onnx-core==1.13.8",
+]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "soundfile>=0.14.0",
+]

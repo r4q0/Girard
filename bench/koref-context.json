@@ -1,0 +1,50 @@
+{
+  "company": "Koref",
+  "what_we_do": "Software engineering firm in Amsterdam. Automation, custom software and practical open-source AI for business operations of Dutch SMEs.",
+  "positioning": "Practical, anti-hype. Reliable, maintainable software with measurable financial return. Most wasted time needs no AI: usually two systems not talking, fixed with software.",
+  "main_message": "Buy outcomes, not hours.",
+  "usps": [
+    "Fixed price, scope and date agreed before any code; delays are Koref's cost",
+    "18-month payback guarantee: the build pays for itself within 18 months or Koref pays back the difference",
+    "Client owns the code, documentation and data; no lock-in",
+    "Koref takes operational liability after go-live (with a hosting agreement)",
+    "Open-source models, Dutch-hosted, on infrastructure the client or Koref controls; no outside AI provider sees documents",
+    "Fast: weeks, not quarters",
+    "Honest: says so when something is not worth building"
+  ],
+  "offerings": [
+    {"name": "Workflow assessment", "price": "EUR 500 fixed", "details": "2-3 hours of staff time; report within 2 days with cost per process, fastest payback and a fixed quote per automation. The report is theirs to keep. Starts after a free 30-min discovery call."},
+    {"name": "Automation build", "price": "Fixed quote from the assessment", "details": "Fixed price, scope and date, covered by the 18-month payback guarantee."},
+    {"name": "Demo to production", "price": "Fixed quote after code review, no standard price", "details": "Hardens AI-built or vibe-coded apps: auth, silent errors, databases failing past ~100 users, data storage, monitoring. Code review within 48 hours, then hardening and handover with docs."},
+    {"name": "AI literacy training", "price": "EUR 2,000 fixed", "details": "EU AI Act Art. 4 (since 2 Feb 2025). 4-hour on-site session, up to 15 people, using their own documents, with a written record. Over 15 people: trained staff train colleagues at no extra cost; session may be recorded for internal use only. Cross-sell, not the main close."},
+    {"name": "Hosting and management", "price": "From EUR 200/month excl. VAT, 12-month minimum, compute at cost", "details": "Proactive patching, free fixes, Koref liable. After 12 months: stay, take in-house, or move."}
+  ],
+  "guarantee": "Pays for itself within 18 months or Koref pays back the difference. Example: pay EUR 15,000, save EUR 13,000, get EUR 2,000 back. Savings measured against a baseline agreed in the assessment.",
+  "cost_formula": "Yearly cost = items/day x minutes/item / 60 x loaded hourly cost x 230 working days. Unknown hourly cost: ~EUR 48/hr Dutch average, fully loaded (say it is an average). Over EUR 10,000/yr supports a build; under ~EUR 7,000/yr a build is unlikely to meet the guarantee.",
+  "ideal_customer": "Dutch SME, 10-250 staff, office/admin team, 2+ systems not connected, growing or struggling to hire admin staff, owner/director/ops manager reachable. Not a fit: insists on hourly billing, or yearly cost too small.",
+  "differentiators_vs": [
+    {"against": "AI agency / tool built on OpenAI", "they_win": "Cheaper for a trial", "we_win": "Fixed price instead of pay-per-use at someone else's price; open models not retired on someone else's schedule; liability after go-live"},
+    {"against": "ChatGPT / Copilot licences", "they_win": "Helps one person work faster", "we_win": "Connects to their systems and removes the whole task"},
+    {"against": "Hourly IT supplier or agency", "they_win": "Familiar", "we_win": "Fixed price and payback guarantee; client carries no overrun risk"},
+    {"against": "Freelancer", "they_win": "Cheap and flexible", "we_win": "Continuity, documentation anyone can take over, contractual responsibility"},
+    {"against": "Internal IT person", "they_win": "Knows the business, already paid", "we_win": "Time, documentation, knowledge stays when that person leaves"}
+  ],
+  "facts": [
+    "Data: Dutch-hosted, open-source models, mutual NDA before the assessment, data processing agreement before the build",
+    "Accuracy: validation checks built in; uncertain cases flagged for a person",
+    "Timeline: weeks, not quarters; fixed date agreed before start",
+    "Hardware may qualify for the KIA tax deduction (they should confirm with their accountant)",
+    "No published case studies or references yet"
+  ],
+  "never_say": [
+    "Hourly or day rates, or estimates in hours",
+    "Invented case studies, client names, results, statistics or prices",
+    "Perfect accuracy",
+    "'It pays for itself or it's free'",
+    "That OpenAI or other providers train on client data",
+    "Internal pricing: build price 1-1.5x year-one saving, EUR 1,000 fee under EUR 10,000, 5% referral fee",
+    "Legal or tax advice (suggest their own adviser)",
+    "Anything negative about a named competitor"
+  ],
+  "tone": "Plain, direct, calm, understated. No hype, no pressure."
+}

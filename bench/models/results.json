@@ -1,0 +1,3702 @@
+{
+ "call": [
+  "So basically we have three people who spend most of their morning typing incoming orders from email into Exact.",
+  "What's your hourly rate?",
+  "We're also talking to Flowbase, they said it would be about forty cents per document.",
+  "Honestly the last IT company we worked with went way over budget.",
+  "Is our data going to leave the Netherlands?",
+  "Right now we use Zapier for some of it but it keeps breaking.",
+  "I'd need to discuss this with my co-owner first.",
+  "Sorry, what's your hourly rate again? I still don't get how you price this."
+ ],
+ "results": [
+  {
+   "model": "Qwen/Qwen3-235B-A22B-Instruct-2507",
+   "advice": [
+    {
+     "ttft": 0.5885267999983625,
+     "total": 2.29696359999798,
+     "prompt_tokens": 1602,
+     "completion_tokens": 72,
+     "cached_tokens": 1600,
+     "text": "{\"bullets\": [\"Saves ~3 hours/day. At EUR 48/hr, that's ~EUR 33,000/year.\", \"That's exactly the kind of task we fix: connect email to Exact.\", \"Want a fixed quote to automate this within 18 months payback?\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "Saves ~3 hours/day. At EUR 48/hr, that's ~EUR 33,000/year.",
+       "That's exactly the kind of task we fix: connect email to Exact.",
+       "Want a fixed quote to automate this within 18 months payback?"
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.3784901999970316,
+     "total": 1.4876097000014852,
+     "prompt_tokens": 1609,
+     "completion_tokens": 63,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"We don't bill by the hour. Fixed price, fixed scope, fixed date.\", \"The build pays for itself within 18 months or we pay back the difference.\", \"\u201cIs freeing up three mornings a week a priority for the co-owner?\u201d\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill by the hour. Fixed price, fixed scope, fixed date.",
+       "The build pays for itself within 18 months or we pay back the difference.",
+       "\u201cIs freeing up three mornings a week a priority for the co-owner?\u201d"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.2681806000036886,
+     "total": 2.9256622000029893,
+     "prompt_tokens": 1629,
+     "completion_tokens": 65,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"Flowbase charges per document; we charge a fixed price to eliminate the task entirely\", \"Ask: \\\"Are you comparing fixed cost to remove work, or ongoing per-item fees?\\\"\", \"Exact integration is included in our fixed quote, no per-use fees\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Flowbase charges per document; we charge a fixed price to eliminate the task entirely",
+       "Ask: \"Are you comparing fixed cost to remove work, or ongoing per-item fees?\"",
+       "Exact integration is included in our fixed quote, no per-use fees"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.6246840000021621,
+     "total": 2.1599934000041685,
+     "prompt_tokens": 1643,
+     "completion_tokens": 66,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"Fixed price, scope and date agreed upfront\u2014delays are Koref's cost, not yours\", \"The build pays for itself within 18 months or Koref pays back the difference\", \"We take operational liability after go-live, unlike most hourly suppliers\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Fixed price, scope and date agreed upfront\u2014delays are Koref's cost, not yours",
+       "The build pays for itself within 18 months or Koref pays back the difference",
+       "We take operational liability after go-live, unlike most hourly suppliers"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.9060135999970953,
+     "total": 2.3569170999980997,
+     "prompt_tokens": 1653,
+     "completion_tokens": 46,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"Data stays in the Netherlands, on Dutch-hosted infrastructure\", \"Open-source models, no external AI providers see your data\", \"We sign an NDA before the assessment\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Data stays in the Netherlands, on Dutch-hosted infrastructure",
+       "Open-source models, no external AI providers see your data",
+       "We sign an NDA before the assessment"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 1.663892600001418,
+     "total": 3.5577873000002,
+     "prompt_tokens": 1669,
+     "completion_tokens": 66,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"Zapier breaks when systems change; we build stable, maintained connections\", \"Our fix includes monitoring and liability\u2014no more surprise breakdowns\", \"Have the co-owner compare our 18-month payback guarantee with Flowbase's per-document cost?\"], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Zapier breaks when systems change; we build stable, maintained connections",
+       "Our fix includes monitoring and liability\u2014no more surprise breakdowns",
+       "Have the co-owner compare our 18-month payback guarantee with Flowbase's per-document cost?"
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.5724439000041457,
+     "total": 1.8789892999993754,
+     "prompt_tokens": 1682,
+     "completion_tokens": 29,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"\\\"What\u2019s the main thing you\u2019ll discuss with your co-owner?\\\"\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "\"What\u2019s the main thing you\u2019ll discuss with your co-owner?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.46991320000233827,
+     "total": 1.6028038000004017,
+     "prompt_tokens": 1681,
+     "completion_tokens": 61,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"We don't bill hourly. Fixed price, fixed scope, fixed date.\", \"If it doesn't pay for itself in 18 months, we pay you back.\", \"The assessment shows exactly what it costs and what you save.\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "We don't bill hourly. Fixed price, fixed scope, fixed date.",
+       "If it doesn't pay for itself in 18 months, we pay you back.",
+       "The assessment shows exactly what it costs and what you save."
+      ],
+      "company": "Flowbase"
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.3414063000018359,
+    "total": 1.7576732999950764,
+    "prompt_tokens": 228,
+    "completion_tokens": 136,
+    "cached_tokens": null,
+    "text": "{\n  \"budget\": \"Concerned about going over budget; comparing pricing models\",\n  \"decision_makers\": [\n    \"Co-owner\"\n  ],\n  \"pains\": [\n    \"Spending mornings typing orders from email\",\n    \"Zapier keeps breaking\",\n    \"IT project went over budget before\"\n  ],\n  \"objections\": [\n    {\n      \"topic\": \"Pricing model unclear\",\n      \"status\": \"open\"\n    },\n    {\n      \"topic\": \"Data stays in Netherlands\",\n      \"status\": \"answered\"\n    }\n  ],\n  \"companies\": [\n    \"Flowbase\"\n  ],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": "Concerned about going over budget; comparing pricing models",
+     "decision_makers": [
+      "Co-owner"
+     ],
+     "pains": [
+      "Spending mornings typing orders from email",
+      "Zapier keeps breaking",
+      "IT project went over budget before"
+     ],
+     "objections": [
+      {
+       "topic": "Pricing model unclear",
+       "status": "open"
+      },
+      {
+       "topic": "Data stays in Netherlands",
+       "status": "answered"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "google/gemma-3-27b-it",
+   "advice": [
+    {
+     "ttft": 0.2838285000034375,
+     "total": 1.6672821999964071,
+     "prompt_tokens": 1685,
+     "completion_tokens": 86,
+     "cached_tokens": null,
+     "text": "```json\n{\n  \"bullets\": [\n    \"\u201cWhat\u2019s the approximate number of orders these three people process each day?\u201d\",\n    \"Focus on the time wasted: typing into Exact is time not spent on other tasks.\",\n    \"Mention the workflow assessment: EUR 500 fixed price to quantify the cost.\"\n  ],\n  \"company\": \"Exact\"\n}\n```",
+     "json": {
+      "bullets": [
+       "\u201cWhat\u2019s the approximate number of orders these three people process each day?\u201d",
+       "Focus on the time wasted: typing into Exact is time not spent on other tasks.",
+       "Mention the workflow assessment: EUR 500 fixed price to quantify the cost."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.36651189999247435,
+     "total": 1.7860657999990508,
+     "prompt_tokens": 1694,
+     "completion_tokens": 88,
+     "cached_tokens": null,
+     "text": "```json\n{\n  \"bullets\": [\n    \"Reframe: Koref buys outcomes, not hours. Focus on the cost of the typing.\",\n    \"Ask: \\\"What does that typing cost you per year?\\\" Use the cost formula.\",\n    \"Mention: Koref offers fixed price and a payback guarantee, avoiding hourly risk.\"\n  ],\n  \"company\": \"Exact\"\n}\n```",
+     "json": {
+      "bullets": [
+       "Reframe: Koref buys outcomes, not hours. Focus on the cost of the typing.",
+       "Ask: \"What does that typing cost you per year?\" Use the cost formula.",
+       "Mention: Koref offers fixed price and a payback guarantee, avoiding hourly risk."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.2791499000013573,
+     "total": 1.3550665000075242,
+     "prompt_tokens": 1716,
+     "completion_tokens": 90,
+     "cached_tokens": null,
+     "text": "```json\n{\n  \"bullets\": [\n    \"Flowbase's per-document cost adds up quickly; focus on total yearly cost.\",\n    \"Koref offers fixed price and a payback guarantee, not pay-per-use.\",\n    \"\u201cWhat\u2019s the total yearly cost of those 3 people typing into Exact?\u201d\"\n  ],\n  \"company\": \"Flowbase\"\n}\n```",
+     "json": {
+      "bullets": [
+       "Flowbase's per-document cost adds up quickly; focus on total yearly cost.",
+       "Koref offers fixed price and a payback guarantee, not pay-per-use.",
+       "\u201cWhat\u2019s the total yearly cost of those 3 people typing into Exact?\u201d"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.22812660000636242,
+     "total": 1.2969064000062644,
+     "prompt_tokens": 1731,
+     "completion_tokens": 95,
+     "cached_tokens": null,
+     "text": "```json\n{\n  \"bullets\": [\n    \"Acknowledge their concern: 'Over budget is frustrating, we offer fixed price builds.'\",\n    \"Highlight the 18-month payback guarantee: 'We guarantee a return, or Koref refunds the difference.'\",\n    \"\u201cWhat\u2019s the approximate yearly cost of those three people typing into Exact?\u201d\"\n  ],\n  \"company\": \"Exact\"\n}\n```",
+     "json": {
+      "bullets": [
+       "Acknowledge their concern: 'Over budget is frustrating, we offer fixed price builds.'",
+       "Highlight the 18-month payback guarantee: 'We guarantee a return, or Koref refunds the difference.'",
+       "\u201cWhat\u2019s the approximate yearly cost of those three people typing into Exact?\u201d"
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.21769229999335948,
+     "total": 1.165089000001899,
+     "prompt_tokens": 1742,
+     "completion_tokens": 86,
+     "cached_tokens": null,
+     "text": "```json\n{\n  \"bullets\": [\n    \"Reassure them: Dutch-hosted, open-source models, mutual NDA before assessment.\",\n    \"Contrast with Flowbase: fixed price, not pay-per-document at their price.\",\n    \"\u201cWhat\u2019s the total volume of orders processed monthly?\u201d\"\n  ],\n  \"company\": \"Flowbase\"\n}\n```",
+     "json": {
+      "bullets": [
+       "Reassure them: Dutch-hosted, open-source models, mutual NDA before assessment.",
+       "Contrast with Flowbase: fixed price, not pay-per-document at their price.",
+       "\u201cWhat\u2019s the total volume of orders processed monthly?\u201d"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.17313589999685064,
+     "total": 1.0839725999976508,
+     "prompt_tokens": 1759,
+     "completion_tokens": 88,
+     "cached_tokens": null,
+     "text": "```json\n{\n  \"bullets\": [\n    \"Zapier breaking sounds costly. What's the impact of each failure in time/money?\",\n    \"Koref offers fixed price and date, unlike Zapier, avoiding budget overruns.\",\n    \"We host open-source models in the Netherlands; your data stays here.\"\n  ],\n  \"company\": \"Zapier\"\n}\n```",
+     "json": {
+      "bullets": [
+       "Zapier breaking sounds costly. What's the impact of each failure in time/money?",
+       "Koref offers fixed price and date, unlike Zapier, avoiding budget overruns.",
+       "We host open-source models in the Netherlands; your data stays here."
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.22541990000172518,
+     "total": 1.3794370000105118,
+     "prompt_tokens": 1775,
+     "completion_tokens": 90,
+     "cached_tokens": null,
+     "text": "```json\n{\n  \"bullets\": [\n    \"Mention the workflow assessment: EUR 500 fixed price, report with payback estimate.\",\n    \"Reiterate data security: Dutch-hosted, open-source models, mutual NDA before assessment.\",\n    \"\u201cWhat\u2019s the approximate yearly cost of those three people typing into Exact?\u201d\"\n  ],\n  \"company\": \"Flowbase\"\n}\n```",
+     "json": {
+      "bullets": [
+       "Mention the workflow assessment: EUR 500 fixed price, report with payback estimate.",
+       "Reiterate data security: Dutch-hosted, open-source models, mutual NDA before assessment.",
+       "\u201cWhat\u2019s the approximate yearly cost of those three people typing into Exact?\u201d"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.2542200000025332,
+     "total": 1.3571938000095543,
+     "prompt_tokens": 1776,
+     "completion_tokens": 92,
+     "cached_tokens": null,
+     "text": "```json\n{\n  \"bullets\": [\n    \"Reiterate: Koref offers fixed price, scope, and date \u2013 no hourly rates.\",\n    \"Mention the 18-month payback guarantee: outcomes, not hours, are what you buy.\",\n    \"\u201cWhat\u2019s the total yearly cost of those 3 people typing into Exact?\u201d\"\n  ],\n  \"company\": \"Flowbase\"\n}\n```",
+     "json": {
+      "bullets": [
+       "Reiterate: Koref offers fixed price, scope, and date \u2013 no hourly rates.",
+       "Mention the 18-month payback guarantee: outcomes, not hours, are what you buy.",
+       "\u201cWhat\u2019s the total yearly cost of those 3 people typing into Exact?\u201d"
+      ],
+      "company": "Flowbase"
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.18835300000500865,
+    "total": 1.4135430000023916,
+    "prompt_tokens": 244,
+    "completion_tokens": 119,
+    "cached_tokens": null,
+    "text": "```json\n{\n  \"budget\": \"Concerned about going over budget with IT costs.\",\n  \"decision_makers\": [\"Co-owner\"],\n  \"pains\": [\"Manual order entry is time consuming.\", \"Zapier integration is unreliable.\"],\n  \"objections\": [\n    {\"topic\": \"Pricing\", \"status\": \"open\"},\n    {\"topic\": \"Data location\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Flowbase\", \"Zapier\", \"Exact\"],\n  \"timeline\": null\n}\n```",
+    "json": {
+     "budget": "Concerned about going over budget with IT costs.",
+     "decision_makers": [
+      "Co-owner"
+     ],
+     "pains": [
+      "Manual order entry is time consuming.",
+      "Zapier integration is unreliable."
+     ],
+     "objections": [
+      {
+       "topic": "Pricing",
+       "status": "open"
+      },
+      {
+       "topic": "Data location",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase",
+      "Zapier",
+      "Exact"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "openai/gpt-oss-120b",
+   "advice": [
+    {
+     "ttft": 0.29120269999839365,
+     "total": 0.48506439999619033,
+     "prompt_tokens": 1611,
+     "completion_tokens": 80,
+     "cached_tokens": 1600,
+     "text": "{\n  \"bullets\": [\n    \"Ask: \\\"How many minutes per person each morning for typing orders?\\\"\",\n    \"Highlight: automation can replace that manual entry with a fixed\u2011price build.\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "Ask: \"How many minutes per person each morning for typing orders?\"",
+       "Highlight: automation can replace that manual entry with a fixed\u2011price build."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.40104989999963436,
+     "total": 0.6995821999953478,
+     "prompt_tokens": 1617,
+     "completion_tokens": 82,
+     "cached_tokens": 1568,
+     "text": "{\"bullets\": [\"Explain we work on fixed price, not hourly; start with a \u20ac500 assessment.\", \"\\\"Would a fixed\u2011price quote after the assessment address your budgeting concerns?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Explain we work on fixed price, not hourly; start with a \u20ac500 assessment.",
+       "\"Would a fixed\u2011price quote after the assessment address your budgeting concerns?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.4557911999945645,
+     "total": 0.7480397999970592,
+     "prompt_tokens": 1636,
+     "completion_tokens": 119,
+     "cached_tokens": 64,
+     "text": "{\n  \"bullets\": [\n    \"Emphasize Koref\u2019s fixed\u2011price, pay\u2011back guarantee versus Flowbase\u2019s \u20ac0.40 per document.\",\n    \"\\\"Would a fixed quote that eliminates per\u2011document fees be more appealing for you?\\\"\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "Emphasize Koref\u2019s fixed\u2011price, pay\u2011back guarantee versus Flowbase\u2019s \u20ac0.40 per document.",
+       "\"Would a fixed quote that eliminates per\u2011document fees be more appealing for you?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.31297300000005635,
+     "total": 0.5911645999949542,
+     "prompt_tokens": 1650,
+     "completion_tokens": 93,
+     "cached_tokens": 1568,
+     "text": "{\n  \"bullets\": [\n    \"Highlight our fixed\u2011price, scope\u2011and\u2011date contract eliminates budget overruns.\",\n    \"Mention the 18\u2011month payback guarantee protects their investment.\",\n    \"\\\"Would a guaranteed no\u2011overrun quote ease your concerns?\\\"\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Highlight our fixed\u2011price, scope\u2011and\u2011date contract eliminates budget overruns.",
+       "Mention the 18\u2011month payback guarantee protects their investment.",
+       "\"Would a guaranteed no\u2011overrun quote ease your concerns?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.29855249999673106,
+     "total": 0.40571189999900525,
+     "prompt_tokens": 1660,
+     "completion_tokens": 62,
+     "cached_tokens": 1568,
+     "text": "{\"bullets\":[\"Reassure: all processing runs on Dutch\u2011hosted, open\u2011source models; data never leaves NL\"], \"company\":\"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Reassure: all processing runs on Dutch\u2011hosted, open\u2011source models; data never leaves NL"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.28224480000062613,
+     "total": 0.42968990000372287,
+     "prompt_tokens": 1676,
+     "completion_tokens": 84,
+     "cached_tokens": 1568,
+     "text": "{\n  \"bullets\": [\n    \"Highlight Koref\u2019s fixed\u2011price automation that replaces unreliable Zapier flows.\",\n    \"Reassure: all processing stays Dutch\u2011hosted, no data leaves the Netherlands.\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Highlight Koref\u2019s fixed\u2011price automation that replaces unreliable Zapier flows.",
+       "Reassure: all processing stays Dutch\u2011hosted, no data leaves the Netherlands."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.31775740000011865,
+     "total": 0.4422262000007322,
+     "prompt_tokens": 1688,
+     "completion_tokens": 69,
+     "cached_tokens": 1568,
+     "text": "{\"bullets\": [\"Suggest a brief joint call: \\\"When can we include your co\u2011owner to review the fixed\u2011price proposal?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Suggest a brief joint call: \"When can we include your co\u2011owner to review the fixed\u2011price proposal?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.2926768999968772,
+     "total": 0.4576565999959712,
+     "prompt_tokens": 1685,
+     "completion_tokens": 90,
+     "cached_tokens": 1568,
+     "text": "{\n  \"bullets\": [\n    \"Explain we never bill hourly; we give a fixed price after assessment.\",\n    \"\\\"Does a fixed\u2011price quote with an 18\u2011month payback guarantee address your budgeting concerns?\\\"\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Explain we never bill hourly; we give a fixed price after assessment.",
+       "\"Does a fixed\u2011price quote with an 18\u2011month payback guarantee address your budgeting concerns?\""
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 2.2471516000005067,
+    "total": 2.5727077999981702,
+    "prompt_tokens": 280,
+    "completion_tokens": 264,
+    "cached_tokens": 64,
+    "text": "{\n  \"budget\": null,\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\n    \"manual typing of orders from email\",\n    \"Zapier frequently breaks\",\n    \"concern about data leaving the Netherlands\",\n    \"previous IT project went over budget\"\n  ],\n  \"objections\": [\n    {\n      \"topic\": \"hourly rate / pricing clarity\",\n      \"status\": \"open\"\n    }\n  ],\n  \"companies\": [\"Flowbase\"],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "manual typing of orders from email",
+      "Zapier frequently breaks",
+      "concern about data leaving the Netherlands",
+      "previous IT project went over budget"
+     ],
+     "objections": [
+      {
+       "topic": "hourly rate / pricing clarity",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "Qwen/Qwen3-30B-A3B-Instruct-2507",
+   "advice": [
+    {
+     "ttft": 0.238668999998481,
+     "total": 1.3997553000008338,
+     "prompt_tokens": 1602,
+     "completion_tokens": 64,
+     "cached_tokens": 1600,
+     "text": "{\"bullets\": [\n  \"3 people typing orders into Exact every morning: that's a clear pain point\",\n  \"We fix this with automation: no more manual entry, just one system\",\n  \"Want a fixed-price quote for this? We can deliver in weeks\"\n], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "3 people typing orders into Exact every morning: that's a clear pain point",
+       "We fix this with automation: no more manual entry, just one system",
+       "Want a fixed-price quote for this? We can deliver in weeks"
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.18777570000384003,
+     "total": 1.185865899999044,
+     "prompt_tokens": 1609,
+     "completion_tokens": 53,
+     "cached_tokens": 1600,
+     "text": "{\"bullets\": [\n  \"We work with fixed prices, not hourly rates\",\n  \"Your team spends ~15 hours/week on this task\",\n  \"What\u2019s your current cost for those 15 hours?\"\n], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We work with fixed prices, not hourly rates",
+       "Your team spends ~15 hours/week on this task",
+       "What\u2019s your current cost for those 15 hours?"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.20462379999662517,
+     "total": 1.3817994999990333,
+     "prompt_tokens": 1629,
+     "completion_tokens": 67,
+     "cached_tokens": 1616,
+     "text": "{\"bullets\": [\n  \"Flowbase quote: ~$0.40 per document, but no fixed price or timeline\",\n  \"We offer fixed price, scope, and date\u2014no surprise costs\",\n  \"What\u2019s your current cost per document? We can compare directly\"\n], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Flowbase quote: ~$0.40 per document, but no fixed price or timeline",
+       "We offer fixed price, scope, and date\u2014no surprise costs",
+       "What\u2019s your current cost per document? We can compare directly"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.19448900000134017,
+     "total": 1.299357500000042,
+     "prompt_tokens": 1643,
+     "completion_tokens": 66,
+     "cached_tokens": 1632,
+     "text": "{\"bullets\": [\n  \"Fixed price, scope, and date agreed before any code\u2014no overruns\",\n  \"18-month payback guarantee: we cover the difference if it doesn\u2019t pay for itself\",\n  \"What was the budget range with the last IT company?\"\n], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Fixed price, scope, and date agreed before any code\u2014no overruns",
+       "18-month payback guarantee: we cover the difference if it doesn\u2019t pay for itself",
+       "What was the budget range with the last IT company?"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.19050729999435134,
+     "total": 0.8079231999945478,
+     "prompt_tokens": 1653,
+     "completion_tokens": 45,
+     "cached_tokens": 1648,
+     "text": "{\"bullets\": [\n  \"Yes, your data stays in the Netherlands\",\n  \"We use open-source models hosted where you choose\",\n  \"No outside AI provider sees your documents\"\n], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Yes, your data stays in the Netherlands",
+       "We use open-source models hosted where you choose",
+       "No outside AI provider sees your documents"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.17080829999758862,
+     "total": 1.2598096000001533,
+     "prompt_tokens": 1669,
+     "completion_tokens": 73,
+     "cached_tokens": 1664,
+     "text": "{\"bullets\": [\n  \"Zapier breaks because it's not built for your workflow\u2014Koref fixes it permanently\",\n  \"We use Dutch-hosted, open-source models\u2014your data stays in the Netherlands\",\n  \"What\u2019s the cost per document with Zapier when it breaks and needs fixing?\"\n], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Zapier breaks because it's not built for your workflow\u2014Koref fixes it permanently",
+       "We use Dutch-hosted, open-source models\u2014your data stays in the Netherlands",
+       "What\u2019s the cost per document with Zapier when it breaks and needs fixing?"
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.18433039999945322,
+     "total": 1.1580667000016547,
+     "prompt_tokens": 1682,
+     "completion_tokens": 72,
+     "cached_tokens": 1680,
+     "text": "{\"bullets\": [\n  \"Co-owner needs to know: fixed price, no overruns, 18-month payback guarantee\",\n  \"Ask: 'What would make this decision easier for your co-owner?'\",\n  \"Mention: Dutch-hosted, open-source models, data stays in NL\"\n], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Co-owner needs to know: fixed price, no overruns, 18-month payback guarantee",
+       "Ask: 'What would make this decision easier for your co-owner?'",
+       "Mention: Dutch-hosted, open-source models, data stays in NL"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.2605448999966029,
+     "total": 1.2101655000005849,
+     "prompt_tokens": 1681,
+     "completion_tokens": 71,
+     "cached_tokens": 1680,
+     "text": "{\"bullets\": [\n  \"We don't use hourly rates\u2014fixed price, scope, and date before any code\",\n  \"Your 3 people typing orders: we quote based on that exact task\",\n  \"Ask your co-owner: 'What\u2019s the cost of 3 people doing this every day?'\"\n], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't use hourly rates\u2014fixed price, scope, and date before any code",
+       "Your 3 people typing orders: we quote based on that exact task",
+       "Ask your co-owner: 'What\u2019s the cost of 3 people doing this every day?'"
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.21261309999681544,
+    "total": 2.132283599996299,
+    "prompt_tokens": 228,
+    "completion_tokens": 123,
+    "cached_tokens": null,
+    "text": "{\n  \"budget\": null,\n  \"decision_makers\": [\n    \"co-owner\"\n  ],\n  \"pains\": [\n    \"Manual data entry in the morning\",\n    \"Zapier keeps breaking\",\n    \"Previous IT company over budget\"\n  ],\n  \"objections\": [\n    {\n      \"topic\": \"Pricing model\",\n      \"status\": \"open\"\n    },\n    {\n      \"topic\": \"Data leaving the Netherlands\",\n      \"status\": \"open\"\n    }\n  ],\n  \"companies\": [\n    \"Flowbase\"\n  ],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "Manual data entry in the morning",
+      "Zapier keeps breaking",
+      "Previous IT company over budget"
+     ],
+     "objections": [
+      {
+       "topic": "Pricing model",
+       "status": "open"
+      },
+      {
+       "topic": "Data leaving the Netherlands",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "NousResearch/Hermes-4-405B",
+   "advice": [
+    {
+     "ttft": 0.1665431000001263,
+     "total": 0.9677229999942938,
+     "prompt_tokens": 1557,
+     "completion_tokens": 39,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"Ask: 'How many orders per day, roughly?'\", \"Ask: 'What is the loaded hourly cost for those staff?'\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "Ask: 'How many orders per day, roughly?'",
+       "Ask: 'What is the loaded hourly cost for those staff?'"
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.21934999999939464,
+     "total": 1.1938105000008363,
+     "prompt_tokens": 1564,
+     "completion_tokens": 47,
+     "cached_tokens": 1504,
+     "text": "{\"bullets\": [\"We don't bill hourly. We agree a fixed price before any code.\", \"The price is based on the yearly cost of the task, which we calculate in the assessment.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill hourly. We agree a fixed price before any code.",
+       "The price is based on the yearly cost of the task, which we calculate in the assessment."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.22536559999571182,
+     "total": 1.2759511999975075,
+     "prompt_tokens": 1584,
+     "completion_tokens": 52,
+     "cached_tokens": 1504,
+     "text": "{\"bullets\": [\"We don't do hourly rates or per-document fees. Fixed price for the whole build.\", \"Flowbase is a good tool, but we connect to your systems and remove the whole task.\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "We don't do hourly rates or per-document fees. Fixed price for the whole build.",
+       "Flowbase is a good tool, but we connect to your systems and remove the whole task."
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.19960300000093412,
+     "total": 1.0799859999970067,
+     "prompt_tokens": 1598,
+     "completion_tokens": 45,
+     "cached_tokens": 1504,
+     "text": "{\"bullets\": [\"\\\"We don't bill hourly. We agree a fixed price before any code.\\\"\", \"If it takes longer than agreed, that's our cost, not yours.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "\"We don't bill hourly. We agree a fixed price before any code.\"",
+       "If it takes longer than agreed, that's our cost, not yours."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.18715809999412159,
+     "total": 1.0000714999987395,
+     "prompt_tokens": 1608,
+     "completion_tokens": 41,
+     "cached_tokens": 1504,
+     "text": "{\"bullets\": [\"Dutch-hosted, open-source models, on infrastructure you or we control\", \"Mutual NDA before assessment, data processing agreement before build\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Dutch-hosted, open-source models, on infrastructure you or we control",
+       "Mutual NDA before assessment, data processing agreement before build"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.18704620000062278,
+     "total": 0.8968363000021782,
+     "prompt_tokens": 1624,
+     "completion_tokens": 36,
+     "cached_tokens": 1504,
+     "text": "{\"bullets\": [\"Ask: 'What breaks most often with Zapier?'\", \"Note: Our fixed price includes fixing breaks after go-live\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Ask: 'What breaks most often with Zapier?'",
+       "Note: Our fixed price includes fixing breaks after go-live"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.21003490000293823,
+     "total": 1.3221743000030983,
+     "prompt_tokens": 1637,
+     "completion_tokens": 56,
+     "cached_tokens": 1504,
+     "text": "{\"bullets\": [\"Suggest: 'Let's get you the assessment report first, then you can discuss with your co-owner with all the numbers.'\", \"Offer: 'The assessment is fixed at EUR 500, no further obligation.'\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Suggest: 'Let's get you the assessment report first, then you can discuss with your co-owner with all the numbers.'",
+       "Offer: 'The assessment is fixed at EUR 500, no further obligation.'"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.1878915000052075,
+     "total": 1.7546816000030958,
+     "prompt_tokens": 1636,
+     "completion_tokens": 52,
+     "cached_tokens": 1504,
+     "text": "{\"bullets\": [\"\\\"We don't have an hourly rate. We quote a fixed price for the whole project.\\\"\", \"The price is based on the yearly cost of the task, which we calculate in the assessment.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "\"We don't have an hourly rate. We quote a fixed price for the whole project.\"",
+       "The price is based on the yearly cost of the task, which we calculate in the assessment."
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.2301002000021981,
+    "total": 2.5914520000005723,
+    "prompt_tokens": 229,
+    "completion_tokens": 111,
+    "cached_tokens": null,
+    "text": "{\"budget\": \"last IT company went way over budget\", \"decision_makers\": [\"co-owner\"], \"pains\": [\"three people spend morning typing orders from email into Exact\", \"Zapier keeps breaking\"], \"objections\": [{\"topic\": \"hourly rate\", \"status\": \"open\"}, {\"topic\": \"data leaving Netherlands\", \"status\": \"open\"}, {\"topic\": \"pricing confusion\", \"status\": \"open\"}], \"companies\": [\"Exact\", \"Flowbase\", \"Zapier\"], \"timeline\": null}",
+    "json": {
+     "budget": "last IT company went way over budget",
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "three people spend morning typing orders from email into Exact",
+      "Zapier keeps breaking"
+     ],
+     "objections": [
+      {
+       "topic": "hourly rate",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving Netherlands",
+       "status": "open"
+      },
+      {
+       "topic": "pricing confusion",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "openbmb/MiniCPM-V-4_5",
+   "advice": [
+    {
+     "ttft": 0.15085199999884935,
+     "total": 0.4124675999992178,
+     "prompt_tokens": 1602,
+     "completion_tokens": 41,
+     "cached_tokens": 1600,
+     "text": "{\"bullets\": [\"We can fix this with a workflow assessment for EUR 500.\", \"The report will show cost per process and fixed quote per automation.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We can fix this with a workflow assessment for EUR 500.",
+       "The report will show cost per process and fixed quote per automation."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.1627638999998453,
+     "total": 0.35411150000436464,
+     "prompt_tokens": 1609,
+     "completion_tokens": 31,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"We don't bill by the hour; fixed price, scope and date agreed before any code.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill by the hour; fixed price, scope and date agreed before any code."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.16623899999831337,
+     "total": 0.4538022999986424,
+     "prompt_tokens": 1629,
+     "completion_tokens": 44,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"Koref's fixed price covers all work, unlike Flowbase's per-document cost.\", \"Exact integration is standard for us, not an extra cost.\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Koref's fixed price covers all work, unlike Flowbase's per-document cost.",
+       "Exact integration is standard for us, not an extra cost."
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.1618051000041305,
+     "total": 0.4153319000033662,
+     "prompt_tokens": 1643,
+     "completion_tokens": 40,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"Koref's 18-month payback guarantee covers budget overruns.\", \"We fix scope and date before coding, so no surprises.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Koref's 18-month payback guarantee covers budget overruns.",
+       "We fix scope and date before coding, so no surprises."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.1703447000036249,
+     "total": 0.4172435000000405,
+     "prompt_tokens": 1653,
+     "completion_tokens": 39,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"Koref hosts data in the Netherlands, on open-source models, with mutual NDA.\", \"No outside AI provider sees your documents.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Koref hosts data in the Netherlands, on open-source models, with mutual NDA.",
+       "No outside AI provider sees your documents."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.1830924000023515,
+     "total": 0.3631212000036612,
+     "prompt_tokens": 1669,
+     "completion_tokens": 28,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"Koref's software connects systems directly, not via Zapier, for reliability.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Koref's software connects systems directly, not via Zapier, for reliability."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.18731499999557855,
+     "total": 0.44545839999773307,
+     "prompt_tokens": 1682,
+     "completion_tokens": 41,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"We can schedule a 30-min discovery call with your co-owner.\", \"This will help us understand their needs and discuss the workflow assessment.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We can schedule a 30-min discovery call with your co-owner.",
+       "This will help us understand their needs and discuss the workflow assessment."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.17884010000125272,
+     "total": 0.5077528000038001,
+     "prompt_tokens": 1681,
+     "completion_tokens": 52,
+     "cached_tokens": 1552,
+     "text": "{\"bullets\": [\"We don't use hourly rates; fixed price, scope, and date agreed before start.\", \"Our 18-month payback guarantee means the build pays for itself or we pay back the difference.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't use hourly rates; fixed price, scope, and date agreed before start.",
+       "Our 18-month payback guarantee means the build pays for itself or we pay back the difference."
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.17942089999996824,
+    "total": 0.799714100001438,
+    "prompt_tokens": 228,
+    "completion_tokens": 98,
+    "cached_tokens": null,
+    "text": "{\"budget\": \"went way over budget with last IT company\", \"decision_makers\": [\"co-owner\"], \"pains\": [\"typing orders from email into Exact\", \"Zapier keeps breaking\", \"data leaving Netherlands\"], \"objections\": [{\"topic\": \"hourly rate\", \"status\": \"open\"}, {\"topic\": \"data leaving Netherlands\", \"status\": \"open\"}], \"companies\": [\"Flowbase\"], \"timeline\": \"need to discuss with co-owner\"}",
+    "json": {
+     "budget": "went way over budget with last IT company",
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "typing orders from email into Exact",
+      "Zapier keeps breaking",
+      "data leaving Netherlands"
+     ],
+     "objections": [
+      {
+       "topic": "hourly rate",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving Netherlands",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": "need to discuss with co-owner"
+    }
+   }
+  },
+  {
+   "model": "deepseek-ai/DeepSeek-V4-Pro",
+   "advice": [
+    {
+     "ttft": 0.6330775000024005,
+     "total": 1.8126467000038247,
+     "prompt_tokens": 1588,
+     "completion_tokens": 75,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"That Exact typing is a classic two-systems-not-talking fix.\",\n    \"Our EUR 500 assessment measures the yearly cost and gives a fixed quote.\",\n    \"\\\"Would a fixed price and an 18-month payback guarantee make this worth a look?\\\"\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "That Exact typing is a classic two-systems-not-talking fix.",
+       "Our EUR 500 assessment measures the yearly cost and gives a fixed quote.",
+       "\"Would a fixed price and an 18-month payback guarantee make this worth a look?\""
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.597246900004393,
+     "total": 1.1076163000034285,
+     "prompt_tokens": 1595,
+     "completion_tokens": 58,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"We don't charge by the hour. We agree a fixed price, scope and date upfront.\",\n    \"That means you buy the outcome, not our time. No overrun risk for you.\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "We don't charge by the hour. We agree a fixed price, scope and date upfront.",
+       "That means you buy the outcome, not our time. No overrun risk for you."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.6565586000069743,
+     "total": 1.2036447999998927,
+     "prompt_tokens": 1615,
+     "completion_tokens": 61,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Flowbase charges per document; we fix the price upfront so costs don't grow with volume.\",\n    \"Our 18-month payback guarantee means the build pays for itself or we refund the difference.\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "Flowbase charges per document; we fix the price upfront so costs don't grow with volume.",
+       "Our 18-month payback guarantee means the build pays for itself or we refund the difference."
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.6890924000035739,
+     "total": 1.204343700010213,
+     "prompt_tokens": 1629,
+     "completion_tokens": 62,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Fixed price and date agreed before code; overruns are Koref's cost, not yours.\",\n    \"The 18-month payback guarantee means the build pays for itself or we refund the difference.\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "Fixed price and date agreed before code; overruns are Koref's cost, not yours.",
+       "The 18-month payback guarantee means the build pays for itself or we refund the difference."
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.5692832999920938,
+     "total": 1.1352062999940244,
+     "prompt_tokens": 1639,
+     "completion_tokens": 62,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"All data stays Dutch-hosted, on open-source models we or you control.\",\n    \"No outside AI provider ever sees your documents.\",\n    \"Mutual NDA before assessment; data processing agreement before any build.\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "All data stays Dutch-hosted, on open-source models we or you control.",
+       "No outside AI provider ever sees your documents.",
+       "Mutual NDA before assessment; data processing agreement before any build."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.6089465000113705,
+     "total": 1.713231400004588,
+     "prompt_tokens": 1655,
+     "completion_tokens": 87,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Zapier breaking means hidden cost: rework, delays, and Exact still not up to date.\",\n    \"Our fixed-price build replaces fragile glue with reliable, documented software you own.\",\n    \"\\\"If we agree a fixed scope and date, would that remove the over-budget risk you felt last time?\\\"\"\n  ],\n  \"company\": \"Zapier\"\n}",
+     "json": {
+      "bullets": [
+       "Zapier breaking means hidden cost: rework, delays, and Exact still not up to date.",
+       "Our fixed-price build replaces fragile glue with reliable, documented software you own.",
+       "\"If we agree a fixed scope and date, would that remove the over-budget risk you felt last time?\""
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.5722625999915181,
+     "total": 1.1551331999944523,
+     "prompt_tokens": 1669,
+     "completion_tokens": 61,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Suggest a EUR 500 assessment: gives you both a fixed quote and payback numbers to decide together.\",\n    \"Offer to join a 15-minute call with your co-owner to walk through the report.\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Suggest a EUR 500 assessment: gives you both a fixed quote and payback numbers to decide together.",
+       "Offer to join a 15-minute call with your co-owner to walk through the report."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.5489497999951709,
+     "total": 1.4894300000014482,
+     "prompt_tokens": 1668,
+     "completion_tokens": 71,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"No hourly rate. Fixed price, scope and date agreed before any code.\",\n    \"You buy the outcome, not our time. Overrun risk stays with us.\",\n    \"The assessment gives a fixed quote; EUR 500, report in 2 days.\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "No hourly rate. Fixed price, scope and date agreed before any code.",
+       "You buy the outcome, not our time. Overrun risk stays with us.",
+       "The assessment gives a fixed quote; EUR 500, report in 2 days."
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.5931532999966294,
+    "total": 1.5875057999946875,
+    "prompt_tokens": 223,
+    "completion_tokens": 126,
+    "cached_tokens": null,
+    "text": "{\n  \"budget\": null,\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\"typing incoming orders from email into Exact manually\", \"Zapier keeps breaking\"],\n  \"objections\": [\n    {\"topic\": \"pricing model unclear\", \"status\": \"open\"},\n    {\"topic\": \"data leaving the Netherlands\", \"status\": \"open\"},\n    {\"topic\": \"previous IT company went over budget\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Flowbase\", \"Exact\", \"Zapier\"],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "typing incoming orders from email into Exact manually",
+      "Zapier keeps breaking"
+     ],
+     "objections": [
+      {
+       "topic": "pricing model unclear",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving the Netherlands",
+       "status": "open"
+      },
+      {
+       "topic": "previous IT company went over budget",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase",
+      "Exact",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+   "advice": [
+    {
+     "ttft": 0.2662520999874687,
+     "total": 0.5594619999901624,
+     "prompt_tokens": 1662,
+     "completion_tokens": 58,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Exact integration can automate those three email orders daily\",\n    \"Automation build pays for itself within 18 months, guaranteed\",\n    \"Would you like to see a quick workflow assessment?\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "Exact integration can automate those three email orders daily",
+       "Automation build pays for itself within 18 months, guaranteed",
+       "Would you like to see a quick workflow assessment?"
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.23814659999334253,
+     "total": 0.5575939999980619,
+     "prompt_tokens": 1668,
+     "completion_tokens": 63,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"We work on fixed price, not hourly rates.\",\n    \"Our 18-month payback guarantee covers the build cost.\",\n    \"Would you like to see a fixed quote for automating those three email orders?\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "We work on fixed price, not hourly rates.",
+       "Our 18-month payback guarantee covers the build cost.",
+       "Would you like to see a fixed quote for automating those three email orders?"
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.255722899993998,
+     "total": 0.7171282999916002,
+     "prompt_tokens": 1688,
+     "completion_tokens": 89,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Your hourly rate is EUR 150, but we fix price and guarantee payback in 18 months.\",\n    \"Flowbase's forty cents per document adds up; we automate the whole email\u2011to\u2011Exact flow for a fixed fee.\",\n    \"Would you like to see a fixed\u2011price quote that eliminates hourly billing?\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "Your hourly rate is EUR 150, but we fix price and guarantee payback in 18 months.",
+       "Flowbase's forty cents per document adds up; we automate the whole email\u2011to\u2011Exact flow for a fixed fee.",
+       "Would you like to see a fixed\u2011price quote that eliminates hourly billing?"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.24991959999897517,
+     "total": 0.622276599999168,
+     "prompt_tokens": 1704,
+     "completion_tokens": 71,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Your team spends three people typing orders into Exact every morning.\",\n    \"We offer a fixed-price automation with an 18-month payback guarantee.\",\n    \"Flowbase charges forty cents per document; we can match or beat that with a fixed scope.\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "Your team spends three people typing orders into Exact every morning.",
+       "We offer a fixed-price automation with an 18-month payback guarantee.",
+       "Flowbase charges forty cents per document; we can match or beat that with a fixed scope."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.2642095000046538,
+     "total": 0.6745960999978706,
+     "prompt_tokens": 1714,
+     "completion_tokens": 86,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Your data stays in the Netherlands; we use Dutch\u2011hosted open\u2011source models.\",\n    \"We can show you a fixed\u2011price automation that eliminates the three manual email\u2011to\u2011Exact steps.\",\n    \"Would you like to see how the 18\u2011month payback guarantee works for your order process?\"\n  ],\n  \"company\": \"Koref\"\n}",
+     "json": {
+      "bullets": [
+       "Your data stays in the Netherlands; we use Dutch\u2011hosted open\u2011source models.",
+       "We can show you a fixed\u2011price automation that eliminates the three manual email\u2011to\u2011Exact steps.",
+       "Would you like to see how the 18\u2011month payback guarantee works for your order process?"
+      ],
+      "company": "Koref"
+     }
+    },
+    {
+     "ttft": 0.24146920000202954,
+     "total": 0.5543049000116298,
+     "prompt_tokens": 1730,
+     "completion_tokens": 65,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Your three people type orders into Exact every morning, right?\",\n    \"Zapier breaks; we can automate that task with a fixed\u2011price build.\",\n    \"Your data stays in the Netherlands; we host it locally.\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "Your three people type orders into Exact every morning, right?",
+       "Zapier breaks; we can automate that task with a fixed\u2011price build.",
+       "Your data stays in the Netherlands; we host it locally."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.2531125000095926,
+     "total": 0.5985958000092069,
+     "prompt_tokens": 1744,
+     "completion_tokens": 72,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Your three people type orders into Exact daily, costing roughly EUR 48 per hour each.\",\n    \"We fix that with a fixed-price automation, paying for itself within 18 months.\",\n    \"Is our data staying in the Netherlands?\"\n  ],\n  \"company\": \"Koref\"\n}",
+     "json": {
+      "bullets": [
+       "Your three people type orders into Exact daily, costing roughly EUR 48 per hour each.",
+       "We fix that with a fixed-price automation, paying for itself within 18 months.",
+       "Is our data staying in the Netherlands?"
+      ],
+      "company": "Koref"
+     }
+    },
+    {
+     "ttft": 0.22778799998923205,
+     "total": 0.5906149999937043,
+     "prompt_tokens": 1743,
+     "completion_tokens": 78,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"We charge a fixed price per automation, not hourly, so costs stay predictable.\",\n    \"Your data stays in the Netherlands; we use Dutch\u2011hosted open\u2011source models.\",\n    \"We guarantee the build pays for itself within 18 months or we refund the difference.\"\n  ],\n  \"company\": \"Koref\"\n}",
+     "json": {
+      "bullets": [
+       "We charge a fixed price per automation, not hourly, so costs stay predictable.",
+       "Your data stays in the Netherlands; we use Dutch\u2011hosted open\u2011source models.",
+       "We guarantee the build pays for itself within 18 months or we refund the difference."
+      ],
+      "company": "Koref"
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.2356560000043828,
+    "total": 0.7777629000047455,
+    "prompt_tokens": 242,
+    "completion_tokens": 114,
+    "cached_tokens": null,
+    "text": "{\n  \"budget\": \"forty cents per document\",\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\"typing incoming orders from email into Exact\", \"Zapier keeps breaking\"],\n  \"objections\": [\n    {\n      \"topic\": \"hourly rate\",\n      \"status\": \"open\"\n    },\n    {\n      \"topic\": \"data leaving the Netherlands\",\n      \"status\": \"open\"\n    }\n  ],\n  \"companies\": [\"Flowbase\"],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": "forty cents per document",
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "typing incoming orders from email into Exact",
+      "Zapier keeps breaking"
+     ],
+     "objections": [
+      {
+       "topic": "hourly rate",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving the Netherlands",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "zai-org/GLM-5.1",
+   "advice": [
+    {
+     "ttft": 0.23628349999489728,
+     "total": 2.02000119999866,
+     "prompt_tokens": 1548,
+     "completion_tokens": 74,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Run the cost: 3 people \u00d7 ~2.5 hrs \u00d7 \u20ac48/hr \u00d7 230 days \u2248 \u20ac83K/yr \u2014 well above build threshold\",\"Stress fixed price, not hourly: scope and date agreed before any code\",\"\\\"What happens when one of those three is out sick?\\\"\"],\"company\":\"Exact\"}",
+     "json": {
+      "bullets": [
+       "Run the cost: 3 people \u00d7 ~2.5 hrs \u00d7 \u20ac48/hr \u00d7 230 days \u2248 \u20ac83K/yr \u2014 well above build threshold",
+       "Stress fixed price, not hourly: scope and date agreed before any code",
+       "\"What happens when one of those three is out sick?\""
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.22039499999664258,
+     "total": 1.054448599999887,
+     "prompt_tokens": 1555,
+     "completion_tokens": 35,
+     "cached_tokens": 1472,
+     "text": "- \"We work fixed price, not hourly\u2014delays are our cost, not yours.\"\n- \"How many hours do those three people spend each morning on Exact?\"",
+     "json": null
+    },
+    {
+     "ttft": 0.245033200000762,
+     "total": 1.4301950000080978,
+     "prompt_tokens": 1575,
+     "completion_tokens": 49,
+     "cached_tokens": 1472,
+     "text": "- We work fixed price per build, not per document\u2014no usage risk for you.\n- \"How does Flowbase handle it if their pricing model changes?\"\n- With our 18-month payback guarantee, you carry no overrun risk.",
+     "json": null
+    },
+    {
+     "ttft": 0.24591870000585914,
+     "total": 1.3732208000001265,
+     "prompt_tokens": 1589,
+     "completion_tokens": 47,
+     "cached_tokens": 1472,
+     "text": "- Fixed price, scope and date agreed upfront; overruns are our cost, not yours.\n- \"What did that previous project go over budget on?\"\n- 18-month payback guarantee protects your investment if savings fall short.",
+     "json": null
+    },
+    {
+     "ttft": 0.23042390000773594,
+     "total": 1.330069800009369,
+     "prompt_tokens": 1599,
+     "completion_tokens": 48,
+     "cached_tokens": 1472,
+     "text": "- Data stays in NL on open-source models; no outside AI provider sees your documents.\n- Fixed price means zero overrun risk, unlike your last IT company.\n- \"Would Dutch-hosted data and a fixed price address your concerns?\"",
+     "json": null
+    },
+    {
+     "ttft": 0.23775680000835564,
+     "total": 1.4307069000060437,
+     "prompt_tokens": 1615,
+     "completion_tokens": 52,
+     "cached_tokens": 1472,
+     "text": "- Zapier breaking is exactly why we fix scope and price upfront; overruns are our cost.\n- \"How often does Zapier break, and what happens to those orders?\"\n- We connect systems directly; no fragile middle layer that stops without warning.",
+     "json": null
+    },
+    {
+     "ttft": 0.21748390000720974,
+     "total": 1.2046850000042468,
+     "prompt_tokens": 1628,
+     "completion_tokens": 43,
+     "cached_tokens": 1600,
+     "text": "- Acknowledge the co-owner decision; offer a short summary for them.\n- \"Should I join that call to answer any questions directly?\"\n- Highlight: fixed price removes the budget-overrun risk you mentioned.",
+     "json": null
+    },
+    {
+     "ttft": 0.29878569999709725,
+     "total": 1.3868455000047106,
+     "prompt_tokens": 1627,
+     "completion_tokens": 50,
+     "cached_tokens": 1600,
+     "text": "- We don't bill hourly; fixed price and date, so overruns are our cost.\n- \"Want me to walk through the fixed-price quote from the assessment?\"\n- Data stays Dutch-hosted; no outside AI provider sees your documents.",
+     "json": null
+    }
+   ],
+   "memory": {
+    "ttft": 0.1961109999974724,
+    "total": 3.7709299999987707,
+    "prompt_tokens": 220,
+    "completion_tokens": 151,
+    "cached_tokens": 192,
+    "text": "```json\n{\n  \"budget\": \"Previous IT company went over budget; comparing to Flowbase at 40 cents per document\",\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\n    \"Three people spend mornings typing email orders into Exact\",\n    \"Zapier keeps breaking\"\n  ],\n  \"objections\": [\n    {\"topic\": \"Hourly rate / pricing model unclear\", \"status\": \"open\"},\n    {\"topic\": \"Previous IT company went over budget\", \"status\": \"open\"},\n    {\"topic\": \"Data leaving the Netherlands\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Exact\", \"Flowbase\", \"Zapier\"],\n  \"timeline\": null\n}\n```",
+    "json": {
+     "budget": "Previous IT company went over budget; comparing to Flowbase at 40 cents per document",
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "Three people spend mornings typing email orders into Exact",
+      "Zapier keeps breaking"
+     ],
+     "objections": [
+      {
+       "topic": "Hourly rate / pricing model unclear",
+       "status": "open"
+      },
+      {
+       "topic": "Previous IT company went over budget",
+       "status": "open"
+      },
+      {
+       "topic": "Data leaving the Netherlands",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "zai-org/GLM-5.2",
+   "advice": [
+    {
+     "ttft": 0.47073670000827406,
+     "total": 0.9258789000014076,
+     "prompt_tokens": 1549,
+     "completion_tokens": 75,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Three people, most of their morning \u2014 that's exactly the kind of manual bridge we fix.\", \"Quick check: roughly how many orders per day, and how many minutes each?\", \"If it's over ~EUR 10,000/year in time, a fixed-price build likely meets the payback guarantee.\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "Three people, most of their morning \u2014 that's exactly the kind of manual bridge we fix.",
+       "Quick check: roughly how many orders per day, and how many minutes each?",
+       "If it's over ~EUR 10,000/year in time, a fixed-price build likely meets the payback guarantee."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.39111299999058247,
+     "total": 0.8206089999875985,
+     "prompt_tokens": 1556,
+     "completion_tokens": 72,
+     "cached_tokens": null,
+     "text": "```json\n{\"bullets\": [\"We work fixed price, not hourly \u2014 scope and date agreed before any code.\", \"With 3 people typing orders into Exact daily, that's likely over \u20ac10k/year in manual effort.\", \"\\\"How many orders per morning, and how many minutes each takes your team?\\\"\"], \"company\": null}\n```",
+     "json": {
+      "bullets": [
+       "We work fixed price, not hourly \u2014 scope and date agreed before any code.",
+       "With 3 people typing orders into Exact daily, that's likely over \u20ac10k/year in manual effort.",
+       "\"How many orders per morning, and how many minutes each takes your team?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.38289870000153314,
+     "total": 0.9103281999996398,
+     "prompt_tokens": 1576,
+     "completion_tokens": 92,
+     "cached_tokens": null,
+     "text": "```json\n{\n  \"bullets\": [\n    \"At 40 cents per document you pay forever; Koref gives fixed price, scope, and date upfront.\",\n    \"With Flowbase you keep paying per doc; Koref's build pays for itself in 18 months or we pay back the difference.\",\n    \"\\\"How many order documents per day do those three people handle?\\\"\"\n  ],\n  \"company\": \"Flowbase\"\n}\n```",
+     "json": {
+      "bullets": [
+       "At 40 cents per document you pay forever; Koref gives fixed price, scope, and date upfront.",
+       "With Flowbase you keep paying per doc; Koref's build pays for itself in 18 months or we pay back the difference.",
+       "\"How many order documents per day do those three people handle?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.39686609999625944,
+     "total": 0.7517878000071505,
+     "prompt_tokens": 1590,
+     "completion_tokens": 75,
+     "cached_tokens": null,
+     "text": "```json\n{\"bullets\": [\"That's exactly why we work fixed price, scope, and date \u2014 overruns are our cost.\", \"Mention the 18-month payback guarantee: if it doesn't save enough, we pay back the difference.\", \"Ask how much the over-budget project cost them to frame the comparison.\"], \"company\": null}\n```",
+     "json": {
+      "bullets": [
+       "That's exactly why we work fixed price, scope, and date \u2014 overruns are our cost.",
+       "Mention the 18-month payback guarantee: if it doesn't save enough, we pay back the difference.",
+       "Ask how much the over-budget project cost them to frame the comparison."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.4426283999928273,
+     "total": 0.8691391000029398,
+     "prompt_tokens": 1600,
+     "completion_tokens": 76,
+     "cached_tokens": null,
+     "text": "```json\n{\"bullets\": [\"No \u2014 open-source models, Dutch-hosted, on infrastructure Koref or you control.\", \"Contrast: with Flowbase you depend on their provider's data policy; Koref gives you certainty.\", \"Ask: \\\"Would Dutch hosting address a concern your co-owner has about data?\\\"\"], \"company\": \"Flowbase\"}\n```",
+     "json": {
+      "bullets": [
+       "No \u2014 open-source models, Dutch-hosted, on infrastructure Koref or you control.",
+       "Contrast: with Flowbase you depend on their provider's data policy; Koref gives you certainty.",
+       "Ask: \"Would Dutch hosting address a concern your co-owner has about data?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.46721940000134055,
+     "total": 0.8173469000030309,
+     "prompt_tokens": 1616,
+     "completion_tokens": 74,
+     "cached_tokens": null,
+     "text": "```json\n{\"bullets\": [\"Zapier breaking is exactly the 'two systems not talking' problem we fix permanently.\", \"We connect email and Exact directly, fixed price, no per-document cost.\", \"Ask: 'How often does Zapier break, and what happens to those orders when it does?'\"], \"company\": \"Zapier\"}\n```",
+     "json": {
+      "bullets": [
+       "Zapier breaking is exactly the 'two systems not talking' problem we fix permanently.",
+       "We connect email and Exact directly, fixed price, no per-document cost.",
+       "Ask: 'How often does Zapier break, and what happens to those orders when it does?'"
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.4782715999899665,
+     "total": 0.8293521000014152,
+     "prompt_tokens": 1629,
+     "completion_tokens": 74,
+     "cached_tokens": null,
+     "text": "```json\n{\"bullets\": [\"Acknowledge the co-owner decision \u2014 no pressure, just next steps.\", \"Offer the EUR 500 workflow assessment as a concrete take-away: report within 2 days, theirs to keep.\", \"Ask: 'Would it help if I sent a one-page summary your co-owner can review?'\"], \"company\": null}\n```",
+     "json": {
+      "bullets": [
+       "Acknowledge the co-owner decision \u2014 no pressure, just next steps.",
+       "Offer the EUR 500 workflow assessment as a concrete take-away: report within 2 days, theirs to keep.",
+       "Ask: 'Would it help if I sent a one-page summary your co-owner can review?'"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.372824700010824,
+     "total": 0.7114037999999709,
+     "prompt_tokens": 1628,
+     "completion_tokens": 72,
+     "cached_tokens": null,
+     "text": "```json\n{\"bullets\": [\"They keep asking hourly \u2014 explain fixed price one more time, plainly.\", \"We don't bill hours. You get a fixed price, scope, and date before any code.\", \"Ask: \\\"What if I told you the price is fixed and overruns are on us?\\\"\"], \"company\": null}\n```",
+     "json": {
+      "bullets": [
+       "They keep asking hourly \u2014 explain fixed price one more time, plainly.",
+       "We don't bill hours. You get a fixed price, scope, and date before any code.",
+       "Ask: \"What if I told you the price is fixed and overruns are on us?\""
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.5923552000022028,
+    "total": 1.0672961000091163,
+    "prompt_tokens": 221,
+    "completion_tokens": 152,
+    "cached_tokens": null,
+    "text": "```json\n{\n  \"budget\": null,\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\n    \"Three people spend most of morning typing orders from email into Exact\",\n    \"Zapier keeps breaking for some of the process\",\n    \"Last IT company went way over budget\"\n  ],\n  \"objections\": [\n    {\"topic\": \"hourly rate / pricing model unclear\", \"status\": \"open\"},\n    {\"topic\": \"data leaving the Netherlands\", \"status\": \"open\"},\n    {\"topic\": \"past IT vendor went over budget\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Exact\", \"Flowbase\", \"Zapier\"],\n  \"timeline\": null\n}\n```",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "Three people spend most of morning typing orders from email into Exact",
+      "Zapier keeps breaking for some of the process",
+      "Last IT company went way over budget"
+     ],
+     "objections": [
+      {
+       "topic": "hourly rate / pricing model unclear",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving the Netherlands",
+       "status": "open"
+      },
+      {
+       "topic": "past IT vendor went over budget",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "zai-org/GLM-5.3",
+   "advice": [
+    {
+     "ttft": 0.7411728000006406,
+     "total": 1.5945204000017839,
+     "prompt_tokens": 1555,
+     "completion_tokens": 78,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Quantify it: 3 people x ~2 hours x ~EUR 48/hr x 230 days is well over EUR 10,000/yr.\", \"Offer the EUR 500 workflow assessment: fixed quote per automation, report in 2 days.\", \"\\\"How many orders come in per morning, roughly?\\\"\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "Quantify it: 3 people x ~2 hours x ~EUR 48/hr x 230 days is well over EUR 10,000/yr.",
+       "Offer the EUR 500 workflow assessment: fixed quote per automation, report in 2 days.",
+       "\"How many orders come in per morning, roughly?\""
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.7820485999982338,
+     "total": 1.5988898999930825,
+     "prompt_tokens": 1562,
+     "completion_tokens": 70,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"We don't bill hourly; fixed price, scope and date agreed upfront.\", \"Overruns are our cost, not yours.\", \"\\\"Want me to walk through what a fixed quote for the email-to-Exact work looks like?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill hourly; fixed price, scope and date agreed upfront.",
+       "Overruns are our cost, not yours.",
+       "\"Want me to walk through what a fixed quote for the email-to-Exact work looks like?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.718999899996561,
+     "total": 1.746197399988887,
+     "prompt_tokens": 1582,
+     "completion_tokens": 60,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"Compare total yearly cost: 40 cents per doc adds up fast at volume\", \"Koref is fixed price, no per-document meter running forever\", \"\\\"Roughly how many order emails do you get per day?\\\"\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Compare total yearly cost: 40 cents per doc adds up fast at volume",
+       "Koref is fixed price, no per-document meter running forever",
+       "\"Roughly how many order emails do you get per day?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.9092741000058595,
+     "total": 1.5932992000016384,
+     "prompt_tokens": 1596,
+     "completion_tokens": 72,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"That's exactly why we work fixed price, scope and date agreed upfront.\", \"Any delay or overrun is our cost, not yours.\", \"\\\"What did the overbudget project cost you in the end?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "That's exactly why we work fixed price, scope and date agreed upfront.",
+       "Any delay or overrun is our cost, not yours.",
+       "\"What did the overbudget project cost you in the end?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7706006999942474,
+     "total": 1.5032073999900604,
+     "prompt_tokens": 1606,
+     "completion_tokens": 66,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"No: Dutch-hosted, open-source models, no outside AI provider sees documents.\", \"Contrast Flowbase: fixed price, not per-document fees that grow with volume.\", \"Ask: \\\"Who owns the go/no-go, you or your co-owner?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "No: Dutch-hosted, open-source models, no outside AI provider sees documents.",
+       "Contrast Flowbase: fixed price, not per-document fees that grow with volume.",
+       "Ask: \"Who owns the go/no-go, you or your co-owner?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 1.1478667000046698,
+     "total": 2.101639000000432,
+     "prompt_tokens": 1622,
+     "completion_tokens": 99,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"Zapier breaking is exactly the two-systems problem we fix, not patch.\", \"We fix price, scope and date upfront; overruns are our cost, not yours.\", \"\\\"What exactly breaks in Zapier \u2014 the email side or the Exact side?\\\"\"], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Zapier breaking is exactly the two-systems problem we fix, not patch.",
+       "We fix price, scope and date upfront; overruns are our cost, not yours.",
+       "\"What exactly breaks in Zapier \u2014 the email side or the Exact side?\""
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.6735161999968113,
+     "total": 1.7267752999905497,
+     "prompt_tokens": 1635,
+     "completion_tokens": 66,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"Offer the EUR 500 assessment: report and fixed quote to share with your co-owner.\", \"Address over-budget fear: fixed price, scope and date agreed before any code.\", \"Ask: 'Would a 30-minute call with your co-owner next week work?'\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Offer the EUR 500 assessment: report and fixed quote to share with your co-owner.",
+       "Address over-budget fear: fixed price, scope and date agreed before any code.",
+       "Ask: 'Would a 30-minute call with your co-owner next week work?'"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.8839042000035988,
+     "total": 1.4481293999997433,
+     "prompt_tokens": 1634,
+     "completion_tokens": 82,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"No hourly rate: fixed price, scope and date agreed before any code.\", \"Overruns are Koref's cost \u2014 that answers your last IT company worry.\", \"EUR 500 assessment gives a fixed quote and payback math for the Exact typing.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "No hourly rate: fixed price, scope and date agreed before any code.",
+       "Overruns are Koref's cost \u2014 that answers your last IT company worry.",
+       "EUR 500 assessment gives a fixed quote and payback math for the Exact typing."
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.7709900000045309,
+    "total": 1.806301499993424,
+    "prompt_tokens": 227,
+    "completion_tokens": 169,
+    "cached_tokens": null,
+    "text": "```json\n{\n  \"budget\": \"Concerned about going over budget; comparing to Flowbase at 40 cents per document\",\n  \"decision_makers\": [\"Co-owner must be consulted\"],\n  \"pains\": [\"Three people spend mornings typing email orders into Exact\", \"Zapier automation keeps breaking\"],\n  \"objections\": [\n    {\"topic\": \"Pricing / hourly rate unclear\", \"status\": \"open\"},\n    {\"topic\": \"Previous IT company went over budget\", \"status\": \"open\"},\n    {\"topic\": \"Data staying in the Netherlands\", \"status\": \"open\"},\n    {\"topic\": \"Competing offer from Flowbase\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Exact\", \"Flowbase\", \"Zapier\"],\n  \"timeline\": null\n}\n```",
+    "json": {
+     "budget": "Concerned about going over budget; comparing to Flowbase at 40 cents per document",
+     "decision_makers": [
+      "Co-owner must be consulted"
+     ],
+     "pains": [
+      "Three people spend mornings typing email orders into Exact",
+      "Zapier automation keeps breaking"
+     ],
+     "objections": [
+      {
+       "topic": "Pricing / hourly rate unclear",
+       "status": "open"
+      },
+      {
+       "topic": "Previous IT company went over budget",
+       "status": "open"
+      },
+      {
+       "topic": "Data staying in the Netherlands",
+       "status": "open"
+      },
+      {
+       "topic": "Competing offer from Flowbase",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "zai-org/GLM-5.3-Flash",
+   "advice": [
+    {
+     "ttft": 0.9215219000034267,
+     "total": 2.582541499999934,
+     "prompt_tokens": 1555,
+     "completion_tokens": 75,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Quantify it: 3 people x minutes per order x orders daily.\", \"Run the cost formula live \u2014 likely well over EUR 10,000/yr.\", \"Ask: \\\"How many orders come in on a typical morning?\\\"\", \"This is exactly two systems not talking \u2014 classic Koref fit.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Quantify it: 3 people x minutes per order x orders daily.",
+       "Run the cost formula live \u2014 likely well over EUR 10,000/yr.",
+       "Ask: \"How many orders come in on a typical morning?\"",
+       "This is exactly two systems not talking \u2014 classic Koref fit."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.9279020999965724,
+     "total": 2.225351099987165,
+     "prompt_tokens": 1562,
+     "completion_tokens": 63,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"We don't bill hourly \u2014 fixed price and scope agreed upfront.\", \"Say: \\\"If the numbers work, the \u20ac500 assessment gives you a fixed quote.\\\"\", \"Pivot back: three people, every morning \u2014 that's worth quantifying.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill hourly \u2014 fixed price and scope agreed upfront.",
+       "Say: \"If the numbers work, the \u20ac500 assessment gives you a fixed quote.\"",
+       "Pivot back: three people, every morning \u2014 that's worth quantifying."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 1.379801299990504,
+     "total": 2.2940320999914547,
+     "prompt_tokens": 1582,
+     "completion_tokens": 77,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Per-document pricing scales with volume; ours is fixed regardless.\", \"Ask: \\\"How many documents per day would that be?\\\"\", \"Note who carries the risk if volume or errors grow.\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Per-document pricing scales with volume; ours is fixed regardless.",
+       "Ask: \"How many documents per day would that be?\"",
+       "Note who carries the risk if volume or errors grow."
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 1.0889896000007866,
+     "total": 1.807449899992207,
+     "prompt_tokens": 1596,
+     "completion_tokens": 70,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"That's why we quote fixed price and scope before any code.\", \"Delays are our cost, not yours \u2014 overrun risk is ours.\", \"\\\"What would a fixed price for that Exact order entry be worth to you?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "That's why we quote fixed price and scope before any code.",
+       "Delays are our cost, not yours \u2014 overrun risk is ours.",
+       "\"What would a fixed price for that Exact order entry be worth to you?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.8164243000064744,
+     "total": 1.4620900000008987,
+     "prompt_tokens": 1606,
+     "completion_tokens": 59,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"No: Dutch-hosted, open-source models, no outside AI provider sees documents.\", \"Offer NDA before assessment and data processing agreement before build.\", \"\\\"What does Flowbase's 40 cents include \u2014 support and fixes?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "No: Dutch-hosted, open-source models, no outside AI provider sees documents.",
+       "Offer NDA before assessment and data processing agreement before build.",
+       "\"What does Flowbase's 40 cents include \u2014 support and fixes?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.9168046999984654,
+     "total": 1.9980710999952862,
+     "prompt_tokens": 1622,
+     "completion_tokens": 56,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Zapier breaking fits our point: fragile glue between systems.\", \"Offer a fixed-price build replacing it, with liability after go-live.\", \"\\\"How much time do those three spend each morning?\\\"\"], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Zapier breaking fits our point: fragile glue between systems.",
+       "Offer a fixed-price build replacing it, with liability after go-live.",
+       "\"How much time do those three spend each morning?\""
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.8203046999988146,
+     "total": 1.4364237999980105,
+     "prompt_tokens": 1635,
+     "completion_tokens": 55,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Offer the EUR 500 assessment report as something concrete to show the co-owner.\", \"The report stays theirs even if you don't proceed.\", \"\\\"What would your co-owner want to see before saying yes?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Offer the EUR 500 assessment report as something concrete to show the co-owner.",
+       "The report stays theirs even if you don't proceed.",
+       "\"What would your co-owner want to see before saying yes?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.9223917000053916,
+     "total": 1.4419221999996807,
+     "prompt_tokens": 1634,
+     "completion_tokens": 59,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"We don't bill hourly \u2014 fixed price and scope agreed before any code.\", \"Start with the EUR 500 workflow assessment; report is yours to keep.\", \"\\\"What would 3 people typing orders into Exact cost you yearly?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill hourly \u2014 fixed price and scope agreed before any code.",
+       "Start with the EUR 500 workflow assessment; report is yours to keep.",
+       "\"What would 3 people typing orders into Exact cost you yearly?\""
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 1.2579654000001028,
+    "total": 2.172292999995989,
+    "prompt_tokens": 227,
+    "completion_tokens": 121,
+    "cached_tokens": null,
+    "text": "{\"budget\": null, \"decision_makers\": [\"co-owner (not present on call)\"], \"pains\": [\"Three staff manually typing email orders into Exact\", \"Zapier automations keep breaking\"], \"objections\": [{\"topic\": \"pricing unclear (hourly rate question unanswered)\", \"status\": \"open\"}, {\"topic\": \"past IT vendor went over budget\", \"status\": \"open\"}, {\"topic\": \"data leaving the Netherlands\", \"status\": \"open\"}], \"companies\": [\"Exact\", \"Flowbase\", \"Zapier\"], \"timeline\": null}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner (not present on call)"
+     ],
+     "pains": [
+      "Three staff manually typing email orders into Exact",
+      "Zapier automations keep breaking"
+     ],
+     "objections": [
+      {
+       "topic": "pricing unclear (hourly rate question unanswered)",
+       "status": "open"
+      },
+      {
+       "topic": "past IT vendor went over budget",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving the Netherlands",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "deepseek-ai/DeepSeek-V4-Flash-0731",
+   "advice": [
+    {
+     "ttft": 2.309226099998341,
+     "total": 6.966677600008552,
+     "prompt_tokens": 1588,
+     "completion_tokens": 67,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Name the cost: 3 people x hours x 230 days; ask how many minutes each.\", \"That's a classic two-systems gap\u2014email to Exact, no AI needed.\", \"Offer the EUR 500 assessment to quantify savings and a fixed quote.\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "Name the cost: 3 people x hours x 230 days; ask how many minutes each.",
+       "That's a classic two-systems gap\u2014email to Exact, no AI needed.",
+       "Offer the EUR 500 assessment to quantify savings and a fixed quote."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.6909283999993932,
+     "total": 1.6212913999916054,
+     "prompt_tokens": 1595,
+     "completion_tokens": 62,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"They're probing cost\u2014anchor on the 18-month payback guarantee, not rates.\", \"Say: 'We price fixed, so you know the cost before we start.'\", \"Ask: 'What's the yearly cost of those three mornings?'\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "They're probing cost\u2014anchor on the 18-month payback guarantee, not rates.",
+       "Say: 'We price fixed, so you know the cost before we start.'",
+       "Ask: 'What's the yearly cost of those three mornings?'"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.8705990000016754,
+     "total": 1.518005300007644,
+     "prompt_tokens": 1615,
+     "completion_tokens": 73,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Flowbase charges per document; we charge fixed price with an 18-month payback guarantee.\", \"Ask: \\\"What does Flowbase's 40 cents per document include\u2014setup, support, liability?\\\"\", \"Their per-document cost grows with volume; our fixed price doesn't.\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Flowbase charges per document; we charge fixed price with an 18-month payback guarantee.",
+       "Ask: \"What does Flowbase's 40 cents per document include\u2014setup, support, liability?\"",
+       "Their per-document cost grows with volume; our fixed price doesn't."
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.7007202999957372,
+     "total": 1.3319878999900538,
+     "prompt_tokens": 1629,
+     "completion_tokens": 66,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Acknowledge the fear: fixed price, scope and date agreed before any code.\", \"Overruns are our cost, not yours; delays are Koref's problem.\", \"Ask: 'Would a fixed quote with an 18-month payback guarantee change that?'\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Acknowledge the fear: fixed price, scope and date agreed before any code.",
+       "Overruns are our cost, not yours; delays are Koref's problem.",
+       "Ask: 'Would a fixed quote with an 18-month payback guarantee change that?'"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7604467000055593,
+     "total": 1.1822851000033552,
+     "prompt_tokens": 1639,
+     "completion_tokens": 63,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Reassure: Dutch-hosted, open-source models, mutual NDA before assessment.\", \"Data stays on infrastructure you or we control; no outside AI provider sees it.\", \"\\\"Want me to put that in writing in the data processing agreement?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Reassure: Dutch-hosted, open-source models, mutual NDA before assessment.",
+       "Data stays on infrastructure you or we control; no outside AI provider sees it.",
+       "\"Want me to put that in writing in the data processing agreement?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 1.1228585000062594,
+     "total": 1.616472200010321,
+     "prompt_tokens": 1655,
+     "completion_tokens": 63,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Zapier breaking is exactly the two-systems-not-talking problem we fix.\", \"We take operational liability after go-live, so it stays fixed.\", \"\\\"Want us to map the Zapier failures into the workflow assessment?\\\"\"], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Zapier breaking is exactly the two-systems-not-talking problem we fix.",
+       "We take operational liability after go-live, so it stays fixed.",
+       "\"Want us to map the Zapier failures into the workflow assessment?\""
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.970251200007624,
+     "total": 1.4188893999962602,
+     "prompt_tokens": 1669,
+     "completion_tokens": 62,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Offer a free 30-min discovery call with both owners to settle it.\", \"Ask: 'What would your co-owner need to see to say yes?'\", \"Mention the 18-month payback guarantee covers their over-budget fear.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Offer a free 30-min discovery call with both owners to settle it.",
+       "Ask: 'What would your co-owner need to see to say yes?'",
+       "Mention the 18-month payback guarantee covers their over-budget fear."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7421058999898378,
+     "total": 2.243371799995657,
+     "prompt_tokens": 1668,
+     "completion_tokens": 90,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"We don't bill hourly\u2014fixed price agreed before any code, so no overrun risk.\", \"Cost is based on the yearly saving, not hours; e.g. 3 people x 30 min/day x 230 days.\", \"\\\"Want me to walk through the math on your Exact order entry?\\\"\", \"That's how we avoid what happened with your last IT company.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill hourly\u2014fixed price agreed before any code, so no overrun risk.",
+       "Cost is based on the yearly saving, not hours; e.g. 3 people x 30 min/day x 230 days.",
+       "\"Want me to walk through the math on your Exact order entry?\"",
+       "That's how we avoid what happened with your last IT company."
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.755105399992317,
+    "total": 1.532754499989096,
+    "prompt_tokens": 223,
+    "completion_tokens": 99,
+    "cached_tokens": null,
+    "text": "{\"budget\": null, \"decision_makers\": [\"co-owner\"], \"pains\": [\"manual order entry from email into Exact\", \"Zapier keeps breaking\"], \"objections\": [{\"topic\": \"pricing model\", \"status\": \"open\"}, {\"topic\": \"data residency\", \"status\": \"open\"}, {\"topic\": \"past IT vendor over budget\", \"status\": \"open\"}], \"companies\": [\"Flowbase\"], \"timeline\": null}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "manual order entry from email into Exact",
+      "Zapier keeps breaking"
+     ],
+     "objections": [
+      {
+       "topic": "pricing model",
+       "status": "open"
+      },
+      {
+       "topic": "data residency",
+       "status": "open"
+      },
+      {
+       "topic": "past IT vendor over budget",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash",
+   "advice": [
+    {
+     "ttft": 1.0213171999930637,
+     "total": 2.073453299992252,
+     "prompt_tokens": 1652,
+     "completion_tokens": 61,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Quantify: 3 people x morning hours x ~EUR 48/hr loaded.\", \"Tie to Exact: email orders auto-entered, no retyping.\", \"\\\"How many orders per day land in that inbox?\\\"\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "Quantify: 3 people x morning hours x ~EUR 48/hr loaded.",
+       "Tie to Exact: email orders auto-entered, no retyping.",
+       "\"How many orders per day land in that inbox?\""
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.8342365999997128,
+     "total": 1.3848056999995606,
+     "prompt_tokens": 1659,
+     "completion_tokens": 39,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Don't quote hours; pivot to fixed price and payback guarantee.\", \"\\\"What does one order cost you in time today?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Don't quote hours; pivot to fixed price and payback guarantee.",
+       "\"What does one order cost you in time today?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.8768595000001369,
+     "total": 2.2486564999999246,
+     "prompt_tokens": 1679,
+     "completion_tokens": 58,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Flowbase charges per document; you'd own nothing and pay forever.\", \"Fixed price, fixed date, 18-month payback guarantee instead.\", \"\\\"What does forty cents per document add up to per year?\\\"\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Flowbase charges per document; you'd own nothing and pay forever.",
+       "Fixed price, fixed date, 18-month payback guarantee instead.",
+       "\"What does forty cents per document add up to per year?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.8962502000067616,
+     "total": 1.86907680000877,
+     "prompt_tokens": 1693,
+     "completion_tokens": 57,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Acknowledge the overrun; fixed price and date agreed before code.\", \"\\\"What did that project end up costing you in total?\\\"\", \"Delays are our cost, not yours \u2014 that's the point.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Acknowledge the overrun; fixed price and date agreed before code.",
+       "\"What did that project end up costing you in total?\"",
+       "Delays are our cost, not yours \u2014 that's the point."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.8581813000055263,
+     "total": 1.6853611999977147,
+     "prompt_tokens": 1703,
+     "completion_tokens": 58,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Dutch-hosted, open-source models; no outside AI provider sees documents.\", \"Mutual NDA before assessment, processing agreement before build.\", \"\\\"Would a Dutch-hosted setup remove that concern for your co-owner?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Dutch-hosted, open-source models; no outside AI provider sees documents.",
+       "Mutual NDA before assessment, processing agreement before build.",
+       "\"Would a Dutch-hosted setup remove that concern for your co-owner?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.8278082000033464,
+     "total": 2.2172947999933967,
+     "prompt_tokens": 1719,
+     "completion_tokens": 64,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Zapier breaks because it's glue, not a system \u2014 say that plainly.\", \"\\\"What happens on the mornings it breaks \u2014 who fixes it?\\\"\", \"Fixed price, fixed date: no overrun risk like last IT company.\"], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Zapier breaks because it's glue, not a system \u2014 say that plainly.",
+       "\"What happens on the mornings it breaks \u2014 who fixes it?\"",
+       "Fixed price, fixed date: no overrun risk like last IT company."
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.8472498999908566,
+     "total": 1.6994221999921137,
+     "prompt_tokens": 1733,
+     "completion_tokens": 60,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Good sign: co-owner is the real decision maker. Lock a next step.\", \"\\\"What would your co-owner need to see to say yes?\\\"\", \"Offer the EUR 500 assessment; report is theirs to share.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Good sign: co-owner is the real decision maker. Lock a next step.",
+       "\"What would your co-owner need to see to say yes?\"",
+       "Offer the EUR 500 assessment; report is theirs to share."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.791487499998766,
+     "total": 1.708035599993309,
+     "prompt_tokens": 1732,
+     "completion_tokens": 63,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Don't quote a rate: fixed price, scope, date agreed up front.\", \"\\\"What would it be worth to stop the 3 people typing orders?\\\"\", \"Overruns are our cost, not yours \u2014 like the last IT company.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Don't quote a rate: fixed price, scope, date agreed up front.",
+       "\"What would it be worth to stop the 3 people typing orders?\"",
+       "Overruns are our cost, not yours \u2014 like the last IT company."
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.8737536999979056,
+    "total": 3.1051095000002533,
+    "prompt_tokens": 287,
+    "completion_tokens": 148,
+    "cached_tokens": 0,
+    "text": "{\n  \"budget\": null,\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\n    \"three people spend most of their morning typing incoming orders from email into Exact\",\n    \"Zapier keeps breaking\",\n    \"last IT company went way over budget\"\n  ],\n  \"objections\": [\n    {\"topic\": \"pricing model unclear\", \"status\": \"open\"},\n    {\"topic\": \"data leaving the Netherlands\", \"status\": \"open\"},\n    {\"topic\": \"needs to discuss with co-owner\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Exact\", \"Flowbase\", \"Zapier\"],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "three people spend most of their morning typing incoming orders from email into Exact",
+      "Zapier keeps breaking",
+      "last IT company went way over budget"
+     ],
+     "objections": [
+      {
+       "topic": "pricing model unclear",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving the Netherlands",
+       "status": "open"
+      },
+      {
+       "topic": "needs to discuss with co-owner",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "deepseek-ai/DeepSeek-V4-Pro-0813",
+   "advice": [
+    {
+     "ttft": 0.9152463000064017,
+     "total": 1.2314862000057474,
+     "prompt_tokens": 1658,
+     "completion_tokens": 56,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"That's a clear automation case: email orders into Exact without manual typing.\", \"Ask: \\\"How many orders per person each morning?\\\"\", \"Mention fixed price and 18-month payback guarantee.\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "That's a clear automation case: email orders into Exact without manual typing.",
+       "Ask: \"How many orders per person each morning?\"",
+       "Mention fixed price and 18-month payback guarantee."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.789744099995005,
+     "total": 1.1414775000012014,
+     "prompt_tokens": 1665,
+     "completion_tokens": 66,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"We don't work hourly: fixed price, scope and date agreed before any code.\", \"You buy the outcome, not hours; delays are our cost, not yours.\", \"\\\"Shall I show what a fixed quote for the Exact order entry would look like?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't work hourly: fixed price, scope and date agreed before any code.",
+       "You buy the outcome, not hours; delays are our cost, not yours.",
+       "\"Shall I show what a fixed quote for the Exact order entry would look like?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.9431496000033803,
+     "total": 1.418493800010765,
+     "prompt_tokens": 1685,
+     "completion_tokens": 69,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Flowbase charges per document; Koref fixes price and date before any code.\", \"Ask: \\\"How many documents per month, so we can compare total yearly cost?\\\"\", \"Your three people typing into Exact is a fixed task, not a per-document cost.\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Flowbase charges per document; Koref fixes price and date before any code.",
+       "Ask: \"How many documents per month, so we can compare total yearly cost?\"",
+       "Your three people typing into Exact is a fixed task, not a per-document cost."
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.8286674999981187,
+     "total": 1.2166196000034688,
+     "prompt_tokens": 1699,
+     "completion_tokens": 67,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Fixed price and date agreed before any code; overruns are Koref's cost.\", \"18-month payback guarantee: if it doesn't pay for itself, Koref pays the difference.\", \"\\\"What did the last project end up costing versus the original quote?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Fixed price and date agreed before any code; overruns are Koref's cost.",
+       "18-month payback guarantee: if it doesn't pay for itself, Koref pays the difference.",
+       "\"What did the last project end up costing versus the original quote?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7925478999968618,
+     "total": 1.0562512999895262,
+     "prompt_tokens": 1709,
+     "completion_tokens": 57,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"No: Dutch-hosted, open-source models, on infrastructure you or Koref controls.\", \"No outside AI provider sees your documents; mutual NDA before the assessment.\", \"Data processing agreement is signed before any build starts.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "No: Dutch-hosted, open-source models, on infrastructure you or Koref controls.",
+       "No outside AI provider sees your documents; mutual NDA before the assessment.",
+       "Data processing agreement is signed before any build starts."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.8404062999907183,
+     "total": 1.259962700001779,
+     "prompt_tokens": 1725,
+     "completion_tokens": 62,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Zapier breaking is exactly the 'two systems not talking' problem we fix.\", \"A fixed-price build replaces the fragile Zapier setup with something reliable.\", \"\\\"What does a Zapier break cost you in a week?\\\"\"], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Zapier breaking is exactly the 'two systems not talking' problem we fix.",
+       "A fixed-price build replaces the fragile Zapier setup with something reliable.",
+       "\"What does a Zapier break cost you in a week?\""
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.808649400001741,
+     "total": 1.075702000001911,
+     "prompt_tokens": 1739,
+     "completion_tokens": 48,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Offer to brief the co-owner directly on the fixed price and 18-month guarantee.\", \"Ask: \\\"What would your co-owner need to see to move forward?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Offer to brief the co-owner directly on the fixed price and 18-month guarantee.",
+       "Ask: \"What would your co-owner need to see to move forward?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.829878299991833,
+     "total": 1.1374316000001272,
+     "prompt_tokens": 1738,
+     "completion_tokens": 60,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"No hourly rate: fixed price, scope and date agreed before any code.\", \"You pay the agreed amount; delays are our cost, not yours.\", \"\\\"What would make the fixed price easier to compare with Flowbase?\\\"\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "No hourly rate: fixed price, scope and date agreed before any code.",
+       "You pay the agreed amount; delays are our cost, not yours.",
+       "\"What would make the fixed price easier to compare with Flowbase?\""
+      ],
+      "company": "Flowbase"
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.7936872999998741,
+    "total": 1.1856324000109453,
+    "prompt_tokens": 293,
+    "completion_tokens": 99,
+    "cached_tokens": null,
+    "text": "{\n  \"budget\": null,\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\"manual order entry into Exact\", \"Zapier keeps breaking\", \"previous IT company went over budget\"],\n  \"objections\": [\n    {\"topic\": \"pricing\", \"status\": \"open\"},\n    {\"topic\": \"data residency\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Flowbase\"],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "manual order entry into Exact",
+      "Zapier keeps breaking",
+      "previous IT company went over budget"
+     ],
+     "objections": [
+      {
+       "topic": "pricing",
+       "status": "open"
+      },
+      {
+       "topic": "data residency",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "MiniMaxAI/MiniMax-M3",
+   "advice": [
+    {
+     "ttft": 3.81277499999851,
+     "total": 3.9193458999943687,
+     "prompt_tokens": 1704,
+     "completion_tokens": 961,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Classic Koref fit - two systems not talking, no AI hype needed.\", \"Ask: 'How many orders per morning, and minutes per order?'\", \"EUR 500 workflow assessment quantifies it and gives a fixed quote.\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "Classic Koref fit - two systems not talking, no AI hype needed.",
+       "Ask: 'How many orders per morning, and minutes per order?'",
+       "EUR 500 workflow assessment quantifies it and gives a fixed quote."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 2.79067170000053,
+     "total": 2.945541699999012,
+     "prompt_tokens": 1710,
+     "completion_tokens": 636,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"We don't bill hourly \u2014 fixed price, scope and date agreed upfront.\", \"Three people, every morning \u2014 that's the cost we measure against.\", \"\\\"Roughly how long does each order take to type in?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill hourly \u2014 fixed price, scope and date agreed upfront.",
+       "Three people, every morning \u2014 that's the cost we measure against.",
+       "\"Roughly how long does each order take to type in?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": null,
+     "total": 4.2366519999923185,
+     "prompt_tokens": 1729,
+     "completion_tokens": 1000,
+     "cached_tokens": null,
+     "text": "",
+     "json": null
+    },
+    {
+     "ttft": 2.3757422999915434,
+     "total": 2.5150306999858003,
+     "prompt_tokens": 1743,
+     "completion_tokens": 526,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"That's exactly why we work fixed price \u2014 no overrun risk for you.\", \"Overruns are our cost, covered by the 18-month payback guarantee.\", \"\\\"Want me to walk through how the fixed quote works?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "That's exactly why we work fixed price \u2014 no overrun risk for you.",
+       "Overruns are our cost, covered by the 18-month payback guarantee.",
+       "\"Want me to walk through how the fixed quote works?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 1.9787722999899415,
+     "total": 2.073060599999735,
+     "prompt_tokens": 1753,
+     "completion_tokens": 632,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"No, data stays in the Netherlands on Dutch-hosted infrastructure.\", \"Open-source models only; no outside AI provider sees your documents.\", \"NDA before the assessment, data processing agreement before any build.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "No, data stays in the Netherlands on Dutch-hosted infrastructure.",
+       "Open-source models only; no outside AI provider sees your documents.",
+       "NDA before the assessment, data processing agreement before any build."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 2.853952699995716,
+     "total": 2.9720892000041204,
+     "prompt_tokens": 1769,
+     "completion_tokens": 978,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Zapier breaks often; Koref takes operational liability once it's live.\", \"Zapier is fragile glue; Koref builds a real, monitored bridge.\", \"Ask: \\\"What part of the Zapier flow keeps breaking?\\\"\"], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Zapier breaks often; Koref takes operational liability once it's live.",
+       "Zapier is fragile glue; Koref builds a real, monitored bridge.",
+       "Ask: \"What part of the Zapier flow keeps breaking?\""
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 2.238909200008493,
+     "total": 2.343702199999825,
+     "prompt_tokens": 1781,
+     "completion_tokens": 736,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Makes sense \u2014 invite your co-owner to the free 30-min discovery call.\", \"The EUR 500 assessment ends with a fixed quote they can review.\", \"\\\"Want a one-page summary to share with them?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Makes sense \u2014 invite your co-owner to the free 30-min discovery call.",
+       "The EUR 500 assessment ends with a fixed quote they can review.",
+       "\"Want a one-page summary to share with them?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": null,
+     "total": 3.0686374999932013,
+     "prompt_tokens": 1778,
+     "completion_tokens": 1000,
+     "cached_tokens": null,
+     "text": "",
+     "json": null
+    }
+   ],
+   "memory": {
+    "ttft": 2.0286055999895325,
+    "total": 2.296028800003114,
+    "prompt_tokens": 379,
+    "completion_tokens": 802,
+    "cached_tokens": null,
+    "text": "```json\n{\n  \"budget\": null,\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\n    \"Three people spend mornings manually typing email orders into Exact\",\n    \"Zapier keeps breaking for some automation tasks\",\n    \"Previous IT vendor went significantly over budget\"\n  ],\n  \"objections\": [\n    {\"topic\": \"Data leaving the Netherlands\", \"status\": \"open\"},\n    {\"topic\": \"Pricing model unclear, asked hourly rate twice\", \"status\": \"open\"},\n    {\"topic\": \"Past IT project went over budget\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Exact\", \"Flowbase\", \"Zapier\"],\n  \"timeline\": null\n}\n```",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "Three people spend mornings manually typing email orders into Exact",
+      "Zapier keeps breaking for some automation tasks",
+      "Previous IT vendor went significantly over budget"
+     ],
+     "objections": [
+      {
+       "topic": "Data leaving the Netherlands",
+       "status": "open"
+      },
+      {
+       "topic": "Pricing model unclear, asked hourly rate twice",
+       "status": "open"
+      },
+      {
+       "topic": "Past IT project went over budget",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "moonshotai/Kimi-K2.6",
+   "advice": [
+    {
+     "ttft": 0.6523040000029141,
+     "total": 1.03012700000545,
+     "prompt_tokens": 1556,
+     "completion_tokens": 71,
+     "cached_tokens": 1536,
+     "text": " ```json\n{\"bullets\": [\"Three people typing email orders into Exact every morning\u2014likely EUR 15,000+/yr in loaded cost.\", \"Our workflow assessment maps exact savings and gives a fixed build quote.\", \"\\\"What happens to orders when one of those three people is sick or on holiday?\\\"\"], \"company\": \"Exact\"}\n```",
+     "json": {
+      "bullets": [
+       "Three people typing email orders into Exact every morning\u2014likely EUR 15,000+/yr in loaded cost.",
+       "Our workflow assessment maps exact savings and gives a fixed build quote.",
+       "\"What happens to orders when one of those three people is sick or on holiday?\""
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.7778430000034859,
+     "total": 1.0977105000056326,
+     "prompt_tokens": 1562,
+     "completion_tokens": 66,
+     "cached_tokens": 1536,
+     "text": " ```json\n{\"bullets\": [\"We don't work hourly. Fixed price, scope and date before any code.\", \"Delays are our cost, not yours. Payback guarantee covers the build.\", \"\\\"Shall I explain how the EUR 500 workflow assessment gives a fixed quote?\\\"\"], \"company\": null}\n```",
+     "json": {
+      "bullets": [
+       "We don't work hourly. Fixed price, scope and date before any code.",
+       "Delays are our cost, not yours. Payback guarantee covers the build.",
+       "\"Shall I explain how the EUR 500 workflow assessment gives a fixed quote?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.6677404000074603,
+     "total": 1.0676445999997668,
+     "prompt_tokens": 1581,
+     "completion_tokens": 76,
+     "cached_tokens": 1568,
+     "text": " ```json\n{\n  \"bullets\": [\n    \"Ask: 'Is that forty cents forever, or does volume change the price?'\",\n    \"Flowbase charges per document; Koref fixes price before any code.\",\n    \"With 3 staff mornings lost, likely payback in months, not years.\"\n  ],\n  \"company\": \"Flowbase\"\n}\n```",
+     "json": {
+      "bullets": [
+       "Ask: 'Is that forty cents forever, or does volume change the price?'",
+       "Flowbase charges per document; Koref fixes price before any code.",
+       "With 3 staff mornings lost, likely payback in months, not years."
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.6949441000033403,
+     "total": 1.0388067000021692,
+     "prompt_tokens": 1595,
+     "completion_tokens": 75,
+     "cached_tokens": 1568,
+     "text": " {\"bullets\": [\"Fixed price, scope and date before any code; overruns are Koref's cost.\", \"18-month payback guarantee: if it doesn't pay for itself, we pay back the difference.\", \"Ask: \\\"What does 'way over budget' mean in euros, so I can show how we prevent that?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Fixed price, scope and date before any code; overruns are Koref's cost.",
+       "18-month payback guarantee: if it doesn't pay for itself, we pay back the difference.",
+       "Ask: \"What does 'way over budget' mean in euros, so I can show how we prevent that?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.6940871999977389,
+     "total": 0.9397196000063559,
+     "prompt_tokens": 1605,
+     "completion_tokens": 62,
+     "cached_tokens": 1600,
+     "text": " {\"bullets\": [\"Dutch-hosted, open-source models; no outside AI provider sees your documents.\", \"Mutual NDA before assessment, data processing agreement before any build.\", \"You own the code and data; take it in-house or move after 12 months.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Dutch-hosted, open-source models; no outside AI provider sees your documents.",
+       "Mutual NDA before assessment, data processing agreement before any build.",
+       "You own the code and data; take it in-house or move after 12 months."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.6798466000036569,
+     "total": 1.213237999996636,
+     "prompt_tokens": 1621,
+     "completion_tokens": 90,
+     "cached_tokens": 1600,
+     "text": " ```json\n{\"bullets\": [\"Zapier breaks because it's generic glue, not owned code. Koref builds yours, documented, with liability after go-live.\", \"Flowbase's forty cents adds up and can change. Koref is fixed price, scope and date before any code.\", \"\\\"Shall I walk through how the 18-month payback guarantee works with a fixed quote?\\\"\"], \"company\": \"Flowbase\"}\n```",
+     "json": {
+      "bullets": [
+       "Zapier breaks because it's generic glue, not owned code. Koref builds yours, documented, with liability after go-live.",
+       "Flowbase's forty cents adds up and can change. Koref is fixed price, scope and date before any code.",
+       "\"Shall I walk through how the 18-month payback guarantee works with a fixed quote?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.6750439999887021,
+     "total": 1.1382760999986203,
+     "prompt_tokens": 1633,
+     "completion_tokens": 78,
+     "cached_tokens": 1632,
+     "text": " ```json\n{\"bullets\": [\"Offer the EUR 500 assessment: fixed price, report in 2 days, co-owner sees exact payback.\", \"Mention the 18-month guarantee directly answers their budget-overrun worry.\", \"Ask: 'Shall I send the assessment terms so your co-owner can review before we book a call?'\"], \"company\": null}\n```",
+     "json": {
+      "bullets": [
+       "Offer the EUR 500 assessment: fixed price, report in 2 days, co-owner sees exact payback.",
+       "Mention the 18-month guarantee directly answers their budget-overrun worry.",
+       "Ask: 'Shall I send the assessment terms so your co-owner can review before we book a call?'"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7168686000077287,
+     "total": 0.9585635000112234,
+     "prompt_tokens": 1630,
+     "completion_tokens": 67,
+     "cached_tokens": 1600,
+     "text": " {\"bullets\": [\"We don't use hourly rates; fixed price, scope and date before any code.\", \"Delays are our cost, not yours. No budget overruns like your last IT company.\", \"\\\"Shall I walk through the EUR 500 workflow assessment that produces the fixed quote?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't use hourly rates; fixed price, scope and date before any code.",
+       "Delays are our cost, not yours. No budget overruns like your last IT company.",
+       "\"Shall I walk through the EUR 500 workflow assessment that produces the fixed quote?\""
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.5681342000025325,
+    "total": 0.8540167000028305,
+    "prompt_tokens": 223,
+    "completion_tokens": 119,
+    "cached_tokens": 192,
+    "text": " ```json\n{\n  \"budget\": \"forty cents per document\",\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\n    \"three people typing orders from email into Exact\",\n    \"Zapier keeps breaking\",\n    \"last IT company went way over budget\"\n  ],\n  \"objections\": [\n    {\"topic\": \"data leaving Netherlands\", \"status\": \"open\"},\n    {\"topic\": \"pricing model unclear\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Flowbase\"],\n  \"timeline\": null\n}\n```",
+    "json": {
+     "budget": "forty cents per document",
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "three people typing orders from email into Exact",
+      "Zapier keeps breaking",
+      "last IT company went way over budget"
+     ],
+     "objections": [
+      {
+       "topic": "data leaving Netherlands",
+       "status": "open"
+      },
+      {
+       "topic": "pricing model unclear",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "moonshotai/Kimi-K3",
+   "advice": [
+    {
+     "ttft": 0.7295594000024721,
+     "total": 1.382955499997479,
+     "prompt_tokens": 1572,
+     "completion_tokens": 69,
+     "cached_tokens": 1536,
+     "text": "{\"bullets\": [\"Quantify it: 'How many orders per day, and minutes per order?'\", \"That is exactly the kind of manual retyping we remove; no AI needed.\", \"Mention EUR 500 workflow assessment gives cost per process and fixed quote.\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "Quantify it: 'How many orders per day, and minutes per order?'",
+       "That is exactly the kind of manual retyping we remove; no AI needed.",
+       "Mention EUR 500 workflow assessment gives cost per process and fixed quote."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.610454399997252,
+     "total": 1.2227829999901587,
+     "prompt_tokens": 1578,
+     "completion_tokens": 67,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"We don't bill hours. Fixed price, scope and date agreed before any code.\", \"Delays are our cost, not yours. That's the point of fixed price.\", \"\\\"Want me to explain how the 18-month payback guarantee works?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill hours. Fixed price, scope and date agreed before any code.",
+       "Delays are our cost, not yours. That's the point of fixed price.",
+       "\"Want me to explain how the 18-month payback guarantee works?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.6446429000061471,
+     "total": 1.3453191000007791,
+     "prompt_tokens": 1597,
+     "completion_tokens": 75,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"Forty cents per document is pay-per-use at their price; we quote fixed, agreed before code.\", \"Per-document fees scale with your order volume; our fixed price doesn't.\", \"\\\"How many orders per day? Then we can compare forty cents against a fixed quote.\\\"\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "Forty cents per document is pay-per-use at their price; we quote fixed, agreed before code.",
+       "Per-document fees scale with your order volume; our fixed price doesn't.",
+       "\"How many orders per day? Then we can compare forty cents against a fixed quote.\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.5853884999960428,
+     "total": 0.9745047000033082,
+     "prompt_tokens": 1611,
+     "completion_tokens": 68,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"That's why we fix price, scope and date before any code; overruns are our cost.\", \"And the 18-month payback guarantee: it pays for itself or we pay the difference.\", \"\\\"What did that overrun end up costing you?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "That's why we fix price, scope and date before any code; overruns are our cost.",
+       "And the 18-month payback guarantee: it pays for itself or we pay the difference.",
+       "\"What did that overrun end up costing you?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 1.0224746000021696,
+     "total": 1.3948483999993186,
+     "prompt_tokens": 1621,
+     "completion_tokens": 61,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"No: Dutch-hosted, open-source models; no outside AI provider sees your documents.\", \"Mutual NDA before the assessment, data processing agreement before the build.\", \"\\\"Want that in writing before we start?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "No: Dutch-hosted, open-source models; no outside AI provider sees your documents.",
+       "Mutual NDA before the assessment, data processing agreement before the build.",
+       "\"Want that in writing before we start?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.5993314999941504,
+     "total": 1.1737953999981983,
+     "prompt_tokens": 1637,
+     "completion_tokens": 69,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"Zapier breaking means manual fixes; we build stable connections between email and Exact.\", \"Fixed price, no surprise overruns like your last IT company.\", \"Ask: 'How much time do your three people spend fixing Zapier errors?'\"], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Zapier breaking means manual fixes; we build stable connections between email and Exact.",
+       "Fixed price, no surprise overruns like your last IT company.",
+       "Ask: 'How much time do your three people spend fixing Zapier errors?'"
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.7058385999989696,
+     "total": 1.0879090999951586,
+     "prompt_tokens": 1649,
+     "completion_tokens": 48,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"Offer the free 30-min discovery call with both owners, no commitment.\", \"\\\"Would it help if I joined that conversation with your co-owner?\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Offer the free 30-min discovery call with both owners, no commitment.",
+       "\"Would it help if I joined that conversation with your co-owner?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.8464711000124225,
+     "total": 1.5607828000065638,
+     "prompt_tokens": 1646,
+     "completion_tokens": 72,
+     "cached_tokens": 1472,
+     "text": "{\"bullets\": [\"We don't bill hours. Fixed price, scope and date agreed before any code.\", \"Delays are our cost, not yours. That addresses the budget overrun worry.\", \"\\\"Shall we start with the EUR 500 assessment? You get a fixed quote per automation.\\\"\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill hours. Fixed price, scope and date agreed before any code.",
+       "Delays are our cost, not yours. That addresses the budget overrun worry.",
+       "\"Shall we start with the EUR 500 assessment? You get a fixed quote per automation.\""
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.6728606000106083,
+    "total": 1.7420349000021815,
+    "prompt_tokens": 239,
+    "completion_tokens": 129,
+    "cached_tokens": null,
+    "text": "{\"budget\": null, \"decision_makers\": [\"co-owner\"], \"pains\": [\"Three people manually typing orders from email into Exact\", \"Zapier integration keeps breaking\", \"Previous IT company went way over budget\"], \"objections\": [{\"topic\": \"hourly rate / pricing model unclear\", \"status\": \"open\"}, {\"topic\": \"data leaving the Netherlands\", \"status\": \"open\"}, {\"topic\": \"budget overrun concern from past vendor\", \"status\": \"open\"}], \"companies\": [\"Exact\", \"Flowbase\", \"Zapier\"], \"timeline\": null}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "Three people manually typing orders from email into Exact",
+      "Zapier integration keeps breaking",
+      "Previous IT company went way over budget"
+     ],
+     "objections": [
+      {
+       "topic": "hourly rate / pricing model unclear",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving the Netherlands",
+       "status": "open"
+      },
+      {
+       "topic": "budget overrun concern from past vendor",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "moonshotai/Kimi-K2.7-Code",
+   "advice": [
+    {
+     "ttft": null,
+     "total": 4.724863499999628,
+     "prompt_tokens": 1555,
+     "completion_tokens": 1000,
+     "cached_tokens": null,
+     "text": "",
+     "json": null
+    },
+    {
+     "ttft": null,
+     "total": 6.156884299998637,
+     "prompt_tokens": 1561,
+     "completion_tokens": 1000,
+     "cached_tokens": null,
+     "text": "",
+     "json": null
+    },
+    {
+     "ttft": null,
+     "total": 37.5983552000107,
+     "prompt_tokens": 1580,
+     "completion_tokens": 1000,
+     "cached_tokens": null,
+     "text": "",
+     "json": null
+    },
+    {
+     "ttft": null,
+     "total": 9.991823899996234,
+     "prompt_tokens": 1594,
+     "completion_tokens": 1000,
+     "cached_tokens": null,
+     "text": "",
+     "json": null
+    },
+    {
+     "ttft": 4.369919200005825,
+     "total": 4.467540199999348,
+     "prompt_tokens": 1604,
+     "completion_tokens": 1000,
+     "cached_tokens": null,
+     "text": " {\"bullets\": [\"No: your data stays in the Netherlands, Dutch-hosted.\", \"Open-source models on infrastructure you or Koref control.\", \"No outside",
+     "json": null
+    },
+    {
+     "ttft": null,
+     "total": 5.0435447999916505,
+     "prompt_tokens": 1620,
+     "completion_tokens": 1000,
+     "cached_tokens": null,
+     "text": "",
+     "json": null
+    },
+    {
+     "ttft": 3.9855199000012362,
+     "total": 4.171846100012772,
+     "prompt_tokens": 1632,
+     "completion_tokens": 819,
+     "cached_tokens": null,
+     "text": " {\"bullets\": [\"Ask: 'Can we schedule a 30-minute call with your co-owner this week?'\", \"Offer to send a one-page brief on Exact automation, fixed price, Dutch hosting.\", \"Propose the EUR 500 assessment as a joint, low-risk next step.\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "Ask: 'Can we schedule a 30-minute call with your co-owner this week?'",
+       "Offer to send a one-page brief on Exact automation, fixed price, Dutch hosting.",
+       "Propose the EUR 500 assessment as a joint, low-risk next step."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 3.6475400000053924,
+     "total": 3.7992234000121243,
+     "prompt_tokens": 1629,
+     "completion_tokens": 722,
+     "cached_tokens": null,
+     "text": " {\"bullets\": [\"We don't bill hours; fixed price before we build.\", \"EUR 500 assessment gives a fixed quote and 18-month payback guarantee.\", \"How many email orders do three people type into Exact daily?\"], \"company\": null}",
+     "json": {
+      "bullets": [
+       "We don't bill hours; fixed price before we build.",
+       "EUR 500 assessment gives a fixed quote and 18-month payback guarantee.",
+       "How many email orders do three people type into Exact daily?"
+      ],
+      "company": null
+     }
+    }
+   ],
+   "memory": {
+    "ttft": null,
+    "total": 7.0863538999983575,
+    "prompt_tokens": 222,
+    "completion_tokens": 1500,
+    "cached_tokens": null,
+    "text": "",
+    "json": null
+   }
+  },
+  {
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "advice": [
+    {
+     "ttft": 0.7006590999953914,
+     "total": 1.074300599997514,
+     "prompt_tokens": 1662,
+     "completion_tokens": 70,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Three people typing emails into Exact daily\u2014how many orders does that cover?\",\n    \"What\u2019s the average time per order? We\u2019ll calculate the yearly cost together.\",\n    \"If that time were automated, could those three focus on higher-value work?\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "Three people typing emails into Exact daily\u2014how many orders does that cover?",
+       "What\u2019s the average time per order? We\u2019ll calculate the yearly cost together.",
+       "If that time were automated, could those three focus on higher-value work?"
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.7116496999951778,
+     "total": 0.9637820000061765,
+     "prompt_tokens": 1668,
+     "completion_tokens": 61,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"We don't do hourly\u2014fixed price + 18\u2011month payback guarantee eliminates overrun risk.\",\n    \"Ask: \\\"Would seeing a fixed quote and savings timeline help us move forward?\\\"\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "We don't do hourly\u2014fixed price + 18\u2011month payback guarantee eliminates overrun risk.",
+       "Ask: \"Would seeing a fixed quote and savings timeline help us move forward?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7421606999996584,
+     "total": 1.2360725999897113,
+     "prompt_tokens": 1688,
+     "completion_tokens": 82,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Forty cents per doc adds up fast\u2014let\u2019s compare total monthly cost vs our fixed-price build.\",\n    \"Our workflow assessment shows exact savings per order typed into Exact\u2014no per-doc guesswork.\",\n    \"Want me to walk through how we calculate yearly cost for those 3 people typing orders?\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "Forty cents per doc adds up fast\u2014let\u2019s compare total monthly cost vs our fixed-price build.",
+       "Our workflow assessment shows exact savings per order typed into Exact\u2014no per-doc guesswork.",
+       "Want me to walk through how we calculate yearly cost for those 3 people typing orders?"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.7071005000034347,
+     "total": 1.042676200013375,
+     "prompt_tokens": 1704,
+     "completion_tokens": 74,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"We fix that with a fixed price\u2014no overruns, ever.\",\n    \"Our 18\u2011month payback guarantee means if it doesn\u2019t save, we refund the difference.\",\n    \"\\\"How does a fixed quote protect you from going over budget?\\\"\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "We fix that with a fixed price\u2014no overruns, ever.",
+       "Our 18\u2011month payback guarantee means if it doesn\u2019t save, we refund the difference.",
+       "\"How does a fixed quote protect you from going over budget?\""
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.8094090999948094,
+     "total": 4.012571400002344,
+     "prompt_tokens": 1714,
+     "completion_tokens": 732,
+     "cached_tokens": 0,
+     "text": "We need to produce JSON with bullets (max 3) each <=12 words, tailored to prospect line: \"Is our data going to leave the Netherlands?\" Must reference context: Data: Dutch-hosted, open-source models, mutual NDA before assessment, DPA before build. Also mention that data stays in NL, maybe referencing Korean? Actually company is Koref, based in Amsterdam, Dutch-hosted. Provide answer: reassure data stays in Netherlands, perhaps ask if they'd like confirmation via DPA. One bullet could be a question in quotes. Ensure not to violate never_say: cannot say hourly rate etc. Avoid invented stats. Keep plain tone.\n\nWe must include company field: name of outside company prospect just named (competitor, current tool, parent company, past vendor). Prospect mentioned \"Exact\" earlier as system they type into. Also \"Flowbase\". But latest line does not name a company. However rule: \"company\": the name of an outside company or product the prospect just named (competitor, current tool, parent company, past vendor), else null. Since the new line didn't name a company, but previous lines had companies. Should we set to null? Probably yes because they didn't name a company in this line. Could also consider they might be referring to data leaving Netherlands regarding Koref; but that's not an outside company. So set null.\n\nNow craft bullets:\n\nBullet 1: \"Your data stays in the Netherlands\u2014our models and hosting are Dutch\u2011hosted.\" Count words: Your(1) data2 stays3 in4 the5 Netherlands\u2014our6 models7 and8 hosting9 are10 Dutch\u2011hosted11. That's 11 words, okay.\n\nBullet 2: Maybe a question: \"Would you like to see our data\u2011processing agreement before we start?\" Count: Would1 you2 like3 to4 see5 our6 data\u2011processing7 agreement8 before9 we10 start11? That's 11 words, okay, and it's a question in quotes? Rule: At most one bullet is a question to ask, written in quotes. So we need to put the question in quotes. So bullet: \"\\\"Would you like to see our data\u2011processing agreement before we start?\\\"\". Need to count words inside quotes? The quotes likely not count as words. Inside: Would you like to see our data-processing agreement before we start? That's same as before 11 words. Good.\n\nBullet 3 maybe: \"We sign a mutual NDA and DPA before any work begins.\" Count: We1 sign2 a3 mutual4 NDA5 and6 DPA7 before8 any9 work10 begins11. 11 words.\n\nBut we have max 3 bullets. Already have 3. Ensure we don't repeat advice already given. Advice already given 4 times previously; unknown what they were. But we must avoid repeating. Likely they've already covered hourly rate, Flowbase price, overbudget, etc. Our advice about data staying is new.\n\nCheck never_say: we didn't say hourly rates, invented case studies, perfect accuracy, etc. Good.\n\nReturn JSON.\n\n\n\n{\n  \"bullets\": [\n    \"Your data stays in the Netherlands\u2014our models and hosting are Dutch\u2011hosted.\",\n    \"\\\"Would you like to see our data\u2011processing agreement before we start?\\\"\",\n    \"We sign a mutual NDA and DPA before any work begins.\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Your data stays in the Netherlands\u2014our models and hosting are Dutch\u2011hosted.",
+       "\"Would you like to see our data\u2011processing agreement before we start?\"",
+       "We sign a mutual NDA and DPA before any work begins."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.4900010999990627,
+     "total": 0.8149417999957222,
+     "prompt_tokens": 1730,
+     "completion_tokens": 58,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Zapier breaks\u2014our fix runs on your terms, no third-party limits.\",\n    \"We connect email to Exact directly, like you asked, with Dutch-hosted reliability.\"\n  ],\n  \"company\": \"Zapier\"\n}",
+     "json": {
+      "bullets": [
+       "Zapier breaks\u2014our fix runs on your terms, no third-party limits.",
+       "We connect email to Exact directly, like you asked, with Dutch-hosted reliability."
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.7145046000077855,
+     "total": 1.1574951000075089,
+     "prompt_tokens": 1744,
+     "completion_tokens": 99,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Understood\u2014discussing with your co-owner makes sense. When\u2019s a good time to reconvene?\",\n    \"To recap: three people manually entering email orders into Exact each morning, taking most of their morning.\",\n    \"We fix that with a fixed-price automation, 18-month payback guarantee, and Dutch-hosted, open-source AI\u2014no data leaves the Netherlands.\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Understood\u2014discussing with your co-owner makes sense. When\u2019s a good time to reconvene?",
+       "To recap: three people manually entering email orders into Exact each morning, taking most of their morning.",
+       "We fix that with a fixed-price automation, 18-month payback guarantee, and Dutch-hosted, open-source AI\u2014no data leaves the Netherlands."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7416522999992594,
+     "total": 0.9544660999963526,
+     "prompt_tokens": 1743,
+     "completion_tokens": 30,
+     "cached_tokens": 0,
+     "text": "We charge a fixed price based on workflow savings\u2014no hourly rates. Your co-owner will see the full quote after the free discovery call.",
+     "json": null
+    }
+   ],
+   "memory": {
+    "ttft": 0.6099245000077644,
+    "total": 1.1010483999998542,
+    "prompt_tokens": 242,
+    "completion_tokens": 103,
+    "cached_tokens": 0,
+    "text": "{\n  \"budget\": null,\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\n    \"typing incoming orders from email into Exact\",\n    \"Zapier keeps breaking\"\n  ],\n  \"objections\": [\n    {\"topic\": \"pricing confusion\", \"status\": \"open\"},\n    {\"topic\": \"data leaving Netherlands\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Flowbase\"],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "typing incoming orders from email into Exact",
+      "Zapier keeps breaking"
+     ],
+     "objections": [
+      {
+       "topic": "pricing confusion",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving Netherlands",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "nvidia/Nemotron-3_5-Lightning",
+   "advice": [
+    {
+     "ttft": 0.20865100000810344,
+     "total": 0.31555389999994077,
+     "prompt_tokens": 1662,
+     "completion_tokens": 30,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"\\\"How many orders per morning?\\\"\", \"Ask about the time cost per order\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "\"How many orders per morning?\"",
+       "Ask about the time cost per order"
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.19149430000106804,
+     "total": 0.3524611000029836,
+     "prompt_tokens": 1668,
+     "completion_tokens": 40,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"\\\"What's the total time you spend on this each week?\\\"\", \"Ask about their current Exact setup and any integration needs.\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "\"What's the total time you spend on this each week?\"",
+       "Ask about their current Exact setup and any integration needs."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.22007070000108797,
+     "total": 0.3810360000061337,
+     "prompt_tokens": 1688,
+     "completion_tokens": 46,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"\\\"Forty cents per doc?\\\"\", \"Show how 3 staff x 2 hours saves EUR 1,200/mo vs Flowbase\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "\"Forty cents per doc?\"",
+       "Show how 3 staff x 2 hours saves EUR 1,200/mo vs Flowbase"
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.20114799999282695,
+     "total": 0.3793484000052558,
+     "prompt_tokens": 1704,
+     "completion_tokens": 52,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"\\\"Fixed price, scope and date agreed before any code\\\"\", \"Ask: \\\"What went over budget last time?\\\"\", \"Reassure: \\\"18-month payback guarantee\\\"], \"company\": \"Exact\"}",
+     "json": null
+    },
+    {
+     "ttft": 0.20977800000400748,
+     "total": 0.3463332000101218,
+     "prompt_tokens": 1714,
+     "completion_tokens": 37,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"\\\"No, we host all data in Dutch data centers.\\\"\", \"Mention open-source models keep data local.\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "\"No, we host all data in Dutch data centers.\"",
+       "Mention open-source models keep data local."
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.20890480000525713,
+     "total": 0.39617160000489093,
+     "prompt_tokens": 1730,
+     "completion_tokens": 53,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"\\\"Zapier breaks? That's the weak link.\\\"\", \"Ask: \\\"What exactly breaks and when?\\\"\", \"Mention: \\\"Exact and Zapier not talking?\\\"\"], \"company\": \"Flowbase\"}",
+     "json": {
+      "bullets": [
+       "\"Zapier breaks? That's the weak link.\"",
+       "Ask: \"What exactly breaks and when?\"",
+       "Mention: \"Exact and Zapier not talking?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.19207259999529924,
+     "total": 0.3926149000035366,
+     "prompt_tokens": 1744,
+     "completion_tokens": 54,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"\\\"Can we schedule a quick 15-min call with your co-owner?\\\"\", \"Ask about the 40c/document Flowbase quote: \\\"Does that include Exact integration?\\\"\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "\"Can we schedule a quick 15-min call with your co-owner?\"",
+       "Ask about the 40c/document Flowbase quote: \"Does that include Exact integration?\""
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.19850660000520293,
+     "total": 0.3537358000030508,
+     "prompt_tokens": 1743,
+     "completion_tokens": 43,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"\\\"Fixed price, scope and date before any code\\\"\", \"18-month payback guarantee: we cover the difference if savings don't meet target\"], \"company\": \"Exact\"}",
+     "json": {
+      "bullets": [
+       "\"Fixed price, scope and date before any code\"",
+       "18-month payback guarantee: we cover the difference if savings don't meet target"
+      ],
+      "company": "Exact"
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.2875073000031989,
+    "total": 0.6136122000025352,
+    "prompt_tokens": 242,
+    "completion_tokens": 107,
+    "cached_tokens": null,
+    "text": "{\n  \"budget\": null,\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\"typing incoming orders from email into Exact\", \"Zapier keeps breaking\", \"last IT company went over budget\"],\n  \"objections\": [\n    {\"topic\": \"hourly rate pricing\", \"status\": \"open\"},\n    {\"topic\": \"data leaving Netherlands\", \"status\": \"answered\"}\n  ],\n  \"companies\": [\"Flowbase\"],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": null,
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "typing incoming orders from email into Exact",
+      "Zapier keeps breaking",
+      "last IT company went over budget"
+     ],
+     "objections": [
+      {
+       "topic": "hourly rate pricing",
+       "status": "open"
+      },
+      {
+       "topic": "data leaving Netherlands",
+       "status": "answered"
+      }
+     ],
+     "companies": [
+      "Flowbase"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+   "advice": [
+    {
+     "ttft": 0.7367840999941109,
+     "total": 1.008546800003387,
+     "prompt_tokens": 1662,
+     "completion_tokens": 87,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Three people typing email orders into Exact every morning is the exact waste we automate.\",\n    \"Workflow assessment (EUR 500 fixed) measures the yearly cost and gives a fixed build quote with 18-month payback guarantee.\",\n    \"\\\"What is the co-owner's main concern about a fixed-price approach?\\\"\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "Three people typing email orders into Exact every morning is the exact waste we automate.",
+       "Workflow assessment (EUR 500 fixed) measures the yearly cost and gives a fixed build quote with 18-month payback guarantee.",
+       "\"What is the co-owner's main concern about a fixed-price approach?\""
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.8087450000020908,
+     "total": 1.0018791000038618,
+     "prompt_tokens": 1668,
+     "completion_tokens": 69,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"We don't bill hourly; fixed price, scope and date agreed upfront.\",\n    \"Delays are our cost, not yours; 18-month payback guarantee.\",\n    \"\\\"What does the current manual entry cost you per year?\\\"\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "We don't bill hourly; fixed price, scope and date agreed upfront.",
+       "Delays are our cost, not yours; 18-month payback guarantee.",
+       "\"What does the current manual entry cost you per year?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7538526999996975,
+     "total": 0.9899946000077762,
+     "prompt_tokens": 1688,
+     "completion_tokens": 72,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Flowbase charges per document; Koref fixes price, scope and date before any code.\",\n    \"Your 3 people typing orders into Exact is the baseline we measure savings against.\",\n    \"\\\"What volume of orders per day are we talking about?\\\"\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "Flowbase charges per document; Koref fixes price, scope and date before any code.",
+       "Your 3 people typing orders into Exact is the baseline we measure savings against.",
+       "\"What volume of orders per day are we talking about?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.8323470999894198,
+     "total": 0.9669526999932714,
+     "prompt_tokens": 1704,
+     "completion_tokens": 79,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Fixed price, scope and date agreed before any code; delays are Koref's cost\",\n    \"18-month payback guarantee: the build pays for itself within 18 months or Koref pays back the difference\",\n    \"Client owns the code, documentation and data; no lock-in\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Fixed price, scope and date agreed before any code; delays are Koref's cost",
+       "18-month payback guarantee: the build pays for itself within 18 months or Koref pays back the difference",
+       "Client owns the code, documentation and data; no lock-in"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7597821000090335,
+     "total": 0.9439884000021266,
+     "prompt_tokens": 1714,
+     "completion_tokens": 61,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Data stays in NL on Dutch-hosted open models; no outside provider sees it\",\n    \"Mutual NDA before assessment; data processing agreement before build\",\n    \"\\\"Where is Exact hosted today?\\\"\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Data stays in NL on Dutch-hosted open models; no outside provider sees it",
+       "Mutual NDA before assessment; data processing agreement before build",
+       "\"Where is Exact hosted today?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7430543999944348,
+     "total": 0.999187699999311,
+     "prompt_tokens": 1730,
+     "completion_tokens": 70,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Zapier breaks because it's not built for Exact's API limits.\",\n    \"We build a fixed-price connector that handles retries and logging.\",\n    \"\\\"What does one broken Zapier run cost you in manual cleanup time?\\\"\"\n  ],\n  \"company\": \"Zapier\"\n}",
+     "json": {
+      "bullets": [
+       "Zapier breaks because it's not built for Exact's API limits.",
+       "We build a fixed-price connector that handles retries and logging.",
+       "\"What does one broken Zapier run cost you in manual cleanup time?\""
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.7634438999957638,
+     "total": 0.9667950999864843,
+     "prompt_tokens": 1744,
+     "completion_tokens": 64,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"Offer a free 30-min discovery call with both owners\",\n    \"Send the EUR 500 assessment report they keep regardless\",\n    \"\\\"What would your co-owner need to see to feel comfortable?\\\"\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Offer a free 30-min discovery call with both owners",
+       "Send the EUR 500 assessment report they keep regardless",
+       "\"What would your co-owner need to see to feel comfortable?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7492282000021078,
+     "total": 1.0320382999925641,
+     "prompt_tokens": 1743,
+     "completion_tokens": 92,
+     "cached_tokens": 0,
+     "text": "{\n  \"bullets\": [\n    \"We don't bill hours; fixed price, scope and date agreed before any code\",\n    \"Assessment is EUR 500 fixed; gives you a fixed quote per automation with 18-month payback guarantee\",\n    \"\\\"What would a fixed price need to include for you to compare it to Flowbase's per-document cost?\\\"\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "We don't bill hours; fixed price, scope and date agreed before any code",
+       "Assessment is EUR 500 fixed; gives you a fixed quote per automation with 18-month payback guarantee",
+       "\"What would a fixed price need to include for you to compare it to Flowbase's per-document cost?\""
+      ],
+      "company": "Flowbase"
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.5744726999982959,
+    "total": 0.8500110000022687,
+    "prompt_tokens": 242,
+    "completion_tokens": 124,
+    "cached_tokens": 0,
+    "text": "{\n  \"budget\": \"Flowbase quoted forty cents per document\",\n  \"decision_makers\": [\"co-owner\"],\n  \"pains\": [\"three people spend mornings typing orders into Exact\", \"Zapier keeps breaking\", \"last IT company went way over budget\"],\n  \"objections\": [\n    {\"topic\": \"pricing model unclear\", \"status\": \"open\"},\n    {\"topic\": \"data residency Netherlands\", \"status\": \"open\"}\n  ],\n  \"companies\": [\"Exact\", \"Flowbase\", \"Zapier\"],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": "Flowbase quoted forty cents per document",
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "three people spend mornings typing orders into Exact",
+      "Zapier keeps breaking",
+      "last IT company went way over budget"
+     ],
+     "objections": [
+      {
+       "topic": "pricing model unclear",
+       "status": "open"
+      },
+      {
+       "topic": "data residency Netherlands",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  },
+  {
+   "model": "Qwen/Qwen3.5-397B-A17B",
+   "advice": [
+    {
+     "ttft": 0.453817200002959,
+     "total": 0.9613308999978472,
+     "prompt_tokens": 1672,
+     "completion_tokens": 83,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Quantify the cost: 3 people x minutes/order x EUR 48/hr x 230 days.\",\n    \"Mention the EUR 500 assessment to measure this exact waste.\",\n    \"\\\"What if we fixed the Exact connection for a fixed price?\\\"\"\n  ],\n  \"company\": \"Exact\"\n}",
+     "json": {
+      "bullets": [
+       "Quantify the cost: 3 people x minutes/order x EUR 48/hr x 230 days.",
+       "Mention the EUR 500 assessment to measure this exact waste.",
+       "\"What if we fixed the Exact connection for a fixed price?\""
+      ],
+      "company": "Exact"
+     }
+    },
+    {
+     "ttft": 0.7754853999940678,
+     "total": 1.2342663999879733,
+     "prompt_tokens": 1680,
+     "completion_tokens": 73,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"We do not charge hourly; we agree on a fixed price upfront.\",\n    \"Delays are our cost, not yours, under our guarantee.\",\n    \"Shall we focus on the 18-month payback for your Exact automation?\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "We do not charge hourly; we agree on a fixed price upfront.",
+       "Delays are our cost, not yours, under our guarantee.",
+       "Shall we focus on the 18-month payback for your Exact automation?"
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.822562300003483,
+     "total": 1.189037299991469,
+     "prompt_tokens": 1701,
+     "completion_tokens": 61,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Contrast their 40 cents per document variable cost with our fixed price.\",\n    \"Ask: \\\"Does Flowbase's quote include operational liability after go-live?\\\"\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "Contrast their 40 cents per document variable cost with our fixed price.",
+       "Ask: \"Does Flowbase's quote include operational liability after go-live?\""
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.7478246999962721,
+     "total": 1.1059158999996725,
+     "prompt_tokens": 1716,
+     "completion_tokens": 61,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Contrast their past overrun with Koref's fixed price where delays are our cost.\",\n    \"Ask: \\\"Would a written guarantee that you pay zero extra if we overrun help?\\\"\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Contrast their past overrun with Koref's fixed price where delays are our cost.",
+       "Ask: \"Would a written guarantee that you pay zero extra if we overrun help?\""
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.7381170000007842,
+     "total": 1.044047799994587,
+     "prompt_tokens": 1727,
+     "completion_tokens": 53,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Confirm data stays in the Netherlands on Dutch-hosted infrastructure.\",\n    \"Remind them Koref takes operational liability, unlike their last IT partner.\"\n  ],\n  \"company\": null\n}",
+     "json": {
+      "bullets": [
+       "Confirm data stays in the Netherlands on Dutch-hosted infrastructure.",
+       "Remind them Koref takes operational liability, unlike their last IT partner."
+      ],
+      "company": null
+     }
+    },
+    {
+     "ttft": 0.44876579999981914,
+     "total": 0.7927601999981562,
+     "prompt_tokens": 1744,
+     "completion_tokens": 60,
+     "cached_tokens": null,
+     "text": "{\"bullets\": [\"Fix the root cause: systems not talking, not just the connector.\", \"\\\"Would a fixed price with a payback guarantee remove the budget risk?\\\"\", \"Data stays Dutch-hosted; open-source models ensure no outside access.\"], \"company\": \"Zapier\"}",
+     "json": {
+      "bullets": [
+       "Fix the root cause: systems not talking, not just the connector.",
+       "\"Would a fixed price with a payback guarantee remove the budget risk?\"",
+       "Data stays Dutch-hosted; open-source models ensure no outside access."
+      ],
+      "company": "Zapier"
+     }
+    },
+    {
+     "ttft": 0.9812442999973428,
+     "total": 1.3992059000011068,
+     "prompt_tokens": 1758,
+     "completion_tokens": 69,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"Suggest a quick three-way call to align both co-owners on the fixed-price guarantee.\",\n    \"Remind them the EUR 500 assessment report is theirs to keep regardless of the build decision.\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "Suggest a quick three-way call to align both co-owners on the fixed-price guarantee.",
+       "Remind them the EUR 500 assessment report is theirs to keep regardless of the build decision."
+      ],
+      "company": "Flowbase"
+     }
+    },
+    {
+     "ttft": 0.7050095000013243,
+     "total": 1.2201467000122648,
+     "prompt_tokens": 1757,
+     "completion_tokens": 84,
+     "cached_tokens": null,
+     "text": "{\n  \"bullets\": [\n    \"We never charge hourly; we agree on a fixed price before any code.\",\n    \"Delays are Koref's cost, not yours, avoiding past budget overruns.\",\n    \"\\\"Shall we start with the EUR 500 assessment to lock in a fixed quote?\\\"\"\n  ],\n  \"company\": \"Flowbase\"\n}",
+     "json": {
+      "bullets": [
+       "We never charge hourly; we agree on a fixed price before any code.",
+       "Delays are Koref's cost, not yours, avoiding past budget overruns.",
+       "\"Shall we start with the EUR 500 assessment to lock in a fixed quote?\""
+      ],
+      "company": "Flowbase"
+     }
+    }
+   ],
+   "memory": {
+    "ttft": 0.7433558000047924,
+    "total": 1.8863173999998253,
+    "prompt_tokens": 243,
+    "completion_tokens": 186,
+    "cached_tokens": null,
+    "text": "{\n  \"budget\": \"40 cents per document\",\n  \"decision_makers\": [\n    \"co-owner\"\n  ],\n  \"pains\": [\n    \"Three people manually type orders into Exact.\",\n    \"Zapier integration keeps breaking.\"\n  ],\n  \"objections\": [\n    {\n      \"topic\": \"Previous IT company went over budget\",\n      \"status\": \"open\"\n    },\n    {\n      \"topic\": \"Data residency outside Netherlands\",\n      \"status\": \"open\"\n    },\n    {\n      \"topic\": \"Confusion about hourly rate pricing\",\n      \"status\": \"open\"\n    }\n  ],\n  \"companies\": [\n    \"Exact\",\n    \"Flowbase\",\n    \"Zapier\"\n  ],\n  \"timeline\": null\n}",
+    "json": {
+     "budget": "40 cents per document",
+     "decision_makers": [
+      "co-owner"
+     ],
+     "pains": [
+      "Three people manually type orders into Exact.",
+      "Zapier integration keeps breaking."
+     ],
+     "objections": [
+      {
+       "topic": "Previous IT company went over budget",
+       "status": "open"
+      },
+      {
+       "topic": "Data residency outside Netherlands",
+       "status": "open"
+      },
+      {
+       "topic": "Confusion about hourly rate pricing",
+       "status": "open"
+      }
+     ],
+     "companies": [
+      "Exact",
+      "Flowbase",
+      "Zapier"
+     ],
+     "timeline": null
+    }
+   }
+  }
+ ]
+}

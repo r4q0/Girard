@@ -1,0 +1,128 @@
+[
+ {
+  "model": "sherpa-onnx-moonshine-base-en-quantized-2026-02-27",
+  "streaming": false,
+  "size_mb": 141,
+  "load_s": 2.21,
+  "wer": 4.1,
+  "wer_by_voice": {
+   "david": 1.3,
+   "zira": 7.0
+  },
+  "latency_ms_avg": 165,
+  "latency_ms_max": 281,
+  "rtf": 0.041,
+  "hyps": {
+   "david": "So basically we have three people who spend most of their morning typing incoming orders from email into exact. | What's your hourly rate? | We're also talking to Flowbase, they said it would be about 40 cents per document. | Honestly the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we use zap here for some of it but it keeps breaking | Look, the thing is we grew from 20 to 60 people in two years and the admin side never caught up | So every Monday somebody spends the whole day reconciling invoices between the webshop and the accounting package. | And when that person is on holiday it just piles up and our customers start calling us about missing orders. | Which honestly is embarrassing. | I'd need to discuss this with my co-owner first. | Sorry what's your hourly rate again | I still don't get how you price this.",
+   "zira": "So basically we have three people who spend most of their morning typing incoming orders from email into exact | What's your hourly rate? | We're also talking to Flowbase, they said it would be about 40 cents per document. | Honestly the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we use zap here for some of it but it keeps breaking | The thing is we grew from 20 to 60 people in two years and the admin side never caught up. | So every Monday somebody spends the whole day reconciling invoices between the webshop and the accounting package. | And when that person is on holiday it just piles up and our customers start calling us about missing orders. | Which honestly is embarrassing, which honestly is embarrassing, which honestly is embar | I'd need to discuss this with my co-owner first. | Sorry, what's your hourly rate again? | I still don't get how you price this."
+  }
+ },
+ {
+  "model": "sherpa-onnx-moonshine-tiny-en-quantized-2026-02-27",
+  "streaming": false,
+  "size_mb": 44,
+  "load_s": 0.88,
+  "wer": 2.2,
+  "wer_by_voice": {
+   "david": 1.9,
+   "zira": 2.5
+  },
+  "latency_ms_avg": 108,
+  "latency_ms_max": 178,
+  "rtf": 0.03,
+  "hyps": {
+   "david": "So basically we have three people who spend most of their morning typing incoming orders from email into exact. | What's your hourly rate? | We're also talking to Flowbase, they said it would be about 40 cents per document. | Honestly the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we used App here for some of it but it keeps breaking. | Look, the thing is we grew from 20 to 60 people in two years and the admin side never caught up. | So every Monday somebody spends the whole day reconciling invoices between the web shop and the accounting package | And when that person is on holiday it just piles up and our customers start calling us about missing orders | Which honestly is embarrassing. | I'd need to discuss this with my co-owner first. | Sorry, what's your hourly rate again? | I still don't get how you price this.",
+   "zira": "So basically we have three people who spend most of their morning typing incoming orders from email into exact | What's your hourly rate? | We're also talking to Flowbase, they said it would be about 40 cents per document. | Honestly the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we use that pier for some of it but it keeps breaking. | The thing is we grew from 20 to 60 people in two years and the admin side never caught up. | So every Monday somebody spends the whole day reconciling invoices between the webshop and the accounting package | And when that person is on holiday it just piles up and our customers start calling us about missing orders. | Which honestly is embarrassing. | I'd need to discuss this with my seal owner first. | Sorry, what's your hourly rate again? | I still don't get how you price this."
+  }
+ },
+ {
+  "model": "sherpa-onnx-nemo-parakeet-unified-en-0.6b-int8-non-streaming",
+  "streaming": false,
+  "size_mb": 663,
+  "load_s": 4.42,
+  "wer": 0.6,
+  "wer_by_voice": {
+   "david": 0.0,
+   "zira": 1.3
+  },
+  "latency_ms_avg": 363,
+  "latency_ms_max": 753,
+  "rtf": 0.08,
+  "hyps": {
+   "david": "So basically we have three people who spend most of their morning typing incoming orders from email into exact. | What's your hourly rate? | We're also talking to Flowbase, they said it would be about 40 cents per document. | Honestly the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we use Zapier for some of it but it keeps breaking. | Look, the thing is we grew from 20 to 60 people in two years and the admin side never caught up. | So every Monday somebody spends the whole day reconciling invoices between the web shop and the accounting package | And when that person is on holiday, it just piles up, and our customers start calling us about missing orders | Which honestly is embarrassing. | I'd need to discuss this with my co-owner first. | Sorry, what's your hourly rate again? | I still don't get how you price this.",
+   "zira": "So basically we have three people who spend most of their morning typing incoming orders from email into exact. | What's your hourly rate? | We're also talking to Flowbase, they said it would be about 40 cents per document. | Honestly the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we use Zapir for some of it but it keeps breaking. | The thing is we grew from 20 to 60 people in two years and the admin side never caught up | So every Monday somebody spends the whole day reconciling invoices between the web shop and the accounting package | And when that person is on holiday, it just piles up, and our customers start calling us about missing orders. | Which honestly is embarrassing | I'd need to discuss this with my CO owner first | Sorry, what's your hourly rate again? | I still don't get how you price this."
+  }
+ },
+ {
+  "model": "sherpa-onnx-nemo-parakeet_tdt_transducer_110m-en-36000-int8",
+  "streaming": false,
+  "size_mb": 136,
+  "load_s": 1.98,
+  "wer": 1.9,
+  "wer_by_voice": {
+   "david": 1.3,
+   "zira": 2.5
+  },
+  "latency_ms_avg": 115,
+  "latency_ms_max": 259,
+  "rtf": 0.033,
+  "hyps": {
+   "david": "So basically we have three people who spend most of their morning typing incoming orders from email into exact. | What's your hourly rate? | We're also talking to Flow Base, they said it would be about forty cents per document. | Honestly, the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we use SAP here for some of it, but it keeps breaking. | Look, the thing is we grew from twenty to sixty people in two years and the admin side never caught up. | So every Monday somebody spends the whole day reconciling invoices between the web shop and the accounting package. | And when that person is on holiday, it just piles up and our customers start calling us about missing orders. | which honestly is embarrassing. | I'd need to discuss this with my co owner first. | Sorry, what's your hourly rate again? | I still don't get how you price this.",
+   "zira": "So basically we have three people who spend most of their morning typing incoming orders from email into exact. | What's your hourly rate? | We're also talking to Flow Base, they said it would be about forty cents per document. | Honestly, the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we use Zap here for some of it, but it keeps breaking. | The thing is we grew from twenty to sixty people in two years and the admin side never caught up. | So every Monday, somebody spends the whole day reconciling invoices between the web shop and the accounting package. | And when that person is on holiday, it just piles up and our customers start calling us about missing orders. | which honestly is embarrassing. | I'd need to discuss this with my CEO owner first. | Sorry, what's your hourly rate again? | I still don't get how you price this."
+  }
+ },
+ {
+  "model": "sherpa-onnx-nemotron-speech-streaming-en-0.6b-560ms-int8-2026-04-25",
+  "streaming": true,
+  "size_mb": 662,
+  "load_s": 4.7,
+  "wer": 8.3,
+  "wer_by_voice": {
+   "david": 8.9,
+   "zira": 7.6
+  },
+  "latency_ms_avg": 142,
+  "latency_ms_max": 163,
+  "rtf": 0.259,
+  "hyps": {
+   "david": "So basically we have three people who spend most of their morning typing in coming orders from | Into exact | What's your hourly rate | We're also talking to Flowbase | It would be about | Cents per document | Honestly, the last IT company we worked with | Over budget | Is our data going to leave the Netherlands | Right now we use | For some of it, but it keeps breaking | The thing is, we grew from twenty to sixty people in two years, and the admin side never caught up | So | Monday somebody spends the whole day | Filing invoices between the web shop and the accounting package | And that person is on holiday, it just piles up, and our customers start calling us about missing | Orders, which honestly is embarrassing | I'd need to discuss this with my co owner first | Sorry | Let's your hourly rate again | I still don't get how you price this",
+   "zira": "So basically we have three people who spend most of their morning typing incoming orders from email | Into exact | What's your hourly rate | Talking to Flowbase, they said it would be about forty cents per document | Honestly, the last IT company we worked with | Over budget | Is our data going to leave the Netherlands | Right | We use Zapier for some of it, but it keeps breaking | Look | Thing is, we grew from twenty to sixty people in two years, and the admin side never caught up | So every Monday somebody spends the whole day reconciling invoices between the web | The accounting package | And when that person is on holiday | Piles up and our customers start calling us about missing orders | Honestly is embarrassing | I'd need to discuss this with my CO owner first | What's your hourly rate again | I still don't get how you price this"
+  }
+ },
+ {
+  "model": "sherpa-onnx-streaming-zipformer-en-kroko-2025-08-06",
+  "streaming": true,
+  "size_mb": 71,
+  "load_s": 5.5,
+  "wer": 4.5,
+  "wer_by_voice": {
+   "david": 3.8,
+   "zira": 5.1
+  },
+  "latency_ms_avg": 49,
+  "latency_ms_max": 54,
+  "rtf": 0.041,
+  "hyps": {
+   "david": "so basically we have three people who spend most of their morning typing incoming orders | from email into exact | . What's your hourly rate? | We're also talking to flow base | . They said it would be about forty cents per document | . Honestly the last IT company we worked with went way over budget | Is our data going to leave the Netherlands | ? Right now we use Zap here for some of it but it keeps breaking | . Look, the thing is we grew from twenty to sixty people in two years and the adm | in side never caught up, so every Monday somebody spends the whole day reconciling invo | ices between the web shop and the accounting package, and when that person is on holiday it | just piles up and our customers start calling us about missing orders, which honestly is | embarrassing | . | I'd need to discuss this with my co-owner first | Sorry. What's your hourly rate again | ? I still don't get how you price this",
+   "zira": "so basically we have three people who spend most of their morning typing incoming orders from | email into exact | . What's your hourly rate | ? | We're also talking to flow base. They said it would be about forty cents per document | . Honestly the last IT company we worked with went way over budget | . Is our data going to leave the Netherlands | ? Right now we use Zap here for some of it but it keeps breaking | Look, the thing is we grew from twenty to sixty people in two years | and the admin side never caught up, so every Monday somebody spends the whole day reconcil | ing invoices between the web shop and the accounting package, and when that person is on holida | y it just piles up and our customers start calling us about missing orders, which honestly | is embarrassing | . I'd need to discuss this with my COWNER first | Sorry. What's your hourly rate again | ? I still don't get how you price this"
+  }
+ },
+ {
+  "model": "sherpa-onnx-whisper-base.en",
+  "streaming": false,
+  "size_mb": 452,
+  "load_s": 1.19,
+  "wer": 1.0,
+  "wer_by_voice": {
+   "david": 0.0,
+   "zira": 1.9
+  },
+  "latency_ms_avg": 489,
+  "latency_ms_max": 782,
+  "rtf": 0.104,
+  "hyps": {
+   "david": "So basically we have three people who spend most of their morning typing incoming orders from email into exact. | What's your hourly rate? | We're also talking to Flowbase, they said it would be about 40 cents per document. | Honestly the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we use Zapier for some of it but it keeps breaking. | Look, the thing is we grew from 20 to 60 people in two years and the admin side never caught up. | So every Monday somebody spends the whole day reconciling invoices between the webshop and the accounting package. | And when that person is on holiday it just piles up and our customers start calling us about missing orders. | which honestly is embarrassing. | I'd need to discuss this with my co-owner first. | Sorry, what's your hourly rate again? | I still don't get how you price this.",
+   "zira": "So basically we have three people who spend most of their morning typing incoming orders from email into exact | What's your hourly rate? | We're also talking to Flowbase. They said it would be about 40 cents per document. | Honestly the last IT company we worked with went way over budget. | Is our data going to leave the Netherlands? | Right now we use Zap here for some of it but it keeps breaking. | The thing is we grew from 20 to 60 people in two years and the admin side never caught up. | So every Monday somebody spends the whole day reconciling invoices between the webshop and the accounting package. | And when that person is on holiday it just piles up and our customers start calling us about missing orders. | which honestly is embarrassing. | I'd need to discuss this with my co-owner first. | Sorry, what's your hourly rate again? | I still don't get how you price this."
+  }
+ }
+]

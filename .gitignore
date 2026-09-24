@@ -40,3 +40,13 @@ tmp/
 
 # Claude Code local worktrees and state
 .claude/
+
+# rewrite
+bench/stt/models/
+bench/stt/audio/*.wav
+node_modules/
+app/dist/
+app/out/
+.venv/
+audio/models/
+emotion/models/

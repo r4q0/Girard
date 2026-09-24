@@ -2,10 +2,14 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "girard-portal",
-      "runtimeExecutable": "python",
-      "runtimeArgs": ["server.py"],
-      "port": 8000
+      "name": "screens-preview",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "app/node_modules/vite/bin/vite.js",
+        "--config",
+        "app/vite.preview.config.ts"
+      ],
+      "port": 5174
     }
   ]
 }
