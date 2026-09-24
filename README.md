@@ -90,21 +90,6 @@ The first start takes a few minutes: it installs the app and both Python engines
 2. Check the company you sell for. Girard starts with a sample company; click **Edit** and drop in PDFs about your own business to replace it.
 3. Click **Start call**, join your Zoom, Teams or Meet call, and advice appears as the prospect talks.
 
-<details>
-<summary>For developers</summary>
-
-```
-cd app && npm run dev                 # app with hot reload
-cd audio && uv run check_filter.py    # filter on sample lines
-cd audio && uv run live_check.py      # audio engine on a test call played through your speakers
-```
-
-`GIRARD_SELFTEST=<seconds>` runs one call on the default output, logs advice, research, mood, stats and the debrief, saves a Word file to the temp folder and quits.
-
-Screens can be checked in a browser with demo data: `node app/node_modules/vite/bin/vite.js --config app/vite.preview.config.ts`, then open `http://localhost:5174/?demo=call` (or `start`, `debrief`).
-
-</details>
-
 ## Using it
 
 ![Girard menu](docs/start.png)
