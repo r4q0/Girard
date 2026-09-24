@@ -61,8 +61,6 @@ The first start takes a few minutes: it installs the app and both Python engines
 2. **During the call:** the latest advice sits in the middle. Earlier advice is on the left, and the arrow keys step through it. The prospect's words run below, research appears along the bottom and the mood pops up top right.
 3. **After the call:** name it, **Save file** to get the Word debrief, then go **Back to menu**.
 
-Mood from a face counts as emotion recognition under the EU AI Act: since 2 August 2026 you must tell the person you are analysing.
-
 ## How it works
 
 | Part | What | Where |
