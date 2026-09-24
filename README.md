@@ -86,3 +86,17 @@ cd audio && uv run live_check.py      # audio engine on a test call played throu
 `GIRARD_SELFTEST=<seconds>` runs one call on the default output, logs advice, research, mood, stats and the debrief, saves a Word file to the temp folder and quits.
 
 Screens can be checked in a browser with demo data: `node app/node_modules/vite/bin/vite.js --config app/vite.preview.config.ts`, then open `http://localhost:5174/?demo=call` (or `start`, `debrief`).
+
+## License
+
+Girard's code is released under the [MIT License](LICENSE).
+
+The models it downloads at setup keep their own licenses:
+
+| Model | Used for | License |
+| --- | --- | --- |
+| [Parakeet 0.6B](https://huggingface.co/nvidia) (NVIDIA, via sherpa-onnx) | Speech-to-text | [NVIDIA Open Model License](https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-license/) |
+| [Silero VAD](https://github.com/snakers4/silero-vad) | Voice detection | MIT |
+| [YuNet](https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) | Face detection | MIT |
+| [HSEmotion](https://github.com/HSE-asavchenko/face-emotion-recognition) | Face mood | Apache 2.0 |
+| [RoBERTa GoEmotions](https://huggingface.co/SamLowe/roberta-base-go_emotions-onnx) | Mood from words | MIT |
